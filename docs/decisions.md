@@ -261,3 +261,20 @@ already been applied to the master (BC-009) the vendor goes on hold, since no tr
 
 **D-059 Vendor approval needs a second person** (FM/ADM who did not onboard it); approval also verifies the vendor's
 initial bank account and sets onboardedAt to the approval date, so P05's "new vendor (90 days)" applies.
+
+## Phase 6: frontend
+
+**D-060 One shared invoice screen for every role.** Document on the left, fields and coding on the right, flag cards
+on top, approval timeline / audit history / related records / raw extraction in tabs. Actions appear by role;
+finance roles see disabled buttons with the server's reason (release blockers come from the same `ReleaseRules`
+the server enforces), employees simply don't see actions they can't take. The UI hiding a button is cosmetic:
+every action is re-checked on the server.
+
+**D-061 Types generated from the backend's OpenAPI spec** (`npm run gen:api` -> `src/api/schema.d.ts`, committed) and
+aliased in `src/api/types.ts`. Money is a string on the wire; only `lib/format.ts` turns it into "$1,234.56".
+
+**D-062 Same three colours everywhere**: red = blocks payment, amber = needs review, grey = info (flags, counts,
+badges). Low-confidence fields are highlighted yellow with "check the document".
+
+**D-063 X-Frame-Options SAMEORIGIN** instead of Spring's default DENY, so the invoice PDF can be shown in an iframe on
+the app's own page; other origins still can't frame the app.

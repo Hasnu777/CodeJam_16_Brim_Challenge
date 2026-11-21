@@ -1,44 +1,38 @@
-import { useEffect, useState } from 'react'
-import { Badge, Container, Table, Title, Text, Loader } from '@mantine/core'
+import { Route, Routes } from 'react-router-dom'
+import { useAuth } from './auth/AuthContext'
+import AppLayout from './components/AppLayout'
+import { Loading } from './components/bits'
+import AuditPage from './pages/AuditPage'
+import HomePage from './pages/HomePage'
+import InboxPage from './pages/InboxPage'
+import InvoiceDetailPage from './pages/InvoiceDetailPage'
+import InvoiceListPage from './pages/InvoiceListPage'
+import LoginPage from './pages/LoginPage'
+import MyApprovalsPage from './pages/MyApprovalsPage'
+import PaymentsPage from './pages/PaymentsPage'
+import PoliciesPage from './pages/PoliciesPage'
+import VendorDetailPage from './pages/VendorDetailPage'
+import VendorsPage from './pages/VendorsPage'
 
-type Row = { expected: number; actual: number; match: boolean }
-type Report = { allMatch: boolean; tables: Record<string, Row> }
-
-// Phase 1 placeholder: proves the frontend -> backend -> database path and shows the seed check.
 export default function App() {
-  const [report, setReport] = useState<Report | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  useEffect(() => {
-    fetch('/api/admin/seed-report')
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.statusText)))
-      .then(setReport)
-      .catch((e) => setError(String(e)))
-  }, [])
+  const { me, loading } = useAuth()
+  if (loading) return <Loading />
+  if (!me) return <LoginPage />
   return (
-    <Container size="sm" py="xl">
-      <Title order={2}>Brim AP - Harborline Logistics</Title>
-      <Text c="dimmed" mb="md">Dataset seed check (row counts vs dataset README)</Text>
-      {error && <Text c="red">{error}</Text>}
-      {!report && !error && <Loader />}
-      {report && (
-        <>
-          <Badge color={report.allMatch ? 'green' : 'red'} mb="sm">
-            {report.allMatch ? 'All counts match' : 'Mismatch'}
-          </Badge>
-          <Table striped>
-            <Table.Thead>
-              <Table.Tr><Table.Th>Dataset file</Table.Th><Table.Th>Expected</Table.Th><Table.Th>Loaded</Table.Th></Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {Object.entries(report.tables).map(([k, v]) => (
-                <Table.Tr key={k} c={v.match ? undefined : 'red'}>
-                  <Table.Td>{k}</Table.Td><Table.Td>{v.expected}</Table.Td><Table.Td>{v.actual}</Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </>
-      )}
-    </Container>
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="inbox" element={<InboxPage />} />
+        <Route path="invoices" element={<InvoiceListPage />} />
+        <Route path="invoices/:id" element={<InvoiceDetailPage />} />
+        <Route path="approvals" element={<MyApprovalsPage />} />
+        <Route path="payments" element={<PaymentsPage />} />
+        <Route path="vendors" element={<VendorsPage />} />
+        <Route path="vendors/:id" element={<VendorDetailPage />} />
+        <Route path="policies" element={<PoliciesPage />} />
+        <Route path="audit" element={<AuditPage />} />
+        <Route path="*" element={<HomePage />} />
+      </Route>
+    </Routes>
   )
 }

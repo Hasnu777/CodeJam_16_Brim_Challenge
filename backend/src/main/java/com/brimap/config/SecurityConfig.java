@@ -48,6 +48,8 @@ public class SecurityConfig {
         http
                 // Session cookie is SameSite=Lax and the API only accepts JSON/multipart from same origin (see decisions D-017).
                 .csrf(AbstractHttpConfigurer::disable)
+                // The invoice screen shows the original PDF in an iframe from the same origin.
+                .headers(h -> h.frameOptions(f -> f.sameOrigin()))
                 .securityContext(c -> c.securityContextRepository(contextRepository))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .formLogin(AbstractHttpConfigurer::disable)
