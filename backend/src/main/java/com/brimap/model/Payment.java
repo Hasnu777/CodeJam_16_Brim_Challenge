@@ -33,5 +33,8 @@ public class Payment {
     /** The exact bank account version this payment goes to. */
     private Long bankAccountId;
     @Column(columnDefinition = "text") private String failureReason;
+    /** Credit notes netted against this payment (comma-separated invoice ids) and the total credited. */
+    private String appliedCreditInvoiceIds;
+    @Column(precision = 14, scale = 2) private BigDecimal creditApplied;
     private boolean historical;
 }
