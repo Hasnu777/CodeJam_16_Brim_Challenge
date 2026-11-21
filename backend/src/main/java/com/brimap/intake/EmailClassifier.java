@@ -36,6 +36,11 @@ public final class EmailClassifier {
             if (STATEMENT.matcher(s).find() && !INVOICE_WORD.matcher(subject == null ? "" : subject.toLowerCase(Locale.ROOT)).find()) {
                 return new Result(Kind.STATEMENT, "E03", "Statement of account with attachment: filed for reconciliation, no bill created", null);
             }
+            // A brochure or flyer attached to a promo email is not a bill. Any mention of an invoice keeps it an invoice;
+            // documents that slip through are caught after extraction (DocumentKind).
+            if (MARKETING.matcher(s).find() && !INVOICE_WORD.matcher(s).find()) {
+                return new Result(Kind.NOT_INVOICE, "E04", "Marketing email with attachment (no invoice mentioned): ignored, no bill created", null);
+            }
             return new Result(Kind.INVOICE, null, attachments.size() + " attachment(s): creating draft bill(s)", ref);
         }
         if (INQUIRY.matcher(s).find()) {

@@ -50,6 +50,21 @@ class EmailClassifierTest {
     }
 
     @Test
+    void marketingEmailWithBrochureIsNotAnInvoice() {
+        var r = EmailClassifier.classify("Fall sale: 20% off ergonomic chairs",
+                "Our fall sale is on. See the attached catalogue and shop now.", List.of("catalogue.pdf"));
+        assertThat(r.kind()).isEqualTo(NOT_INVOICE);
+        assertThat(r.code()).isEqualTo("E04");
+    }
+
+    @Test
+    void promoWordingDoesNotOverrideAnInvoiceMention() {
+        var r = EmailClassifier.classify("Invoice 4471", "Please find attached our invoice. Save up to 10% by paying early.",
+                List.of("inv-4471.pdf"));
+        assertThat(r.kind()).isEqualTo(INVOICE);
+    }
+
+    @Test
     void paymentDueReminderWithAttachmentIsStillAnInvoice() {
         var r = EmailClassifier.classify("Payment due: invoice INV-01561", "Reminder", List.of("cloudbarnsoftwar_INV01561.pdf"));
         assertThat(r.kind()).isEqualTo(INVOICE);

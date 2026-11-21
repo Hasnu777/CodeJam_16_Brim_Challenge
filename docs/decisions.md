@@ -374,3 +374,13 @@ held until FM verifies"). The stricter variant is one line: remove B01/B02 from 
 **D-080 The Windows reset command bypasses the script policy for one run.** Machines with an AllSigned policy refuse
 the unsigned `reset-and-seed.ps1`, so the README documents `powershell -ExecutionPolicy Bypass -File ...`, which
 changes no system setting. Signing the script would need a code-signing certificate the team doesn't have.
+
+**D-081 Only invoices and credit notes reach the clerk's review queue.** Two filters. (1) At email classification,
+an email with an attachment that matches the marketing patterns and never mentions an invoice/facture/bill is E04,
+and no bill is created. (2) After extraction, if the reader's `documentType` is anything other than invoice or
+credit note (statement, quote, other), the draft goes EXTRACTED -> REJECTED with audit action `NOT_AN_INVOICE`
+instead of IN_REVIEW. Coding and validation are skipped. If every attachment of an email is filed this way, the email
+is reclassified E03 (statement) or E04. A blank or missing type, or an unreadable scan, still goes to review as a
+manual-entry draft, because a real bill may be hiding in a bad scan. A clerk-requested re-extract never auto-files.
+We use REJECTED rather than a new status, so there is no schema change and every report that already excludes
+REJECTED stays correct. There is no reopen button yet; the state machine already allows REJECTED -> IN_REVIEW.

@@ -52,8 +52,17 @@ public class IntakePipeline {
 
     public record Source(String kind, String emailId, String senderEmail, LocalDate receivedDate, String uploaderId) {}
 
+    /** Result of intake. {@code nonInvoiceType} is set (e.g. "statement", "quote") when the file was filed as REJECTED instead of queued. */
+    public record Ingested(Invoice invoice, String nonInvoiceType) {
+        public boolean queued() { return nonInvoiceType == null; }
+    }
+
     /** Full intake of one file. Never throws on bad documents: they become manual-entry drafts. */
     public Invoice ingest(byte[] bytes, String filename, Source src) {
+        return ingestDetailed(bytes, filename, src).invoice();
+    }
+
+    public Ingested ingestDetailed(byte[] bytes, String filename, Source src) {
         Invoice created = tx.execute(s -> {
             StoredDocument doc = store.store(bytes, filename, src.emailId(), src.uploaderId());
             Invoice inv = new Invoice();
@@ -74,12 +83,15 @@ public class IntakePipeline {
         return extractAndProcess(created.getId(), false);
     }
 
-    /** Re-run extraction on an invoice's stored document (clerk action), then re-run all processing steps. */
+    /**
+     * Re-run extraction on an invoice's stored document (clerk action), then re-run all processing steps.
+     * The clerk asked for this, so the bill stays in their queue even if the reader now calls it a non-invoice.
+     */
     public Invoice reextract(String invoiceId) {
-        return extractAndProcess(invoiceId, true);
+        return extractAndProcess(invoiceId, true).invoice();
     }
 
-    private Invoice extractAndProcess(String invoiceId, boolean again) {
+    private Ingested extractAndProcess(String invoiceId, boolean again) {
         Invoice inv0 = invoices.findById(invoiceId).orElseThrow();
         StoredDocument doc = docs.findById(inv0.getDocumentId()).orElseThrow();
         ExtractionService.Outcome out = extraction.extract(store.path(doc), doc.getContentType(), again ? null : doc.getSha256());
@@ -114,7 +126,15 @@ public class IntakePipeline {
                     + (a.lowConfidence().isEmpty() ? "" : "; check: " + String.join(", ", a.lowConfidence()));
             InvoiceStatus target = InvoiceStatus.EXTRACTED;
             inv = workflow.transition(inv, target, again ? "INVOICE_REEXTRACTED" : "INVOICE_EXTRACTED", detail);
-            return runStepsAndQueue(inv);
+
+            // Only invoices and credit notes reach the clerk. A statement, quote or other document is filed, not queued.
+            String notInvoice = again || out.invoice() == null ? null : DocumentKind.nonInvoiceType(out.invoice().documentType());
+            if (notInvoice != null) {
+                inv = workflow.transition(inv, InvoiceStatus.REJECTED, "NOT_AN_INVOICE",
+                        "Document reads as a " + notInvoice.replace('_', ' ') + ", not an invoice: filed without review");
+                return new Ingested(inv, notInvoice);
+            }
+            return new Ingested(runStepsAndQueue(inv), null);
         });
     }
 

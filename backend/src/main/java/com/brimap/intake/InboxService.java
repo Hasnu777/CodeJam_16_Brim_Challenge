@@ -143,18 +143,35 @@ public class InboxService {
         List<String> created = new ArrayList<>();
         String reason = r.reason();
         if (r.kind() == EmailClassifier.Kind.INVOICE) {
+            int queued = 0;
+            List<String> filed = new ArrayList<>();
+            boolean statement = false;
             for (String a : att) {
                 Path f = Path.of(props.dataDir(), "incoming_invoices", a.trim());
                 try {
                     byte[] bytes = Files.readAllBytes(f);
-                    Invoice inv = pipeline.ingest(bytes, a.trim(), new IntakePipeline.Source("EMAIL", e.getId(), e.getFromAddress(),
+                    IntakePipeline.Ingested in = pipeline.ingestDetailed(bytes, a.trim(), new IntakePipeline.Source("EMAIL", e.getId(), e.getFromAddress(),
                             e.getReceivedAt() == null ? null : e.getReceivedAt().toLocalDate(), null));
-                    created.add(inv.getId());
-                    if (j != null) j.invoicesCreated.incrementAndGet();
+                    created.add(in.invoice().getId());
+                    if (in.queued()) {
+                        queued++;
+                        if (j != null) j.invoicesCreated.incrementAndGet();
+                    } else {
+                        filed.add(a.trim() + " is a " + in.nonInvoiceType().replace('_', ' ') + " (" + in.invoice().getId() + ")");
+                        statement |= DocumentKind.isStatement(in.nonInvoiceType());
+                    }
                 } catch (java.io.IOException ex) {
                     reason += "; attachment " + a + " is missing";
                     if (j != null) j.errors.add(e.getId() + ": attachment " + a + " not found");
                 }
+            }
+            if (!filed.isEmpty()) reason += "; not sent for review: " + String.join(", ", filed);
+            // Every attachment turned out not to be an invoice: the email is not an invoice email either.
+            if (queued == 0 && !filed.isEmpty()) {
+                r = statement
+                        ? new EmailClassifier.Result(EmailClassifier.Kind.STATEMENT, "E03", "Attachment is a statement of account: filed for reconciliation, no bill created", null)
+                        : new EmailClassifier.Result(EmailClassifier.Kind.NOT_INVOICE, "E04", "Attachment is not an invoice: filed, no bill created", null);
+                reason = r.reason() + "; " + String.join(", ", filed);
             }
         } else if (r.kind() == EmailClassifier.Kind.PAYMENT_INQUIRY) {
             String link = linkInquiry(e.getFromAddress(), r.referencedInvoiceNumber());
