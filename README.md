@@ -21,7 +21,9 @@ The backend loads every file in `dataset_given/` on first start. If you ran an o
 with `docker compose down -v` (the backend now runs as a non-root user and needs a fresh storage volume). Then:
 
 ```bash
-scripts/reset-and-seed.sh                      # or .\scripts\reset-and-seed.ps1 — wipe + reload in ~6 s, prints row counts vs the dataset README
+scripts/reset-and-seed.sh                      # wipe + reload in ~6 s, prints row counts vs the dataset README
+# Windows: powershell -ExecutionPolicy Bypass -File .\scripts\reset-and-seed.ps1
+#   (Windows blocks unsigned scripts by default; -ExecutionPolicy Bypass applies to this one run only)
 python scripts/verify_mess_table.py --process  # reset, process the inbox, check every "mess" case (24 checks)
 python scripts/eval_extraction.py              # extraction field accuracy on all 56 incoming files
 python scripts/flag_report.py                  # every open flag on every bill
