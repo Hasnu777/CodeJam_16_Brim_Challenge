@@ -36,6 +36,18 @@ public class InvoiceWorkflowService {
     }
 
     /** Low-level transition used by every higher-level operation. Must run inside a transaction. */
+    /** Create a new bill in RECEIVED (intake/upload). The only way a non-historical invoice comes into existence. */
+    @Transactional
+    public Invoice create(Invoice inv, String detail) {
+        if (inv.getStatus() == null) inv.setStatus(InvoiceStatus.RECEIVED);
+        if (inv.getStatus() != InvoiceStatus.RECEIVED) throw new BusinessRuleException("New invoices start in RECEIVED");
+        inv.setCreatedAt(clock.now());
+        inv.setUpdatedAt(inv.getCreatedAt());
+        Invoice saved = invoices.save(inv);
+        audit.record("INVOICE_RECEIVED", "invoice", saved.getId(), null, snapshot(saved), detail);
+        return saved;
+    }
+
     @Transactional
     public Invoice transition(Invoice inv, InvoiceStatus to, String action, String detail) {
         return transition(inv, to, action, detail, null);
