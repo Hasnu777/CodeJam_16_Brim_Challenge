@@ -17,14 +17,17 @@ docker compose up --build
 # app: http://localhost:5173    API: http://localhost:8088/api    Swagger: http://localhost:8088/swagger-ui.html
 ```
 
-The backend loads every file in `dataset_given/` on first start. Then:
+The backend loads every file in `dataset_given/` on first start. If you ran an older build before, start clean once
+with `docker compose down -v` (the backend now runs as a non-root user and needs a fresh storage volume). Then:
 
 ```bash
-scripts/reset-and-seed.sh                      # or .\scripts\reset-and-seed.ps1 — wipe + reload in ~6 s, prints row counts vs the dataset README
+scripts/reset-and-seed.sh                      # wipe + reload in ~6 s, prints row counts vs the dataset README
+# Windows: powershell -ExecutionPolicy Bypass -File .\scripts\reset-and-seed.ps1
+#   (Windows blocks unsigned scripts by default; -ExecutionPolicy Bypass applies to this one run only)
 python scripts/verify_mess_table.py --process  # reset, process the inbox, check every "mess" case (24 checks)
 python scripts/eval_extraction.py              # extraction field accuracy on all 56 incoming files
 python scripts/flag_report.py                  # every open flag on every bill
-cd backend && ./gradlew test                   # 88 unit tests: every rule, routing, release rules, normalizer, audit chain
+cd backend && ./gradlew test                   # 93 unit tests: every rule, routing, release rules, security, normalizer, audit chain
 ```
 
 ### Logins (demo switcher, no password; the server still issues a real session)
@@ -90,6 +93,11 @@ services. Every denial returns 403 with a reason and is itself audited.
 Full catalog in `backend/src/main/java/com/brimap/seed/FlagDictionarySeed.java`; one class per rule in
 `backend/src/main/java/com/brimap/validation/rules/`, each unit-tested on its dataset example.
 
+## Verification
+
+CI (`.github/workflows/ci.yml`) runs the unit tests, frontend gates, script lint and a secret scan on every PR. The full
+pre-review verification (what was run, results, findings fixed) is in [docs/verification-report.md](docs/verification-report.md).
+
 ## Bonuses
 
 - **Fraud alerts** (`/fraud`): every payment-fraud signal in one place, including a new lookalike-sender-domain rule (V06). Today: $19,197.22 of payments held, led by Cascadia's unverified bank change.
@@ -99,7 +107,7 @@ Full catalog in `backend/src/main/java/com/brimap/seed/FlagDictionarySeed.java`;
 
 ## Design decisions
 
-70 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
+76 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
 false-positive tuning done on this dataset (D-041, D-042, D-044, D-045). Highlights:
 
 - **Versioned bank accounts** — never edited in place; a change is a request, verified by a second person by callback; payments pin a version.

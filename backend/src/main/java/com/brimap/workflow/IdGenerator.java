@@ -11,7 +11,8 @@ public class IdGenerator {
     private final EntityManager em;
 
     private long next(String seq) {
-        return ((Number) em.createNativeQuery("select nextval('" + seq + "')").getSingleResult()).longValue();
+        // Bound parameter, not string concatenation: safe even if a sequence name ever came from outside.
+        return ((Number) em.createNativeQuery("select nextval(cast(?1 as regclass))").setParameter(1, seq).getSingleResult()).longValue();
     }
 
     public String invoiceId() { return String.format("AP-%05d", next("invoice_number_seq")); }

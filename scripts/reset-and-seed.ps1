@@ -1,5 +1,6 @@
 # Wipe every table and reload the dataset, then print row counts vs the dataset README.
-# Usage: .\scripts\reset-and-seed.ps1 [-Api http://localhost:8088]
+# Usage: powershell -ExecutionPolicy Bypass -File .\scripts\reset-and-seed.ps1 [-Api http://localhost:8088]
+# (Windows refuses unsigned scripts by default; -ExecutionPolicy Bypass applies to this one run only.)
 param([string]$Api = "http://localhost:8088")
 $ErrorActionPreference = "Stop"
 $s = New-Object Microsoft.PowerShell.Commands.WebRequestSession

@@ -31,8 +31,11 @@ class Client:
         except urllib.error.HTTPError as e:
             return {"_status": e.code, **(json.loads(e.read() or b"{}"))}
 
-    get = lambda self, p: self.call("GET", p)
-    post = lambda self, p, b=None: self.call("POST", p, b or {})
+    def get(self, path):
+        return self.call("GET", path)
+
+    def post(self, path, body=None):
+        return self.call("POST", path, body or {})
 
 
 results = []
@@ -135,7 +138,7 @@ def main():
         inv = d["invoice"]
         check(f"{name} {num}: USD, US vendor -> FX1 conversion + FOREIGN tax code, no Canadian tax",
               inv["currency"] == "USD" and "FX1" in {f["ruleCode"] for f in fl}
-              and all(l["gstHstCode"] == "FOREIGN" for l in d["lines"]) and not d["taxes"],
+              and all(line["gstHstCode"] == "FOREIGN" for line in d["lines"]) and not d["taxes"],
               next((f["message"] for f in fl if f["ruleCode"] == "FX1"), ""))
 
     # 10. French invoices: 1 234,56 $ + TPS/TVQ
