@@ -59,9 +59,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/auth/users").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        // Writes need a real session (an AnonymousAuthenticationToken reports isAuthenticated()=true, so
+                        // test the principal type) and are never allowed for an Auditor. Refused here, a request is
+                        // never parsed or validated, so an anonymous caller can't probe the API's validation.
                         .requestMatchers(r -> !READ_METHODS.contains(r.getMethod()) && r.getRequestURI().startsWith("/api/"))
-                        .access((auth, ctx) -> new AuthorizationDecision(auth.get().isAuthenticated()
-                                && !(auth.get().getPrincipal() instanceof CurrentUser u && u.role() == Role.AUD)))
+                        .access((auth, ctx) -> new AuthorizationDecision(auth.get() != null
+                                && auth.get().getPrincipal() instanceof CurrentUser u && u.role() != Role.AUD))
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .exceptionHandling(e -> e
