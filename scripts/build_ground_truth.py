@@ -38,8 +38,8 @@ def money(s):
 
 def label(lines, *labels):
     for lab in labels:
-        for l in lines:
-            m = re.match(r"^" + re.escape(lab) + r"\s*:\s*(.*)$", l, re.I)
+        for line in lines:
+            m = re.match(r"^" + re.escape(lab) + r"\s*:\s*(.*)$", line, re.I)
             if m:
                 return m.group(1).strip()
     return None
@@ -64,36 +64,36 @@ def province(bill_to):
 
 
 def parse(text):
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
     gst = next((g for g in (a + "RT" + b for a, b in re.findall(r"(\d{9})RT(\d{4})", text)) if g != HARBORLINE_GST), None)
     inv_no = label(lines, "Invoice Number", "Invoice #", "Invoice No.", "INV NO", "Facture n°")
     date = label(lines, "Issued", "Invoice date", "DATE", "Date")
     due = label(lines, "Due by", "Due date", "Payment due", "DUE", "Échéance")
     po = label(lines, "PO REF", "Your PO", "PO #", "Customer PO") or None
-    bill_idx = next(i for i, l in enumerate(lines) if l.lower() in ("bill to", "facturer à"))
+    bill_idx = next(i for i, ln in enumerate(lines) if ln.lower() in ("bill to", "facturer à"))
     bill_to = lines[bill_idx + 1] + " " + lines[bill_idx + 2]
     subtotal = total = None
     taxes = {}
     n_lines = 0
     in_items = False
-    for l in lines:
-        u = l.upper()
+    for ln in lines:
+        u = ln.upper()
         if u.startswith("DESCRIPTION"):
             in_items = True
             continue
         if u.startswith("SUBTOTAL") or u.startswith("SOUS-TOTAL"):
             in_items = False
-            subtotal = money(re.search(MONEY + r"\s*$", l).group(0))
+            subtotal = money(re.search(MONEY + r"\s*$", ln).group(0))
             continue
         if u.startswith("TOTAL"):
-            total = money(re.search(MONEY + r"\s*$", l).group(0))
+            total = money(re.search(MONEY + r"\s*$", ln).group(0))
             continue
-        m = re.match(r"^((?:GST|HST|QST|PST|TPS|TVQ|TVH)[^\d(]*)\(\s*[\d.,]+\s*%\s*\)\s+(" + MONEY + r")\s*$", l)
+        m = re.match(r"^((?:GST|HST|QST|PST|TPS|TVQ|TVH)[^\d(]*)\(\s*[\d.,]+\s*%\s*\)\s+(" + MONEY + r")\s*$", ln)
         if m and not in_items:
             code = tax_code(m.group(1))
             taxes[code] = money(m.group(2))
             continue
-        if in_items and re.search(MONEY + r"\s+" + MONEY + r"\s*$", l):
+        if in_items and re.search(MONEY + r"\s+" + MONEY + r"\s*$", ln):
             n_lines += 1
     remit = re.search(r"Acct\s+(\d+)", text)
     return {
