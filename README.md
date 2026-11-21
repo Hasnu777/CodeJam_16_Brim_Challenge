@@ -107,7 +107,8 @@ pre-review verification (what was run, results, findings fixed) is in [docs/veri
 
 ## Design decisions
 
-76 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
+A full technical walkthrough (architecture, every subsystem, diagrams) is in [docs/technical-design.md](docs/technical-design.md).
+80 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
 false-positive tuning done on this dataset (D-041, D-042, D-044, D-045). Highlights:
 
 - **Versioned bank accounts** — never edited in place; a change is a request, verified by a second person by callback; payments pin a version.

@@ -349,3 +349,28 @@ bills on that PO. Line-level 3-way match is a follow-up if real PO lines appear.
 **D-076 Known, accepted lint warnings**: 4 `oxlint` warnings in the frontend (2 fast-refresh "file exports a
 non-component", 2 "setState in effect" where server data seeds an editable form). They don't affect behaviour;
 left as warnings rather than restructuring components before the review.
+
+## Team review (design walkthrough)
+
+**D-077 Payments up to $100,000 may be released by the Finance Manager or a Controller/Admin.** The dataset's P09
+names only `finance_manager` for this band; the PRD's release table (and its `/payments/{id}/release` contract) says
+"finance_manager or controller_admin". We follow the PRD: a Controller/Admin trusted to release over $100k can release
+less, and it leaves a releaser when the FM approved the invoice (the worked example). `ReleaseRules` encodes it; the
+policy rows keep the dataset's original sentences.
+
+**D-078 Invoices over $250,000 cannot be released by anyone, by design.** P04 puts the FM, the Controller and the
+CFO on the chain; P10 requires a Controller/Admin to release over $100k; P11 bars anyone who approved. Both
+Controller/Admins (U001, U002) have approved, the FM can't release over $100k, so every release attempt is refused
+with its reason. We keep the refusal rather than exempting the CFO from P11 (the one rule the PRD applies to every
+role). A real company resolves it in policy (a board signer or a second authorised releaser), which an Admin can
+add as data. Not reachable with this dataset: the largest invoice is $28,377.
+
+**D-079 B01/B02 (unverified bank details) hold payment, not submission or approval.** Approval answers "is this bill
+legitimate?"; bank verification answers "is this the right account?", and is done by a different person by
+callback. The money is protected at release, where `ReleaseRules` requires a verified, pinned bank-account version
+and no pending change. This matches PRD feature 9 ("holds payments until verified") and the policy table ("Payment
+held until FM verifies"). The stricter variant is one line: remove B01/B02 from `PAYMENT_HOLD_CODES`.
+
+**D-080 The Windows reset command bypasses the script policy for one run.** Machines with an AllSigned policy refuse
+the unsigned `reset-and-seed.ps1`, so the README documents `powershell -ExecutionPolicy Bypass -File ...`, which
+changes no system setting. Signing the script would need a code-signing certificate the team doesn't have.
