@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-brimap}
+      POSTGRES_USER: ${POSTGRES_USER:-brimap}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-brimap}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+# backend and frontend services get added in phase 1
+volumes:
+  pgdata:

@@ -1,0 +1,25 @@
+# secrets
+.env
+*.env.local
+
+# java / gradle
+backend/build/
+backend/.gradle/
+.gradle/
+*.class
+out/
+
+# node
+node_modules/
+frontend/dist/
+*.log
+
+# uploads / runtime
+uploads/
+storage/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
