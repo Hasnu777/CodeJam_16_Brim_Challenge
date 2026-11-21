@@ -100,3 +100,55 @@ requested.
 
 **D-024 Money serialized as strings** (`"4802.50"`) by a Jackson serializer for `BigDecimal`, per the PRD
 convention, so JavaScript never sees a float.
+
+## Phase 3: intake and extraction
+
+**D-025 `pdftotext -raw -enc UTF-8`, not `-layout`.** `-layout` reproduces columns but scrambles the totals block
+(values land on the row below their label, e.g. Cascadia 1625). `-raw` gives reading order with every label next
+to its value, and UTF-8 keeps French accents (`Échéance`, `Facture n°`).
+
+**D-026 The LLM sees the text layer AND the original file.** For PDFs we send the PDF as a document block plus the
+pdftotext output ("copy numbers exactly from here"); for scans an image block. Layout from the file, exact
+characters from the text layer.
+
+**D-027 Structured outputs via the Anthropic Java SDK, amounts as printed.** The schema is derived from the
+`ExtractedInvoice` record (`outputConfig(ExtractedInvoice.class)`), so the response must validate. The model
+transcribes, it does not compute: amounts/dates come back as printed strings (`"1 234,56 $"`), and deterministic
+Java (`InvoiceNormalizer`, unit-tested) turns them into BigDecimal/LocalDate and maps TPS/TVQ/HST/PST labels to
+the dataset tax codes. Default model `claude-opus-5-5` (override with `LLM_MODEL`); server-side refusal fallback
+enabled. A refusal, schema failure or API error is never fatal: the pipeline falls back (D-029).
+
+**D-028 LLM responses cached by file SHA-256 + model + prompt version** (`storage/llm-cache/`). Re-running the inbox
+or the eval costs nothing, demos don't wait on the API, and the cache survives DB resets. "Re-extract" bypasses it.
+
+**D-029 Three-level fallback, never a crash.** (1) LLM; (2) offline label-based regex parser over the text layer
+(pdftotext, or Tesseract OCR for images, with OCR-misread tax labels like `OST` -> `QST` repaired); (3) an empty
+manual-entry draft with the reason. Every level records its method in `extractions` and the audit detail.
+
+**D-030 No LLM key was present in `.env` during the build** (`LLM_API_KEY` is empty). Everything was built and
+measured on the offline path; the LLM path switches on automatically when a key is added. Offline eval on all 56
+files: 725/728 fields (99.6%). Caveat for Q&A: the offline parser and the ground-truth script both key on the
+labels in these templates, so this number overstates offline accuracy on unseen layouts; the LLM is the path for those.
+
+**D-031 Ground truth for the eval is built independently** (`scripts/build_ground_truth.py`): its own Python
+regexes over the PDF text, plus hand transcription of the 2 scans. It surfaced real mess: Evergreen 000850
+prints subtotal 3,180.00 + GST 159.00 = total 3,439.00 ($100 over), and Summit 000809 is dated 2026-11-27 (future).
+
+**D-032 Vendor matching order: GST number, then sender domain, then fuzzy name** (Jaro-Winkler >= 0.93 on names
+with legal suffixes removed and `&` = `and`). GST first is what makes the Harlow lookalike resolve to V052 (its
+own GST number) rather than to the real Harlow & Stern (V026); the lookalike rule then compares the two. When a
+domain is shared by several vendor records (V001/V051 Polar Freight), the closest name wins.
+
+**D-033 Department and requester for emailed bills are inferred**: from the referenced PO when there is one,
+otherwise the vendor's most frequent (department, requester) in history. Vendors with no history (new/unknown)
+are left blank and flagged for the clerk. An employee's own upload is always theirs, in their department.
+
+**D-034 Ship-to province from the bill-to address**: Harborline's four offices (Toronto ON, Vancouver BC,
+Calgary AB, Montreal QC), else a province code before a postal code.
+
+**D-035 Email intake: keyword rules first, LLM only as tiebreaker**, and the email records which one decided
+(`classifiedBy`). An email with an attachment is an invoice unless it is a statement. Payment inquiries are linked
+to the invoice they mention and its payment status (EM-057 -> AP-00049, paid 2026-03-09).
+
+**D-036 Inbox processing is asynchronous** (4 workers) because each attachment can be an LLM call; workers run with
+the clicking user's security context so the audit actor is correct. Upload is synchronous (one file).
