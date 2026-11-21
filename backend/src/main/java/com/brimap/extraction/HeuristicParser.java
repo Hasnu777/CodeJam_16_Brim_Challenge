@@ -17,8 +17,8 @@ public final class HeuristicParser {
     private static final String MONEY = "\\(?-?\\$?-?\\s?\\d{1,3}(?:[ ,\\u00a0\\u202f]\\d{3})*(?:[.,]\\d{2})\\)?\\s?\\$?";
     private static final Pattern MONEY_AT_END = Pattern.compile("(" + MONEY + ")\\s*$");
     private static final Pattern LINE = Pattern.compile("^(.+?)\\s+(-?\\d+(?:[.,]\\d+)?)\\s+(" + MONEY + ")\\s+(" + MONEY + ")\\s*$");
-    // OST / 0ST / 6ST / H5T are common OCR misreads of QST / QST / GST / HST
-    private static final Pattern TAX = Pattern.compile("^((?:GST|HST|QST|PST|TPS|TVQ|TVH|RST|OST|0ST|6ST|H5T)[^\\d(]*)\\(?\\s*(\\d+(?:[.,]\\d+)?)\\s*%\\s*\\)?\\s+(" + MONEY + ")\\s*$",
+    // OST / 0ST / 6ST / H5T are common OCR misreads of QST / QST / GST / HST; a bare "ST" means the first letter was lost
+    private static final Pattern TAX = Pattern.compile("^((?:GST|HST|QST|PST|TPS|TVQ|TVH|RST|OST|0ST|6ST|H5T|ST)[^\\d(]*)\\(?\\s*(\\d+(?:[.,]\\d+)?)\\s*%\\s*\\)?\\s+(" + MONEY + ")\\s*$",
             Pattern.CASE_INSENSITIVE);
     private static final Pattern GST = Pattern.compile("(\\d{9})\\s?RT\\s?(\\d{4})");
     private static final Pattern QST = Pattern.compile("(\\d{10})\\s?TQ\\s?(\\d{4})");
@@ -74,6 +74,10 @@ public final class HeuristicParser {
             if (!inItems && t.matches()) {
                 String label = t.group(1).trim().toUpperCase(Locale.ROOT)
                         .replaceFirst("^(OST|0ST)", "QST").replaceFirst("^6ST", "GST").replaceFirst("^H5T", "HST");
+                if (label.equals("ST")) { // OCR dropped the first letter: name the tax from its rate
+                    String code = InvoiceNormalizer.taxCode("", t.group(2));
+                    label = code == null ? "TAX" : switch (code) { case "QST9975" -> "QST"; case "PST7_BC" -> "PST"; case "HST13" -> "HST"; default -> "GST"; };
+                }
                 taxes.add(new ExtractedInvoice.Tax(label + " (" + t.group(2) + "%)", t.group(2), t.group(3).trim()));
                 continue;
             }
