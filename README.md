@@ -108,6 +108,7 @@ pre-review verification (what was run, results, findings fixed) is in [docs/veri
 ## Design decisions
 
 A full technical walkthrough (architecture, every subsystem, diagrams) is in [docs/technical-design.md](docs/technical-design.md).
+Team decisions and the task split from 21 Nov are in [docs/team-todo-2026-11-21.md](docs/team-todo-2026-11-21.md).
 80 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
 false-positive tuning done on this dataset (D-041, D-042, D-044, D-045). Highlights:
 
