@@ -27,6 +27,7 @@ public class FlagDictionarySeed {
             e("V03", "Vendor", "Tax number mismatch", WARN, "GST/QST number on the invoice differs from the vendor record or is badly formatted."),
             e("V04", "Vendor", "Lookalike vendor", BLOCK, "Name closely resembles another vendor that has a different tax number or bank account."),
             e("V05", "Vendor", "Sender domain mismatch", WARN, "Email sender domain differs from the vendor's AP contact domain."),
+            e("V06", "Vendor", "Lookalike sender domain", WARN, "Email came from a domain that resembles another vendor's domain."),
             e("B01", "Bank / fraud", "Remit-to account differs", BLOCK, "Bank account printed on the invoice differs from the vendor's verified account on file."),
             e("B02", "Bank / fraud", "Unverified recent bank change", BLOCK, "Vendor bank details changed recently and were not verified by callback."),
             e("B03", "Bank / fraud", "Bank change by email", WARN, "The vendor's last bank change was requested by email."),
