@@ -50,6 +50,18 @@ app:
   tesseract: ${TESSERACT_BIN:tesseract}
   business-date: ${BUSINESS_DATE:2026-11-02}
   cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+  # Live AP mailbox over IMAP (off by default; emails.json is always loaded). Password goes in .env only.
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:993}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    folder: ${MAIL_FOLDER:INBOX}
+    ssl: ${MAIL_SSL:true}
+    max-per-fetch: ${MAIL_MAX_PER_FETCH:50}
+    auto-poll: ${MAIL_AUTO_POLL:false}
+    poll-ms: ${MAIL_POLL_MS:60000}
 
 springdoc:
   api-docs:

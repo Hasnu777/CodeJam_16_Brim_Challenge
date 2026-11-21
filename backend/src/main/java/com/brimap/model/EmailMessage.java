@@ -17,6 +17,10 @@ public class EmailMessage {
     @Column(columnDefinition = "text") private String body;
     /** Comma-separated attachment file names. */
     @Column(columnDefinition = "text") private String attachments;
+    /** Folder holding the attachments for mail fetched from the server; null for dataset emails (incoming_invoices/). */
+    @Column(columnDefinition = "text") private String attachmentDir;
+    /** RFC 5322 Message-ID of mail fetched from the server (dedupe); null for dataset emails. */
+    @Column(columnDefinition = "text") private String messageId;
     /** INVOICE, NO_ATTACHMENT, PAYMENT_INQUIRY, STATEMENT, NOT_INVOICE; null until processed. */
     private String classification;
     /** E01..E04 for needs-attention outcomes. */

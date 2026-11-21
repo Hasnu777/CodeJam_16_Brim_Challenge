@@ -384,3 +384,14 @@ is reclassified E03 (statement) or E04. A blank or missing type, or an unreadabl
 manual-entry draft, because a real bill may be hiding in a bad scan. A clerk-requested re-extract never auto-files.
 We use REJECTED rather than a new status, so there is no schema change and every report that already excludes
 REJECTED stays correct. There is no reopen button yet; the state machine already allows REJECTED -> IN_REVIEW.
+
+**D-082 Live AP mailbox over IMAP, alongside emails.json.** `MailIntakeService` reads UNSEEN messages from an IMAP
+folder (Jakarta Mail / Angus) and saves each one as an `EmailMessage` row, the same shape the seeder makes from
+emails.json. Attachments go to `storage/mail/<id>/`. From there the existing "Process inbox" flow (classify, extract,
+validate) runs unchanged. We picked IMAP over the Gmail API or Microsoft Graph because one standard client works with
+every provider and only needs host, user and app password, with no OAuth app registration. Fetching only fills the
+inbox; processing stays a button click, so LLM spend and the audit actor belong to a named user. A message is marked
+SEEN only after it is saved, and the id is a hash of the Message-ID header, so a retry or a re-fetch never doubles
+an email. Only PDF/PNG/JPEG attachments up to 20 MB are imported; inline images (logos, signatures) are skipped and
+unsupported files are noted in the body. File names are sanitized to their last path segment. Off by default
+(MAIL_ENABLED=false); the password lives in .env only.

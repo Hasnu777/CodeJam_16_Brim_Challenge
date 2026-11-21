@@ -11,6 +11,7 @@ import { dateTime } from '../lib/format'
 
 interface InboxStatus {
   unprocessed: number; llmEnabled: boolean; llmModel: string | null; running: boolean
+  mailEnabled?: boolean; mailbox?: string | null
   total?: number; done?: number; invoicesCreated?: number; needsAttention?: number; errors?: string[]
 }
 
@@ -33,7 +34,21 @@ export default function InboxPage() {
     refetchInterval: (q) => (q.state.data?.running ? 1500 : false),
   })
   const [uploading, setUploading] = useState(false)
+  const [fetching, setFetching] = useState(false)
   const s = status.data
+
+  const fetchMail = async () => {
+    setFetching(true)
+    try {
+      const r = await api.post<{ saved: number; alreadyHad: number; errors: string[] }>('/inbox/fetch')
+      qc.invalidateQueries()
+      notifyOk(`${r.saved} new email${r.saved === 1 ? '' : 's'} from the mailbox` + (r.errors.length ? `, ${r.errors.length} unreadable` : ''))
+    } catch (e) {
+      notifyError(e)
+    } finally {
+      setFetching(false)
+    }
+  }
   const canAct = is('CLK', 'ADM')
 
   const process = async () => {
@@ -85,6 +100,11 @@ export default function InboxPage() {
             }}>
               {(props) => <Button variant="default" {...props} loading={uploading}>Upload a file</Button>}
             </FileButton>
+            {s?.mailEnabled && (
+              <Tooltip label={`Read new mail from ${s.mailbox}`}>
+                <Button variant="default" onClick={fetchMail} loading={fetching} disabled={s?.running}>Fetch new mail</Button>
+              </Tooltip>
+            )}
             <Button onClick={process} loading={s?.running} disabled={!s?.unprocessed}>Process inbox ({s?.unprocessed ?? 0})</Button>
           </Group>
         )}

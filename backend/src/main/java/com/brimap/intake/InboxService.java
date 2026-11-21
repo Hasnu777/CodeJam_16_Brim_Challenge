@@ -147,7 +147,9 @@ public class InboxService {
             List<String> filed = new ArrayList<>();
             boolean statement = false;
             for (String a : att) {
-                Path f = Path.of(props.dataDir(), "incoming_invoices", a.trim());
+                // Dataset emails point at incoming_invoices/; mail fetched from the server keeps its own folder.
+                Path f = e.getAttachmentDir() != null ? Path.of(e.getAttachmentDir(), a.trim())
+                        : Path.of(props.dataDir(), "incoming_invoices", a.trim());
                 try {
                     byte[] bytes = Files.readAllBytes(f);
                     IntakePipeline.Ingested in = pipeline.ingestDetailed(bytes, a.trim(), new IntakePipeline.Source("EMAIL", e.getId(), e.getFromAddress(),

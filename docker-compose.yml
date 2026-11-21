@@ -28,6 +28,13 @@ services:
       LLM_MODEL: ${LLM_MODEL:-}
       APP_SEED_MODE: ${APP_SEED_MODE:-if-empty}
       BUSINESS_DATE: ${BUSINESS_DATE:-2026-11-02}
+      MAIL_ENABLED: ${MAIL_ENABLED:-false}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-993}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FOLDER: ${MAIL_FOLDER:-INBOX}
+      MAIL_AUTO_POLL: ${MAIL_AUTO_POLL:-false}
     ports:
       - "8088:8088"
     volumes:

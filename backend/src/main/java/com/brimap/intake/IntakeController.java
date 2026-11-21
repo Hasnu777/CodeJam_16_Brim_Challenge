@@ -5,6 +5,7 @@ import com.brimap.auth.CurrentUser;
 import com.brimap.common.BusinessRuleException;
 import com.brimap.common.NotFoundException;
 import com.brimap.extraction.ExtractionService;
+import com.brimap.intake.mail.MailIntakeService;
 import com.brimap.model.EmailMessage;
 import com.brimap.model.Invoice;
 import com.brimap.model.InvoiceStatus;
@@ -44,6 +45,7 @@ public class IntakeController {
     private final AppProperties props;
     private final com.brimap.repository.VendorRepository vendors;
     private final com.brimap.validation.RevalidationService revalidation;
+    private final MailIntakeService mail;
 
     @PostMapping("/inbox/process")
     @PreAuthorize("hasAnyRole('CLK','ADM')")
@@ -51,7 +53,17 @@ public class IntakeController {
 
     @GetMapping("/inbox/status")
     @PreAuthorize("hasAnyRole('CLK','ADM','AUD')")
-    public Map<String, Object> status() { return inbox.status(); }
+    public Map<String, Object> status() {
+        Map<String, Object> m = new LinkedHashMap<>(inbox.status());
+        m.put("mailEnabled", mail.enabled());
+        m.put("mailbox", mail.mailbox());
+        return m;
+    }
+
+    /** Pull new messages from the live AP mailbox (IMAP) into the inbox. Processing them is still "Process inbox". */
+    @PostMapping("/inbox/fetch")
+    @PreAuthorize("hasAnyRole('CLK','ADM')")
+    public MailIntakeService.FetchResult fetchMail() { return mail.fetch(); }
 
     @GetMapping("/inbox")
     @PreAuthorize("hasAnyRole('CLK','ADM','AUD')")
