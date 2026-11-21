@@ -1,5 +1,6 @@
 package com.brimap.bonus;
 
+import com.brimap.audit.AuditService;
 import com.brimap.config.AppClock;
 import com.brimap.model.*;
 import com.brimap.repository.*;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * Bonus 1 - fraud alerts in one place: the payment-fraud flags (bank details, lookalikes, card double-payment),
  * unverified bank changes, and money about to go to a vendor whose bank details changed recently. Built entirely
  * from data the rules already computed: no new judgement, just the view an AP lead would want every morning.
+ * Also re-checks the audit hash chain: a broken chain (history edited outside the app) is raised as the top alert.
  */
 @RestController
 @RequestMapping("/api/fraud")
@@ -33,6 +35,7 @@ public class FraudService {
     private final BankChangeRequestRepository changes;
     private final PaymentRepository payments;
     private final AppClock clock;
+    private final AuditService audit;
 
     public record Alert(String kind, String severity, String title, String message, String invoiceId, String vendorId, String vendorName,
                         BigDecimal amountCad, String ref) {}
@@ -75,6 +78,22 @@ public class FraudService {
         BigDecimal atRisk = out.stream().filter(a -> "BLOCK".equals(a.severity()) && a.invoiceId() != null)
                 .collect(Collectors.toMap(Alert::invoiceId, a -> a.amountCad() == null ? BigDecimal.ZERO : a.amountCad(), (a, b) -> a))
                 .values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // A broken audit chain means someone edited or removed history outside the app: the most serious signal, so it goes first.
+        Map<String, Object> chain = audit.verify();
+        if (!Boolean.TRUE.equals(chain.get("valid"))) {
+            // pulls ou the list of broken rows
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> breaks = (List<Map<String, Object>>) chain.get("breaks");
+            //builds a short label of which rows are broken, like "#5, #6, #7".
+            String rows = breaks.stream().limit(5).map(b -> "#" + b.get("id")).collect(Collectors.joining(", "));
+            //creates a new alert and puts it at position 0
+            out.add(0, new Alert("AUDIT_TAMPER", "BLOCK", "Audit log tampered",
+                    breaks.size() + " audit row(s) fail the hash-chain check (" + rows + (breaks.size() > 5 ? ", ..." : "")
+                            + "). History was edited or removed outside the app; see Audit log > Verify.",
+                    null, null, null, null, "AUDIT"));
+        }
+
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("alerts", out);
         m.put("blockedAmountCad", atRisk);
