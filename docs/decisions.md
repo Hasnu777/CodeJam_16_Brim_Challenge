@@ -62,3 +62,41 @@ badges and app-shell layout out of the box with no Tailwind setup.
 
 **D-015 OpenAPI types generated via `npx`, not a dev dependency.** `openapi-typescript` requires TypeScript 5 while
 Vite scaffolds TypeScript 7; `npm run gen:api` runs it in an isolated `npx` sandbox against `/v3/api-docs`.
+
+## Phase 2: auth, roles, workflow, audit
+
+**D-016 Demo login issues a real server session.** `POST /api/auth/login {userId}` (no password, per the PRD
+non-goals) stores a Spring Security context in the HTTP session; the session id is rotated on every switch.
+Every permission check reads the role from the session, never from the request body. Terminated users (U015)
+cannot log in.
+
+**D-017 CSRF protection off.** The API is JSON-only, same-origin (Vite/nginx proxy) and the session cookie is
+`SameSite=Lax`, so a cross-site form post can't carry it. Production would turn Spring's CSRF tokens back on.
+
+**D-018 Three layers of enforcement.** (1) Filter chain: `/api/**` needs a session; any non-GET from an Auditor is
+rejected before a controller runs. (2) `@PreAuthorize` on every controller method with the PRD's role table.
+(3) Scope and segregation-of-duties checks inside services (`InvoiceAccess`, the workflow service) that throw
+`ForbiddenException`. All three return 403 `{status, error, reason}` and write an `ACCESS_DENIED` audit row.
+
+**D-019 Denials are audited in their own transaction** (`REQUIRES_NEW`) so the record survives the rollback of the
+denied request. Normal events use `MANDATORY` propagation: they must join the business transaction, so a state
+change and its audit row commit or roll back together.
+
+**D-020 Hash chain serialized with a Postgres advisory lock.** `pg_advisory_xact_lock` inside the writer's transaction
+makes "read last hash, insert next row" atomic, so concurrent writers can't fork the chain. Ids are assigned
+by the chain (1, 2, 3...), so gaps are also detectable. Timestamps are truncated to microseconds before hashing
+because that is what Postgres stores. `GET /api/audit/verify` recomputes every hash; tested by editing a row as
+DB superuser with the trigger disabled: verify reports `row content does not match its hash` for that row.
+
+**D-021 Reset restarts the audit chain.** `/api/admin/reset` truncates everything including the audit log (demo
+only) and then writes `DEMO_RESET` as event 1, so an empty log never looks like a clean one.
+
+**D-022 Approver scope = own department + steps assigned to them or their delegators.** Otherwise Elise (FM, D04)
+acting for Liam (D07) could not open the Facilities invoices she has to approve. Employee scope = invoices they
+requested.
+
+**D-023 Historical invoices are read-only for review/approval** but may still move along the payment path
+(APPROVED/SCHEDULED -> RELEASED -> PAID), since the dataset has 18 scheduled and 2 approved bills waiting to pay.
+
+**D-024 Money serialized as strings** (`"4802.50"`) by a Jackson serializer for `BigDecimal`, per the PRD
+convention, so JavaScript never sees a float.
