@@ -2,7 +2,7 @@ import { AppShell, Badge, Burger, Group, NavLink, Select, Stack, Text, Title, To
 import { useDisclosure } from '@mantine/hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
-  IconCash, IconFileInvoice, IconHome, IconInbox, IconListCheck, IconBuildingStore, IconGavel, IconShieldCheck,
+  IconAlertOctagon, IconChartBar, IconCash, IconFileInvoice, IconScale, IconHome, IconInbox, IconListCheck, IconBuildingStore, IconGavel, IconShieldCheck,
 } from '@tabler/icons-react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -22,6 +22,9 @@ export const NAV: NavItem[] = [
   { to: '/vendors', label: 'Vendors', icon: <IconBuildingStore size={18} />, roles: ['CLK', 'APR', 'FM', 'ADM', 'AUD'] },
   { to: '/policies', label: 'Policies', icon: <IconGavel size={18} />, roles: ['FM', 'ADM', 'AUD'] },
   { to: '/audit', label: 'Audit log', icon: <IconShieldCheck size={18} />, roles: ['ADM', 'AUD'] },
+  { to: '/fraud', label: 'Fraud alerts', icon: <IconAlertOctagon size={18} />, roles: ['CLK', 'FM', 'ADM', 'AUD'] },
+  { to: '/reconciliation', label: 'Reconciliation', icon: <IconScale size={18} />, roles: ['FM', 'ADM', 'AUD'] },
+  { to: '/analytics', label: 'Spend analytics', icon: <IconChartBar size={18} />, roles: ['APR', 'FM', 'ADM', 'AUD'] },
 ]
 
 export function UserSwitcher({ width = 300 }: { width?: number }) {

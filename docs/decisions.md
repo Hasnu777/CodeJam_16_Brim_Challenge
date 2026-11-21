@@ -290,3 +290,32 @@ D-048) and Phase 6 (PDF framing, D-063).
 **D-065 A bill with no department can't show a department-manager step in previews** (Riverbend, the Harlow
 lookalike, unknown vendors have no history to infer it from). Submission refuses until the clerk sets it, which
 then adds the step; the preview shows the problem instead of guessing.
+
+## Phase 8: bonuses (in PRD order)
+
+**D-066 Fraud alerts reuse the rules; one new rule.** The fraud view (`/api/fraud/alerts`) gathers open B01-B04,
+V04-V06 and D04 flags, every unverified bank change with the open bills that would pay to it, and scheduled
+payments to vendors whose bank details changed in the last 30 days, sorted by severity and amount. New rule V06
+flags a sender domain that resembles another vendor's domain (Jaro-Winkler >= 0.88 or containment, TLD and
+punctuation ignored). Like V04 it exempts the established vendor writing from its own domain, so genuine
+Harlow & Stern mail is not flagged because a lookalike record exists (that false positive showed up on the
+first batch run and is now a unit test).
+
+**D-067 Reconciliation is deterministic**: a statement debit matches a payment when its trailing reference digits
+equal the end of the payment reference (EFT) or, for cheques, by amount within 45 days of the scheduled date
+(the dataset's cheque numbers aren't in payment references); then the amounts must agree. Leftovers are explained
+(bank fee, money in, likely payment with the reference missing, in transit, or "investigate"). On the dataset:
+332/354 lines match; the rest are fees plus one PREAUTH DEBIT 913114 ($174.90) with no AP record, flagged to
+investigate. "Settle from statement" settles SENT payments the statement proves have left.
+
+**D-068 Approval recommendation is a pure function of facts already computed** (open/acknowledged/overridden flags,
+PO and contract links, the vendor's paid history): APPROVE / LOOK_CLOSER / HOLD with a one-line headline and the
+reasons. It never approves anything; it is shown to approvers above the flags.
+
+**D-069 Spend analytics**: by vendor (totals incl. tax, CAD), department or GL (line amounts converted to CAD) over a
+date range, approved/scheduled/paid bills only, plus a monthly trend. Approvers are limited to their own
+department on the server.
+
+**D-070 OCR robustness found by running the batch in Docker**: the container's Tesseract (eng+fra) reads Cascadia's
+"QST (9.975%)" as "ST (9.975%)", which made T01/X02 fire on a correctly taxed bill. A bare "ST" tax label is now
+named from its rate (9.975% -> QST). Unit-tested with the container's actual OCR text.

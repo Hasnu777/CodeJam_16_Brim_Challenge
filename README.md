@@ -24,7 +24,7 @@ scripts/reset-and-seed.sh                      # or .\scripts\reset-and-seed.ps1
 python scripts/verify_mess_table.py --process  # reset, process the inbox, check every "mess" case (24 checks)
 python scripts/eval_extraction.py              # extraction field accuracy on all 56 incoming files
 python scripts/flag_report.py                  # every open flag on every bill
-cd backend && ./gradlew test                   # 81 unit tests: every rule, routing, release rules, normalizer, audit chain
+cd backend && ./gradlew test                   # 88 unit tests: every rule, routing, release rules, normalizer, audit chain
 ```
 
 ### Logins (demo switcher, no password; the server still issues a real session)
@@ -90,9 +90,16 @@ services. Every denial returns 403 with a reason and is itself audited.
 Full catalog in `backend/src/main/java/com/brimap/seed/FlagDictionarySeed.java`; one class per rule in
 `backend/src/main/java/com/brimap/validation/rules/`, each unit-tested on its dataset example.
 
+## Bonuses
+
+- **Fraud alerts** (`/fraud`): every payment-fraud signal in one place, including a new lookalike-sender-domain rule (V06). Today: $19,197.22 of payments held, led by Cascadia's unverified bank change.
+- **Bank reconciliation** (`/reconciliation`): 332 of 354 statement lines matched to payments; leftovers explained (bank fees, one unexplained PREAUTH DEBIT of $174.90 to investigate); "settle from statement".
+- **Approval recommendation** on the invoice screen: "Approve: within contract C012, vendor paid 10 times before, no open flags" / "Look closer: …" / "Do not approve yet: …".
+- **Spend analytics** (`/analytics`) by vendor, department or GL with a monthly trend; approvers see their own department only.
+
 ## Design decisions
 
-63 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
+70 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
 false-positive tuning done on this dataset (D-041, D-042, D-044, D-045). Highlights:
 
 - **Versioned bank accounts** — never edited in place; a change is a request, verified by a second person by callback; payments pin a version.

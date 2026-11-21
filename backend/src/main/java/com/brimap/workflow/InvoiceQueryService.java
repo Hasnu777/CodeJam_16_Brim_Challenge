@@ -110,6 +110,11 @@ public class InvoiceQueryService {
         m.put("history", auditEvents.findByEntityAndEntityIdOrderByIdAsc("invoice", id));
         m.put("users", users.findAll().stream().collect(Collectors.toMap(AppUser::getId, AppUser::getFullName)));
         m.put("allowedNext", InvoiceStateMachine.next(i.getStatus()));
+        // Bonus 3: approval recommendation from facts already computed
+        long paid = i.getVendorId() == null ? 0 : invoices.findByVendorId(i.getVendorId()).stream()
+                .filter(x -> x.getStatus() == InvoiceStatus.PAID && !x.getId().equals(id)).count();
+        Vendor v = (Vendor) m.get("vendor");
+        m.put("recommendation", com.brimap.bonus.Recommendation.of(i, fl, paid, v != null && "active".equals(v.getStatus())));
         return m;
     }
 }
