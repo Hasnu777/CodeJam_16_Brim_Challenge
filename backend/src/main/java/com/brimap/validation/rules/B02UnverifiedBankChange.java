@@ -36,7 +36,8 @@ public class B02UnverifiedBankChange implements ValidationRule {
                     boolean paysToIt = i.getRemitAccount() != null && c.getNewAccountNumber() != null && i.getRemitAccount().equals(c.getNewAccountNumber());
                     String msg = v.getLegalName() + "'s bank account was switched to ..." + c.getNewAccountLast4() + " on " + D.format(c.getChangedAt())
                             + " by " + channel(c) + " and never verified by callback"
-                            + (recent ? " (" + Math.abs(days) + " days before this invoice)" : "") + "."
+                            + (!recent ? "" : days == 0 ? " (the same day this invoice was issued)"
+                                    : days > 0 ? " (" + days + " days before this invoice)" : " (" + (-days) + " days after this invoice)") + "."
                             + (paysToIt ? " This invoice pays to that account." : "")
                             + " Payment is held until a Finance Manager verifies the change.";
                     return flag(msg, "bankChangeRequestId", c.getId(), "changedAt", c.getChangedAt().toString(), "channel", c.getRequestChannel(),
