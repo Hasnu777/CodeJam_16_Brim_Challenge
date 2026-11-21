@@ -15,7 +15,7 @@ docker compose up --build
 The backend seeds every file in `dataset_given/` on first start. To wipe and reload in seconds:
 
 ```bash
-scripts/reset-and-seed.sh          # or: .\scriptseset-and-seed.ps1
+scripts/reset-and-seed.sh          # or: .\scripts\reset-and-seed.ps1
 ```
 
 It prints the loaded row count of every table next to the count in `dataset_given/README.md`.
