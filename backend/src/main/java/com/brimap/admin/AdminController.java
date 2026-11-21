@@ -4,6 +4,7 @@ import com.brimap.seed.DataSeeder;
 import com.brimap.seed.SeedReport;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -15,13 +16,22 @@ import java.util.Map;
 public class AdminController {
     private final DataSeeder seeder;
     private final EntityManager em;
+    private final com.brimap.audit.AuditService audit;
 
-    /** Wipe every table and reload the dataset. */
+    /** Wipe every table (audit log included) and reload the dataset. Demo only. */
     @PostMapping("/reset")
-    public SeedReport reset() { return seeder.reset(); }
+    @PreAuthorize("hasRole('ADM')")
+    public SeedReport reset() {
+        String actor = com.brimap.auth.Auth.actorId();
+        SeedReport r = seeder.reset();
+        // The audit log restarts with the reset itself as event 1, so the chain is never silently empty.
+        audit.recordStandalone(actor, "DEMO_RESET", "system", "database", "All tables truncated and dataset reloaded");
+        return r;
+    }
 
     /** Live row counts per table vs the dataset README. */
     @GetMapping("/seed-report")
+    @PreAuthorize("hasAnyRole('ADM','AUD')")
     public Map<String, Object> seedReport() {
         Map<String, String> tableFor = new LinkedHashMap<>();
         tableFor.put("approval_policies", "approval_policies");
