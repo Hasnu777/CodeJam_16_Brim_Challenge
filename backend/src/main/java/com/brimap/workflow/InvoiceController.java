@@ -35,6 +35,26 @@ public class InvoiceController {
         return query.detail(Auth.require(), id);
     }
 
+    private final ReviewService review;
+
+    /** Correct header fields (AP clerk, before submission). Re-runs coding and validation. */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('CLK')")
+    public Invoice updateHeader(@PathVariable String id, @RequestBody ReviewService.HeaderUpdate body) {
+        return review.updateHeader(id, body);
+    }
+
+    /** Accept/override GL, department, tax codes for one line; an override is logged with the suggestion it replaced. */
+    @PutMapping("/{id}/lines/{lineNo}")
+    @PreAuthorize("hasRole('CLK')")
+    public com.brimap.model.InvoiceLine updateLine(@PathVariable String id, @PathVariable int lineNo, @RequestBody ReviewService.LineUpdate body) {
+        return review.updateLine(id, lineNo, body);
+    }
+
+    @PostMapping("/{id}/coding/accept-all")
+    @PreAuthorize("hasRole('CLK')")
+    public Invoice acceptAll(@PathVariable String id) { return review.acceptAllCoding(id); }
+
     public record ReasonBody(String reason, String note) {}
 
     @PostMapping("/{id}/hold")
