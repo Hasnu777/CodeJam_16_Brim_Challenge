@@ -31,6 +31,20 @@ public class ApprovalController {
         return approvals.reject(id, body.reason() != null ? body.reason() : body.comment());
     }
 
+    /** REJECTED -> IN_REVIEW so the clerk can fix and resubmit; resubmitting starts a fresh approval round. */
+    @PostMapping("/invoices/{id}/reopen")
+    @PreAuthorize("hasAnyRole('CLK','ADM')")
+    public Invoice reopen(@PathVariable String id, @RequestBody ApprovalService.Decision body) {
+        return approvals.reopen(id, body.reason() != null ? body.reason() : body.comment());
+    }
+
+    /** Admin: re-resolve the still-pending steps against today's people (approver left, on leave, role changed). */
+    @PostMapping("/invoices/{id}/reroute")
+    @PreAuthorize("hasRole('ADM')")
+    public Invoice reroute(@PathVariable String id, @RequestBody ApprovalService.Decision body) {
+        return approvals.reroute(id, body.reason() != null ? body.reason() : body.comment());
+    }
+
     @GetMapping("/approvals/mine")
     @PreAuthorize("hasAnyRole('APR','FM','ADM')")
     public List<ApprovalService.QueueItem> mine() { return approvals.mine(); }

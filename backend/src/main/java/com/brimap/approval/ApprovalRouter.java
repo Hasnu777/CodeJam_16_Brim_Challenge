@@ -49,6 +49,17 @@ public final class ApprovalRouter {
     public record Result(List<Step> steps, BigDecimal amountCad, List<String> matchedPolicies, List<String> problems) {}
 
     public static Result route(List<ApprovalPolicy> policies, Map<String, Object> facts, String departmentId, String requesterId, Directory dir) {
+        return route(policies, facts, departmentId, requesterId, dir, Set.of(), null);
+    }
+
+    /**
+     * Re-routing variant. {@code alreadyActed}: people who already acted on this invoice's chain (as approver or as the
+     * person a delegate acted for); they count as "on the chain", so the distinct-people rule escalates past them.
+     * {@code onlyRoles}: resolve only these roles (the steps still pending); null = all. The full role list is still
+     * computed, so "final step" (and its limit check) means the same as at submit time.
+     */
+    public static Result route(List<ApprovalPolicy> policies, Map<String, Object> facts, String departmentId, String requesterId, Directory dir,
+                               Set<String> alreadyActed, Set<String> onlyRoles) {
         BigDecimal amount = (BigDecimal) facts.get("amountCad");
         // 1. Which roles are required, and by which policies
         Map<String, List<String>> rolePolicies = new LinkedHashMap<>();
@@ -72,9 +83,10 @@ public final class ApprovalRouter {
 
         // 2. Resolve each role to a person
         List<Step> steps = new ArrayList<>();
-        Set<String> used = new HashSet<>();
+        Set<String> used = new HashSet<>(alreadyActed);
         for (int i = 0; i < roles.size(); i++) {
             String role = roles.get(i);
+            if (onlyRoles != null && !onlyRoles.contains(role)) continue;
             boolean finalStep = i == roles.size() - 1;
             List<String> notes = new ArrayList<>();
             String assignee = switch (role) {
@@ -97,6 +109,13 @@ public final class ApprovalRouter {
                     notes.add(name(u) + " is terminated: skipped to their manager");
                     assignee = u.getManagerId(); onBehalfOf = null; continue;
                 }
+                // Self-approval comes before delegation: a requester's delegate acting "on behalf of" the requester
+                // would be the requester approving their own spending by proxy.
+                if (assignee.equals(requesterId)) {
+                    notes.add(name(u) + " requested this invoice and cannot approve it" + (onBehalfOf == null ? "" : ", nor can their delegate")
+                            + ": escalated to their manager (P07)");
+                    assignee = u.getManagerId(); onBehalfOf = null; continue;
+                }
                 if (u.getStatus() == UserStatus.on_leave && onBehalfOf == null) {
                     Optional<String> del = dir.activeDelegate(u.getId());
                     if (del.isPresent()) {
@@ -105,10 +124,6 @@ public final class ApprovalRouter {
                     }
                     notes.add(name(u) + " is on leave with no delegate: escalated to their manager");
                     assignee = u.getManagerId(); continue;
-                }
-                if (assignee.equals(requesterId)) {
-                    notes.add(name(u) + " requested this invoice and cannot approve it: escalated to their manager (P07)");
-                    assignee = u.getManagerId(); onBehalfOf = null; continue;
                 }
                 if (used.contains(assignee)) {
                     notes.add(name(u) + " already approves an earlier step: escalated to their manager (a chain needs distinct people)");

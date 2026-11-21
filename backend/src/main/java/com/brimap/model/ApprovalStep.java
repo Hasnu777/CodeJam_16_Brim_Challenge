@@ -30,4 +30,14 @@ public class ApprovalStep {
     private Instant actedAt;
     @Column(columnDefinition = "text") private String comment;
     private boolean historical;
+    /**
+     * True for steps from an earlier approval round (the invoice was rejected, reopened and resubmitted). They stay for
+     * history and still count for "nobody pays what they approved" (P11), but no longer drive the current chain.
+     */
+    @Column(columnDefinition = "boolean not null default false") private boolean superseded;
+    /** Optimistic lock: two people acting on the same step at once -> the second gets 409, not a double decision. */
+    @Version @Column(columnDefinition = "bigint not null default 0") private long version;
+
+    /** Part of the invoice's current approval round (not an earlier round, not cancelled by a resubmit or re-route). */
+    public boolean isCurrent() { return !historical && !superseded && !"CANCELLED".equals(decision); }
 }

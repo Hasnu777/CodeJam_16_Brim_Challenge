@@ -10,6 +10,8 @@ import java.time.LocalDate;
 @Getter @Setter @NoArgsConstructor
 public class Payment {
     @Id private String id;
+    /** Optimistic lock: two releases (or batches) of the same payment at once -> the second gets 409. */
+    @Version @Column(columnDefinition = "bigint not null default 0") private long version;
     private String invoiceId;
     private String vendorId;
     /** EFT, CHEQUE, CARD. */

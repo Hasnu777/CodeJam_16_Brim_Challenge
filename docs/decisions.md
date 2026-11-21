@@ -389,3 +389,28 @@ the releaser must be the CFO (the Controller/Admin with no manager), and every a
 department manager, P11 still bars her; the requester is always barred. Each such release writes a `SOD_EXCEPTION`
 audit row next to `PAYMENT_RELEASED`, so the Auditor can list every exception. Everyone else who approved
 (Controller, FM, department manager) is still refused. Unit-tested in `ReleaseRulesTest`.
+
+**D-083 A rejected invoice can be reopened and resubmitted, as a fresh approval round.** `POST /invoices/{id}/reopen`
+(AP clerk or Admin, reason required) moves REJECTED -> IN_REVIEW; before this the state machine allowed it but nothing
+did it, so a rejected bill was a dead end. On resubmit, the earlier round's steps are kept but marked `superseded`:
+they no longer count for "who is next", "final step" or "already acted on an earlier step", so the same manager can
+approve round 2. They still count for P11 (nobody pays what they approved, in any round). The invoice screen shows
+the earlier round under the current chain.
+
+**D-084 Self-approval comes before delegation in routing.** If the requester is the approver and is on leave, their
+delegate must not approve "on behalf of" them (that is the requester approving their own spending by proxy). The
+router now applies P07 first and escalates to the requester's manager; `decide()` also refuses an approval whose
+"on behalf of" person is the requester (for chains routed before this fix or delegations added later).
+
+**D-085 Admins can re-route a stuck approval chain.** The chain is snapshotted at submit, so an approver who is
+terminated, goes on leave without a delegate, or loses the role afterwards would leave a step nobody can act on.
+`POST /invoices/{id}/reroute` (Admin, reason required) re-resolves only the PENDING steps against today's people and
+delegations, at the amount the chain was built for. Decided steps stay, and everyone who acted (or was acted for)
+counts as on the chain, so nobody approves twice. It refuses when the result is unchanged. Audited as
+`APPROVAL_REROUTED` with each old -> new assignee.
+
+**D-086 Optimistic locking on payments and approval steps.** `@Version` on `Payment` and `ApprovalStep` (columns
+added with `default 0`, so existing databases upgrade in place). Two people releasing (or batching) the same payment,
+or double-clicking Approve, now give one success and one 409 "someone else changed this record", never two releases.
+The raw JPA/Hibernate lock exceptions are mapped to 409 as well as Spring's wrapper. Proven live by
+`scripts/verify_approvals_payments.py`, which fires two releases at the same instant.

@@ -114,6 +114,33 @@ class ApprovalRouterTest {
     }
 
     @Test
+    void requesterOnLeave_isNotApprovedByTheirOwnDelegate_escalatesToManager() {
+        // Liam (D07 manager, on leave, delegate Elise) requested a Facilities bill himself. Elise acting "on behalf of
+        // Liam" would be Liam approving his own spending by proxy (P07): it must go to Liam's manager instead.
+        var r = ApprovalRouter.route(POLICIES, facts("900", "active", "Rent & Property"), "D07", "U012", dir());
+        var s1 = r.steps().get(0);
+        assertThat(s1.assigneeId()).isEqualTo("U001");
+        assertThat(s1.onBehalfOfId()).isNull();
+        assertThat(s1.notes()).anyMatch(n -> n.contains("P07"));
+    }
+
+    @Test
+    void reroute_peopleWhoAlreadyActedAreNotReused() {
+        // Worked example, step 1 already approved by Elise on behalf of Liam. Re-routing the remaining FM step must not
+        // land on Elise or Liam again.
+        var r = ApprovalRouter.route(POLICIES, facts("12000", "active", "Rent & Property"), "D07", "U037", dir(), Set.of("U003", "U012"), Set.of("finance_manager"));
+        assertThat(r.steps()).filteredOn(s -> s.role().equals("finance_manager")).extracting(ApprovalRouter.Step::assigneeId).containsExactly("U002");
+    }
+
+    @Test
+    void reroute_afterAnApproverIsTerminated_goesToTheirManager() {
+        var d = dir();
+        d.users().get("U002").setStatus(UserStatus.terminated);   // Marcus left after the chain was snapshotted
+        var r = ApprovalRouter.route(POLICIES, facts("12000", "active", "Rent & Property"), "D07", "U037", d, Set.of("U003", "U012"), Set.of("finance_manager"));
+        assertThat(r.steps()).filteredOn(s -> s.role().equals("finance_manager")).extracting(ApprovalRouter.Step::assigneeId).containsExactly("U001");
+    }
+
+    @Test
     void terminatedAssigneeIsSkippedToManager() {
         var r = ApprovalRouter.route(POLICIES, facts("500", "active", "Freight & Carriers"), "D99", "U019", dir());
         assertThat(r.steps().get(0).assigneeId()).isEqualTo("U007");

@@ -49,13 +49,17 @@ export default function InvoiceDetailPage() {
   const editable = is('CLK') && !inv.historical && EDITABLE.includes(inv.status!)
   const openFlags = d.flags.filter((f) => f.status === 'OPEN')
   const doneFlags = d.flags.filter((f) => f.status !== 'OPEN')
-  const steps = d.approvalSteps.filter((s) => s.decision !== 'CANCELLED')
+  // Current approval round only; an earlier round (rejected, reopened, resubmitted) is shown separately.
+  const steps = d.approvalSteps.filter((s) => s.decision !== 'CANCELLED' && !s.superseded)
+  const earlierSteps = d.approvalSteps.filter((s) => s.decision !== 'CANCELLED' && s.superseded && !s.historical)
   const current = steps.find((s) => s.decision === 'PENDING')
   const actingIds = [me!.id, ...me!.actingFor.map((a) => a.userId)]
   const myTurn = !!current && inv.status === 'PENDING_APPROVAL' && actingIds.includes(current.assignedUserId)
   const approveBlockers: string[] = []
   if (inv.status === 'PENDING_APPROVAL' && current && !myTurn) approveBlockers.push(`Step ${current.seq} is assigned to ${d.users[current.assignedUserId] ?? current.assignedUserId}`)
   if (myTurn && me!.id === inv.requesterUserId) approveBlockers.push('You requested this invoice (self-approval is not allowed)')
+  const actingFor = current && me!.id !== current.assignedUserId ? current.assignedUserId : current?.onBehalfOfUserId
+  if (myTurn && actingFor && actingFor === inv.requesterUserId) approveBlockers.push('You would act on behalf of the requester (self-approval by proxy); an Admin can re-route this step')
   const blockingOpen = openFlags.filter((f) => f.severity === 'BLOCK' && !PAYMENT_HOLDS.includes(f.ruleCode!))
   if (myTurn && blockingOpen.length) approveBlockers.push(`Open BLOCK flags: ${blockingOpen.map((f) => f.ruleCode).join(', ')}`)
   const submitBlockers: string[] = []
@@ -98,6 +102,17 @@ export default function InvoiceDetailPage() {
           {is('APR', 'FM', 'ADM') && inv.status === 'PENDING_APPROVAL' && <ApproveReject id={id!} blockers={approveBlockers} onDone={refresh} />}
           {is('CLK', 'FM', 'ADM') && !inv.historical && ['IN_REVIEW', 'PENDING_APPROVAL', 'APPROVED', 'SCHEDULED', 'EXTRACTED'].includes(inv.status!) && (
             <HoldButton id={id!} onDone={refresh} />
+          )}
+          {is('CLK', 'ADM') && inv.status === 'REJECTED' && !inv.historical && (
+            <ReasonButton label="Reopen" title="Reopen for the AP clerk to fix and resubmit" color="blue"
+              placeholder="What will be fixed, e.g. corrected the department after the FM's rejection"
+              onConfirm={(reason) => api.post(`/invoices/${id}/reopen`, { reason })} done="Reopened: back in review" onDone={refresh} />
+          )}
+          {is('ADM') && inv.status === 'PENDING_APPROVAL' && (
+            <ReasonButton label="Re-route" title="Re-route the pending approval steps" color="gray"
+              placeholder="Why, e.g. the approver left the company / is away with no delegate"
+              hint="Re-resolves only the steps still waiting, using today's people, leave and delegations. Steps already decided stay, and nobody who already acted is picked again."
+              onConfirm={(reason) => api.post(`/invoices/${id}/reroute`, { reason })} done="Pending steps re-routed" onDone={refresh} />
           )}
           {is('CLK', 'FM', 'ADM') && inv.status === 'ON_HOLD' && (
             <Button variant="default" onClick={() => act('rh', () => api.post(`/invoices/${id}/release-hold`, { note: 'Hold lifted' }), 'Hold lifted')}>Lift hold</Button>
@@ -185,6 +200,16 @@ export default function InvoiceDetailPage() {
                 </Timeline.Item>
               ))}
             </Timeline>
+          )}
+          {earlierSteps.length > 0 && (
+            <Stack gap={4} mt="md">
+              <Text size="sm" fw={600} c="dimmed">Earlier approval round (before the invoice was rejected and resubmitted)</Text>
+              {earlierSteps.map((s) => (
+                <Text key={s.id} size="xs" c="dimmed">
+                  {s.requiredRole.replace('_', ' ')} · {d.users[s.assignedUserId] ?? s.assignedUserId}: {s.decision === 'PENDING' ? 'not reached' : `${s.decision.toLowerCase()} by ${d.users[s.actedBy!] ?? s.actedBy}`}{s.comment ? ` ("${s.comment}")` : ''}
+                </Text>
+              ))}
+            </Stack>
           )}
           {inv.routedAmountCad && num(inv.routedAmountCad) !== num(inv.totalCad) && (
             <Text size="sm" mt="sm" c="orange"><IconAlertTriangle size={14} /> Routed at the combined split amount {money(inv.routedAmountCad)}, not this bill's {money(inv.totalCad)}.</Text>
@@ -371,6 +396,40 @@ function ApproveReject({ id, blockers, onDone }: { id: string; blockers: string[
           <Button color={mode === 'approve' ? 'teal' : 'red'} loading={busy} disabled={mode === 'reject' && !text.trim()} onClick={go}>
             {mode === 'approve' ? 'Approve' : 'Reject'}
           </Button>
+        </Stack>
+      </Modal>
+    </>
+  )
+}
+
+function ReasonButton({ label, title, color, placeholder, hint, onConfirm, done, onDone }: {
+  label: string; title: string; color: string; placeholder: string; hint?: string
+  onConfirm: (reason: string) => Promise<unknown>; done: string; onDone: () => void
+}) {
+  const [opened, { open, close }] = useDisclosure(false)
+  const [reason, setReason] = useState('')
+  const [busy, setBusy] = useState(false)
+  const go = async () => {
+    setBusy(true)
+    try {
+      await onConfirm(reason)
+      notifyOk(done)
+      close(); setReason(''); onDone()
+    } catch (e) {
+      notifyError(e)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <>
+      <Button variant="light" color={color} onClick={open}>{label}</Button>
+      <Modal opened={opened} onClose={close} title={title}>
+        <Stack>
+          {hint && <Text size="sm" c="dimmed">{hint}</Text>}
+          <Textarea label="Reason (required, recorded in the audit log)" placeholder={placeholder} value={reason}
+            onChange={(e) => setReason(e.currentTarget.value)} autosize minRows={2} />
+          <Button color={color} loading={busy} disabled={!reason.trim()} onClick={go}>{label}</Button>
         </Stack>
       </Modal>
     </>
