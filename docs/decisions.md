@@ -319,3 +319,33 @@ department on the server.
 **D-070 OCR robustness found by running the batch in Docker**: the container's Tesseract (eng+fra) reads Cascadia's
 "QST (9.975%)" as "ST (9.975%)", which made T01/X02 fire on a correctly taxed bill. A bare "ST" tax label is now
 named from its rate (9.975% -> QST). Unit-tested with the container's actual OCR text.
+
+## Verification pass (before team review)
+
+**D-071 Anonymous writes are refused by the filter chain, not only by `@PreAuthorize`.** The write rule tested
+`isAuthenticated()`, which is true for Spring's `AnonymousAuthenticationToken`, so anonymous POST/PUTs passed layer 1
+and were refused only by method security, after Spring had already parsed and validated the body (an anonymous
+caller saw 400 validation messages instead of 401). Nothing executed, but D-018's "`/api/**` needs a session" was
+not true for writes. Now the rule requires a real `CurrentUser` principal. Proven by `SecurityConfigTest` (seen red:
+"expected 401 but was 400") and by probing all 57 live operations: 54/54 non-public -> 401 anonymous, 28/28 writes ->
+403 as Auditor.
+
+**D-072 The backend container runs as an unprivileged `app` user** (semgrep `missing-user-entrypoint`). `/storage`
+is created and owned by that user in the image so a fresh named volume inherits it; a volume created by an older
+root image needs `docker compose down -v` once.
+
+**D-073 Sequence ids use a bound parameter** (`nextval(cast(?1 as regclass))`) instead of string concatenation
+(semgrep `formatted-sql-string`). The names were constants, so it was not exploitable; now it is safe by construction.
+
+**D-074 CI added** (`.github/workflows/ci.yml`): backend unit tests; frontend typecheck, lint, build, `npm audit`
+(high+); ruff + shellcheck on scripts; gitleaks over full history. Actions pinned by commit SHA, images by digest,
+`permissions: contents: read`, validated with actionlint. It runs on PRs from this branch onward (a PR only runs the
+workflow present on its own head branch, so #1-#8 show no checks).
+
+**D-075 No `po_lines` table.** The PRD's entity sketch lists `po_lines`, but `purchase_orders.csv` carries only a PO
+total, so PO matching (PO1, P12) works at the header level: remaining balance = PO total minus other non-rejected
+bills on that PO. Line-level 3-way match is a follow-up if real PO lines appear.
+
+**D-076 Known, accepted lint warnings**: 4 `oxlint` warnings in the frontend (2 fast-refresh "file exports a
+non-component", 2 "setState in effect" where server data seeds an editable form). They don't affect behaviour;
+left as warnings rather than restructuring components before the review.
