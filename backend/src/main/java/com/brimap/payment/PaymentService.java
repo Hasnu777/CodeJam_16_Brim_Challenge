@@ -123,7 +123,7 @@ public class PaymentService {
 
     // ---------- release ----------
 
-    public List<String> releaseBlockers(Payment p, AppUser releaser) {
+    private ReleaseRules.Input releaseInput(Payment p, AppUser releaser) {
         Invoice inv = p.getInvoiceId() == null ? null : invoices.findById(p.getInvoiceId()).orElse(null);
         Vendor v = p.getVendorId() == null ? null : vendors.findById(p.getVendorId()).orElse(null);
         VendorBankAccount acct = v == null ? null : accounts.findFirstByVendorIdAndStatus(v.getId(), "ACTIVE").orElse(null);
@@ -134,8 +134,15 @@ public class PaymentService {
                 .filter(f -> f.getSeverity() == Severity.BLOCK).toList();
         List<BankChangeRequest> pending = v == null ? List.of() : bankChanges.findByVendorIdOrderByChangedAtDesc(v.getId()).stream()
                 .filter(b -> "PENDING".equals(b.getStatus())).toList();
-        List<String> out = new ArrayList<>(ReleaseRules.blockers(new ReleaseRules.Input(p, inv, releaser, inv == null ? List.of() : steps.findByInvoiceIdOrderBySeq(inv.getId()),
-                v, acct, blocks, policies.findAllByOrderByPriorityAsc(), pending)));
+        return new ReleaseRules.Input(p, inv, releaser, inv == null ? List.of() : steps.findByInvoiceIdOrderBySeq(inv.getId()),
+                v, acct, blocks, policies.findAllByOrderByPriorityAsc(), pending);
+    }
+
+    public List<String> releaseBlockers(Payment p, AppUser releaser) {
+        ReleaseRules.Input in = releaseInput(p, releaser);
+        Vendor v = in.vendor();
+        VendorBankAccount acct = in.account();
+        List<String> out = new ArrayList<>(ReleaseRules.blockers(in));
         if (acct != null && p.getBankAccountId() != null) {
             VendorBankAccount active = accounts.findFirstByVendorIdAndStatus(v.getId(), "ACTIVE").orElse(null);
             if (active != null && !active.getId().equals(p.getBankAccountId())) {
@@ -165,7 +172,10 @@ public class PaymentService {
             accounts.findFirstByVendorIdAndStatus(p.getVendorId(), "ACTIVE").ifPresent(a -> p.setBankAccountId(a.getId()));
         }
         payments.save(p);
-        audit.record("PAYMENT_RELEASED", "payment", id, before, snapshot(p), "Released by " + me.getFullName() + " (" + me.getRole() + ")");
+        Optional<String> exception = ReleaseRules.sodException(releaseInput(p, me));
+        audit.record("PAYMENT_RELEASED", "payment", id, before, snapshot(p), "Released by " + me.getFullName() + " (" + me.getRole() + ")"
+                + exception.map(e -> "; " + e).orElse(""));
+        exception.ifPresent(e -> audit.record("SOD_EXCEPTION", "payment", id, null, Map.of("releasedBy", u.id(), "invoiceId", p.getInvoiceId()), e));
         Invoice inv = workflow.load(p.getInvoiceId());
         if (inv.getStatus() == InvoiceStatus.SCHEDULED) workflow.transition(inv, InvoiceStatus.RELEASED, "PAYMENT_RELEASED", id + " released by " + u.id());
         return p;

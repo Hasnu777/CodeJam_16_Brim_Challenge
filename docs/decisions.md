@@ -358,7 +358,7 @@ names only `finance_manager` for this band; the PRD's release table (and its `/p
 less, and it leaves a releaser when the FM approved the invoice (the worked example). `ReleaseRules` encodes it; the
 policy rows keep the dataset's original sentences.
 
-**D-078 Invoices over $250,000 cannot be released by anyone, by design.** P04 puts the FM, the Controller and the
+**D-078 (superseded by D-082) Invoices over $250,000 cannot be released by anyone, by design.** P04 puts the FM, the Controller and the
 CFO on the chain; P10 requires a Controller/Admin to release over $100k; P11 bars anyone who approved. Both
 Controller/Admins (U001, U002) have approved, the FM can't release over $100k, so every release attempt is refused
 with its reason. We keep the refusal rather than exempting the CFO from P11 (the one rule the PRD applies to every
@@ -374,3 +374,18 @@ held until FM verifies"). The stricter variant is one line: remove B01/B02 from 
 **D-080 The Windows reset command bypasses the script policy for one run.** Machines with an AllSigned policy refuse
 the unsigned `reset-and-seed.ps1`, so the README documents `powershell -ExecutionPolicy Bypass -File ...`, which
 changes no system setting. Signing the script would need a code-signing certificate the team doesn't have.
+
+## Features 6 and 7 (approvals and payments)
+
+**D-081 Team confirmations for approvals and payments.** (1) The Controller and the CFO may also release payments
+under $100,000, not only the Finance Manager (confirms D-077). (2) The CFO approves only invoices over $250,000
+(dataset P04), not every invoice. (3) BLOCK flags may be overridden by the Finance Manager *or* a Controller/Admin,
+as the PRD's `/flags/{id}/resolve` row says; AP clerks can't override blocks.
+
+**D-082 CFO separation-of-duties exception over $250,000 (supersedes D-078).** The team chose to let the CFO pay
+what she approved rather than leave $250k+ invoices unpayable. The exception is narrow (`ReleaseRules.sodException`):
+the releaser must be the CFO (the Controller/Admin with no manager), and every approval step she acted on must be the
+`cfo` step, acted on herself (not as or for a delegate). If she approved any other step, e.g. as an escalated
+department manager, P11 still bars her; the requester is always barred. Each such release writes a `SOD_EXCEPTION`
+audit row next to `PAYMENT_RELEASED`, so the Auditor can list every exception. Everyone else who approved
+(Controller, FM, department manager) is still refused. Unit-tested in `ReleaseRulesTest`.
