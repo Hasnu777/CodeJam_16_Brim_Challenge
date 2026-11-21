@@ -278,3 +278,15 @@ badges). Low-confidence fields are highlighted yellow with "check the document".
 
 **D-063 X-Frame-Options SAMEORIGIN** instead of Spring's default DENY, so the invoice PDF can be shown in an iframe on
 the app's own page; other origins still can't frame the app.
+
+## Phase 7: whole-batch verification
+
+**D-064 The PRD's "Mess found" table is an executable check** (`scripts/verify_mess_table.py --process`): it resets,
+processes all 59 emails, and asserts every row (24 checks) plus the worked example end to end and the audit chain.
+24/24 pass on the local build and on a fresh `docker compose up --build`. Nothing in the table needed a fix at
+this stage; the fixes it would have caught were made during Phase 4 (batch re-validation for the Orion split,
+D-048) and Phase 6 (PDF framing, D-063).
+
+**D-065 A bill with no department can't show a department-manager step in previews** (Riverbend, the Harlow
+lookalike, unknown vendors have no history to infer it from). Submission refuses until the clerk sets it, which
+then adds the step; the preview shows the problem instead of guessing.
