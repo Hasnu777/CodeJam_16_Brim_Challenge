@@ -90,6 +90,7 @@ export interface InvoiceDetail {
   history: AuditEvent[]
   users: Record<string, string>
   allowedNext: string[]
+  recommendation?: { verdict: 'APPROVE' | 'LOOK_CLOSER' | 'HOLD'; headline: string; reasons: string[] }
 }
 
 export interface RouteStep {

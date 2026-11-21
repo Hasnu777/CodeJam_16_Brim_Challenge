@@ -105,6 +105,13 @@ export default function InvoiceDetailPage() {
         </Group>
       </Group>
 
+      {d.recommendation && is('APR', 'FM', 'ADM', 'AUD') && ['PENDING_APPROVAL', 'IN_REVIEW'].includes(inv.status!) && (
+        <Card withBorder padding="sm" style={{ borderLeft: `4px solid var(--mantine-color-${d.recommendation.verdict === 'APPROVE' ? 'teal' : d.recommendation.verdict === 'HOLD' ? 'red' : 'yellow'}-6)` }}>
+          <Text fw={600}>{d.recommendation.headline}</Text>
+          {d.recommendation.reasons.map((r) => <Text key={r} size="xs" c={r.startsWith('+') ? 'teal' : 'dimmed'}>{r}</Text>)}
+        </Card>
+      )}
+
       {openFlags.length > 0 && (
         <Stack gap="xs">
           {openFlags.map((f) => (
