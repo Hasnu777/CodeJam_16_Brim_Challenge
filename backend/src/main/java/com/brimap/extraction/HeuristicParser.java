@@ -89,8 +89,13 @@ public final class HeuristicParser {
                 : upper.contains("STATEMENT OF ACCOUNT") ? "statement" : "invoice";
         String lang = upper.contains("FACTURE") || upper.contains("TPS") ? "fr" : "en";
         double c = 0.7;
+        // Lines are trustworthy when they add up to the printed subtotal (independent cross-check).
+        java.math.BigDecimal sum = items.stream().map(i -> InvoiceNormalizer.money(i.amount())).filter(java.util.Objects::nonNull)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+        java.math.BigDecimal sub = InvoiceNormalizer.money(subtotal);
+        double linesConf = items.isEmpty() ? 0 : sub != null && sub.compareTo(sum) == 0 ? 0.8 : 0.4;
         var conf = new ExtractedInvoice.Confidence(vendorName.isEmpty() ? 0 : 0.6, invNo.isEmpty() ? 0 : c, date.isEmpty() ? 0 : c,
-                due.isEmpty() ? 0 : c, total.isEmpty() ? 0 : c, items.isEmpty() ? 0 : 0.5, taxes.isEmpty() ? 0.5 : c);
+                due.isEmpty() ? 0 : c, total.isEmpty() ? 0 : c, linesConf, taxes.isEmpty() ? 0.6 : c);
         if (invNo.isEmpty() && total.isEmpty()) return null; // nothing usable: caller makes a manual-entry draft
         return new ExtractedInvoice(docType, vendorName, vendorAddress, gst, qst, invNo, date, due, terms, currency, billToName,
                 billToAddress, po, items, subtotal, taxes, total, ri, rt, ra, lang, conf, "Parsed offline by regex fallback");

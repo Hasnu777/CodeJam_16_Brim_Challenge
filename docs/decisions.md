@@ -152,3 +152,66 @@ to the invoice they mention and its payment status (EM-057 -> AP-00049, paid 202
 
 **D-036 Inbox processing is asynchronous** (4 workers) because each attachment can be an LLM call; workers run with
 the clicking user's security context so the audit actor is correct. Upload is synchronous (one file).
+
+## Phase 4: coding suggestions and validation rules
+
+**D-037 One class per rule, pure functions of an `InvoiceContext`.** `InvoiceContextFactory` is the only part that
+touches the database; it loads the invoice, its lines/taxes, vendors, bank account versions, bank changes,
+contracts, PO and amount already billed on it, every other invoice, document hashes, card transactions, tax codes,
+today and the approval thresholds. Each of the 32 rule classes is unit-tested with a hand-built context from the
+dataset example the PRD cites (66 tests in total).
+
+**D-038 Flags are never deleted.** Re-validation keeps a finding whose code+message is unchanged (with its
+acknowledgement or override), adds new findings, and marks OPEN flags whose condition no longer holds as
+RESOLVED/AUTO_CLEARED. So a clerk's fix (e.g. entering the department) visibly clears X03 in the history.
+
+**D-039 Who may resolve what.** WARN/INFO: the clerk acknowledges or resolves. BLOCK: only FM or Controller, and only
+with a note (403 / 400 otherwise). The flag row stores who, when, resolution and note; an audit event is written.
+
+**D-040 Exact duplicates (D01/D03) park the bill in DUPLICATE** instead of IN_REVIEW. Other BLOCK flags (vendor,
+bank) leave the bill reviewable but block submission/approval/payment until resolved, so the clerk can still
+correct fields and the FM can act on the vendor.
+
+**D-041 S01 only groups bills still awaiting approval.** The first run grouped each monthly utility bill with last
+month's already-paid one (Prairie Natural Gas, Prairie Express). A split is several bills going through approval
+together; history that was approved separately is not. The group must also cross a threshold read from the
+policy table (so an Admin edit of the $10,000 tier moves the split detector too).
+
+**D-042 D02 near-duplicate window is 10 days and the edit distance must be < half the number's length.** With the
+PRD's 30 days every monthly subscription bill (same amount, next sequential number, ~30 days later: Cloudbarn,
+Quillpad, Fibrewave, ClearView, Benefitwise) matched last month's. And "differs by <= 2 characters" flagged Orion
+279 vs 281. After tuning, D02 still catches Voyageur "000903-A" vs paid "000903" (2 days apart, same amount).
+
+**D-043 Duplicate score is shown on every D-flag**: same vendor 0.30, same normalized # 0.40 (or within 2 chars 0.20),
+amount within 1% 0.20, dated within 30 days 0.10, identical file = 1.0. Credit notes never match invoices (sign).
+
+**D-044 D04 ignores AP virtual-card payments of other known invoices** (memo "AP payment AP-xxxxx"), otherwise every
+monthly SaaS bill paid by virtual card would look already paid. Merchant match needs prefix containment or
+Jaro-Winkler >= 0.90 ("PAPERCLIP STATIONERS" must not match "Paper Trail Office Supply").
+
+**D-045 V04 lookalike needs a different bank account or email domain, and flags only the less-established record.**
+Same bank + same domain with a different GST # (V001/V051 Polar, V002/V053 Great Lakes) is a duplicate vendor
+record, reported by B04. And the genuine Harlow & Stern (V026, paid history) must not be blocked because a
+lookalike exists; only V052 (no history) is.
+
+**D-046 T01 is computed from the tax_codes table by ship-to province, per tax**, with PST on goods lines only (line type
+from the vendor's history). Unregistered suppliers charging nothing (Riverbend) are not told to charge GST;
+charging without a number is T03. Foreign vendors and Insurance are T02.
+
+**D-047 K04 computes the fuel surcharge percentage** (surcharge / other freight lines) instead of trusting the printed
+label. P12 compares pre-tax amounts against the PO's remaining balance.
+
+**D-048 Cross-invoice rules re-run after a batch.** Inbox workers run in parallel, so a bill may be validated before
+its duplicate or split partner exists. When the batch finishes, every open bill is validated again; after an
+upload, the same vendor's open bills are. (Without it, the Orion split was missed.)
+
+**D-049 Coding suggestions learn from history**: the vendor's past line coding by frequency ("7 of 8 past invoice
+lines from X went to 5010"), else token overlap with all past lines ("10 of 10 similar past lines went to 5010,
+e.g. ... on AP-00028"), else the vendor's default account. Clerk overrides are kept and logged with the suggestion
+they replaced; re-coding never touches an overridden line.
+
+**D-050 Real mess found beyond the PRD's table** (all flagged): Polar 000964 fuel surcharge 22% vs 12% cap (K04);
+Northbound charges ON HST on an AB delivery and Ironwood no HST in ON (T01); Signal & Sparrow charges BC PST on
+services (T01); Northstar 24 x $150 printed as $3,800 (X01); Lattice $8,200 vs $1,320 fixed fee, Pinecone +6%,
+Aurora +9% (K02); Redline over its monthly cap (K05); Lumen invoice 210 days old (X04); Brightline "583" is a
+reformatted duplicate of paid "FA-000583" (D01); Fixwell credit note CN-FA-000413 equals paid FA-000410 (X05).

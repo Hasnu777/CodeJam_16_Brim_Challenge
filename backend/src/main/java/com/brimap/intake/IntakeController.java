@@ -43,6 +43,7 @@ public class IntakeController {
     private final ExtractionService extraction;
     private final AppProperties props;
     private final com.brimap.repository.VendorRepository vendors;
+    private final com.brimap.validation.RevalidationService revalidation;
 
     @PostMapping("/inbox/process")
     @PreAuthorize("hasAnyRole('CLK','ADM')")
@@ -62,8 +63,10 @@ public class IntakeController {
     public Invoice upload(@RequestParam("file") MultipartFile file) throws IOException {
         if (file.isEmpty()) throw new IllegalArgumentException("Empty file");
         CurrentUser u = Auth.require();
-        return pipeline.ingest(file.getBytes(), Optional.ofNullable(file.getOriginalFilename()).orElse("upload"),
+        Invoice inv = pipeline.ingest(file.getBytes(), Optional.ofNullable(file.getOriginalFilename()).orElse("upload"),
                 new IntakePipeline.Source("UPLOAD", null, null, null, u.id()));
+        revalidation.revalidateVendor(inv); // other open bills from this vendor may now be duplicates of / split with it
+        return inv;
     }
 
     @PostMapping("/invoices/{id}/reextract")

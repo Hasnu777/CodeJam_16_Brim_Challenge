@@ -38,15 +38,17 @@ public class InboxService {
     private final VendorRepository vendors;
     private final InvoiceRepository invoices;
     private final PaymentRepository payments;
+    private final com.brimap.validation.RevalidationService revalidation;
     private final TransactionTemplate tx;
     private final ExecutorService pool = Executors.newFixedThreadPool(4);
 
     private volatile Job job;
 
     public InboxService(EmailMessageRepository emails, IntakePipeline pipeline, LlmExtractor llm, AppProperties props, AuditService audit,
-                        VendorRepository vendors, InvoiceRepository invoices, PaymentRepository payments, PlatformTransactionManager tm) {
+                        VendorRepository vendors, InvoiceRepository invoices, PaymentRepository payments,
+                        com.brimap.validation.RevalidationService revalidation, PlatformTransactionManager tm) {
         this.emails = emails; this.pipeline = pipeline; this.llm = llm; this.props = props; this.audit = audit;
-        this.vendors = vendors; this.invoices = invoices; this.payments = payments; this.tx = new TransactionTemplate(tm);
+        this.vendors = vendors; this.invoices = invoices; this.payments = payments; this.revalidation = revalidation; this.tx = new TransactionTemplate(tm);
     }
 
     public static final class Job {
@@ -112,9 +114,12 @@ public class InboxService {
             for (Future<?> f : futures) {
                 try { f.get(); } catch (Exception ignored) { /* counted above */ }
             }
+            // Cross-invoice rules (duplicates within the batch, splits, caps) need the whole batch present.
+            int revalidated = revalidation.revalidateOpen();
             j.finishedAt = Instant.now();
             tx.executeWithoutResult(s -> audit.record("INBOX_PROCESS_FINISHED", "inbox", "emails.json", null, null,
-                    j.invoicesCreated.get() + " bills created, " + j.needsAttention.get() + " need attention, " + j.errors.size() + " errors"));
+                    j.invoicesCreated.get() + " bills created, " + j.needsAttention.get() + " need attention, " + j.errors.size()
+                            + " errors; " + revalidated + " open bills re-validated as a batch"));
         });
         return status();
     }
