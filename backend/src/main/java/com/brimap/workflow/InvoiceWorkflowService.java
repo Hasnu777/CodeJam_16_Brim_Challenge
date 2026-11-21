@@ -82,6 +82,16 @@ public class InvoiceWorkflowService {
         return saved;
     }
 
+    /** A non-status change done by a delegate: the audit row says "X on behalf of Y". */
+    @Transactional
+    public Invoice recordChangeOnBehalf(Invoice inv, String action, String onBehalfOf, Map<String, Object> after, String detail) {
+        inv.setUpdatedAt(clock.now());
+        Invoice saved = invoices.save(inv);
+        if (onBehalfOf != null) audit.recordOnBehalf(onBehalfOf, action, "invoice", inv.getId(), null, after, detail);
+        else audit.record(action, "invoice", inv.getId(), null, after, detail);
+        return saved;
+    }
+
     /** Manual hold: CLK, FM, ADM. */
     @Transactional
     public Invoice hold(String id, String reason) {

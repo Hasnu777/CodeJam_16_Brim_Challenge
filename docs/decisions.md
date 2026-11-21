@@ -215,3 +215,49 @@ Northbound charges ON HST on an AB delivery and Ironwood no HST in ON (T01); Sig
 services (T01); Northstar 24 x $150 printed as $3,800 (X01); Lattice $8,200 vs $1,320 fixed fee, Pinecone +6%,
 Aurora +9% (K02); Redline over its monthly cap (K05); Lumen invoice 210 days old (X04); Brightline "583" is a
 reformatted duplicate of paid "FA-000583" (D01); Fixwell credit note CN-FA-000413 equals paid FA-000410 (X05).
+
+## Phase 5: approvals, payments, vendors
+
+**D-051 Routing is a pure function over the policy table** (`ApprovalRouter`): every enabled approval/match rule whose
+condition holds adds its roles; roles are unioned and ordered dept_manager -> finance_manager -> controller_admin ->
+cfo. Then each step is resolved to a person applying, in a loop until stable: terminated -> manager; on leave ->
+active delegate ("on behalf of", P08); requester -> manager (P07); already on the chain -> manager (distinct
+people); final step over the person's limit -> up the manager chain. Unit-tested on the PRD's worked example and
+proven on real data: Queen Street 002935 ($18,758, D07) routes Liam (on leave) -> Elise on his behalf, Elise's FM
+step -> Marcus; only Priya (CFO) can release.
+
+**D-052 Role holders are resolved from data, not hard-coded ids**: finance_manager = the FM; controller_admin = the
+ADM with a manager (Controller); cfo = the ADM without one; dept_manager = departments.manager_user_id.
+
+**D-053 Routing amount = max(invoice total CAD, an open S01 split's combined amount)**, absolute value for credit
+notes. Stored on the invoice (`routedAmountCad`) with the snapshotted steps.
+
+**D-054 Payment holds vs approval blocks.** V01/V02 (vendor not approved) and B01/B02 (bank not verified) are the PRD's
+"Holds": the bill can be submitted and routed (that is how P05 adds the FM step for new/unknown vendors) but no
+payment can be released until the vendor is approved / the change verified, which auto-clears the flags. Every
+other BLOCK flag (duplicates, lookalike, PO required, paid by card) stops submission and approval until an FM
+resolves or overrides it. Submission also requires every WARN to be acknowledged.
+
+**D-055 Approver checks happen at action time too, not only at routing time**: the caller must be the step's
+assignee or someone the assignee delegated to; never the requester; never someone who already acted on another
+step; the final step's approver must cover the routed amount. Approving as a delegate records actedOnBehalfOf and
+the audit row's on_behalf_of.
+
+**D-056 Release rules are one pure function used twice** (`ReleaseRules`): the server refuses with 403 + reason,
+and the payments dashboard shows the same reasons on disabled buttons, so they cannot disagree. P09/P10 come from
+the policy table; P11 excludes anyone who acted on an approval step, as approver or as the person a delegate acted
+for. Clerks prepare only. Vendor must be active, the bank account version verified, no pending bank change,
+no open BLOCK flag.
+
+**D-057 Payments pin a bank-account version** at prepare time. If the vendor's active account changes afterwards, the
+payment cannot be released until it is re-prepared. Early-payment discounts ("2/10 net 30") schedule the payment
+on day 10 with the discount when that day hasn't passed; approved credit notes from the same vendor are netted
+against the next payment (never below zero) and become PAID when it settles.
+
+**D-058 Bank changes are requests, verified by a different person with a callback.** A request creates a new PENDING
+account version (the active one is untouched) and holds payments. Verify (FM/ADM, not the requester, callback
+required) makes it ACTIVE + verified and supersedes the old one; reject marks it REJECTED, and if the change had
+already been applied to the master (BC-009) the vendor goes on hold, since no trusted account remains.
+
+**D-059 Vendor approval needs a second person** (FM/ADM who did not onboard it); approval also verifies the vendor's
+initial bank account and sets onboardedAt to the approval date, so P05's "new vendor (90 days)" applies.
