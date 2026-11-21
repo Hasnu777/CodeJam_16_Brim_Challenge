@@ -2,7 +2,10 @@ import { Route, Routes } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import AppLayout from './components/AppLayout'
 import { Loading } from './components/bits'
+import AnalyticsPage from './pages/AnalyticsPage'
 import AuditPage from './pages/AuditPage'
+import FraudPage from './pages/FraudPage'
+import ReconciliationPage from './pages/ReconciliationPage'
 import HomePage from './pages/HomePage'
 import InboxPage from './pages/InboxPage'
 import InvoiceDetailPage from './pages/InvoiceDetailPage'
@@ -31,6 +34,9 @@ export default function App() {
         <Route path="vendors/:id" element={<VendorDetailPage />} />
         <Route path="policies" element={<PoliciesPage />} />
         <Route path="audit" element={<AuditPage />} />
+        <Route path="fraud" element={<FraudPage />} />
+        <Route path="reconciliation" element={<ReconciliationPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="*" element={<HomePage />} />
       </Route>
     </Routes>
