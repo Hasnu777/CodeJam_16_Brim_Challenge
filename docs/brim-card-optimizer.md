@@ -35,6 +35,23 @@ Most of the missed benefit is Trailhead Fuel ($866), Alpenglow Events ($320) and
 
 The 21-day grace period, 5% value of cash, 1% rewards and $50,000 limit are our assumptions, printed on the page (D-089). Not modelled: vendor card surcharges and a total credit limit.
 
+## Brim virtual cards (D-100)
+
+When a card payment is released, Brim issues a **virtual card for that payment only**:
+
+- **Locked to the vendor:** a charge from any other merchant is declined.
+- **Locked to the amount:** the limit is the payment amount; one cent over is declined.
+- **Single use:** after the vendor's charge, any further charge is declined.
+- **Expires** 30 days after issue.
+
+Lifecycle: issued at release, charged by the vendor (the payment batch stands in for that), closed when the payment
+settles, cancelled if it fails (the retry gets a new card). Only the last four digits are stored. Every step and every
+declined attempt is in the audit log.
+
+**Demo:** release a card payment, open the Released tab on Payments, click **Try a charge** on the card: overcharge
+by $100 (declined), another merchant (declined), the bill (approved), a second time (declined). Then show the
+`VIRTUAL_CARD_*` rows in the Audit log, filtered by the payment id.
+
 ## Demo
 
 As the AP Clerk, open Payments, point at the $1,338, hover a purple badge, switch a payment to EFT and back, then show the two audit events as the Auditor.

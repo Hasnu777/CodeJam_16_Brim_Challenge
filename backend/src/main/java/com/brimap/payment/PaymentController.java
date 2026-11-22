@@ -48,6 +48,15 @@ public class PaymentController {
     @PreAuthorize("hasAnyRole('CLK','FM','ADM')")
     public Payment changeMethod(@PathVariable String id, @RequestBody MethodRequest body) { return payments.changeMethod(id, body.method()); }
 
+    public record ChargeRequest(String merchantVendorId, java.math.BigDecimal amount) {}
+
+    /** Brim virtual card demo: try a charge against a released card payment's card (approved or declined, always audited). */
+    @PostMapping("/{id}/card-charge")
+    @PreAuthorize("hasAnyRole('FM','ADM')")
+    public VirtualCardService.ChargeResult cardCharge(@PathVariable String id, @RequestBody ChargeRequest body) {
+        return payments.simulateCharge(id, body.merchantVendorId(), body.amount());
+    }
+
     @PostMapping("/batch")
     @PreAuthorize("hasAnyRole('FM','ADM')")
     public PaymentBatch batch() { return payments.batch(); }

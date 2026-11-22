@@ -527,3 +527,17 @@ it"), but nothing could re-prepare a SCHEDULED payment. `POST /payments/{id}/rep
 current active, verified account; it still needs a release, and the releaser sees the new account. Audited as
 `PAYMENT_REPREPARED`. A failed payment's automatic retry now also uses the vendor's current active account (a failure
 is often a closed account), not the old version.
+
+**D-100 Brim virtual cards: one single-use card per card payment.** D-089 moved payments onto "the Brim AP card";
+the goal was Brim's virtual cards. Now, when a card payment is released, a virtual card is issued for that payment
+only (`VirtualCardService.issue`), locked four ways: to the payment's vendor, to the payment amount (the limit), to one
+charge, and to a 30-day expiry. Every charge is checked by a pure function (`VirtualCards.declineReason`, unit-tested):
+another merchant, one cent over the limit, a second charge, an expired or cancelled card are all declined. A leaked
+card number is therefore worth nothing to anyone else. Issuing at release, not at preparation, means a card only
+exists once the release rules (P09-P11) have passed. Only the last four digits are stored (the number is Luhn-valid
+with a fictional issuer prefix); the full number would go to the vendor once. The batch run stands in for the vendor
+charging the card on the payment date; the payment file lists it as `VCARD Visa ···· 1234` instead of bank details.
+Settling closes the card; a failed payment cancels it, and the retry gets a new card when it is released. Issue,
+charge, decline, close and cancel are all audited against the payment. `POST /payments/{id}/card-charge` (FM/Admin)
+lets a demo try charges against a released card; declines are returned (200, `approved: false`) rather than thrown,
+so the attempt stays in the audit log.

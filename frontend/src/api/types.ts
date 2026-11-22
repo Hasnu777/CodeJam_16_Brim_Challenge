@@ -25,6 +25,9 @@ export interface CardAdvice {
   notes: string[]
 }
 export type PaymentRow = S['PaymentRow'] & { cardAdvice?: CardAdvice | null }
+// Brim virtual cards (D-100)
+export type VirtualCard = S['VirtualCard']
+export type CardChargeResult = S['ChargeResult']
 export interface CardSummary { count: number; amountCad: string; benefitCad: string; avgFloatDays: number }
 export interface CardOpportunity {
   terms: { graceDays: number; rewardsRate: string; costOfCashAnnual: string; perTxnLimitCad: string }

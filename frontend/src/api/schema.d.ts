@@ -228,6 +228,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/payments/{id}/card-charge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cardCharge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/payments/prepare": {
         parameters: {
             query?: never;
@@ -1289,6 +1305,38 @@ export interface components {
         FailRequest: {
             reason?: string;
         };
+        ChargeRequest: {
+            merchantVendorId?: string;
+            amount?: number;
+        };
+        ChargeResult: {
+            approved?: boolean;
+            reason?: string;
+            card?: components["schemas"]["VirtualCard"];
+        };
+        VirtualCard: {
+            id?: string;
+            /** Format: int64 */
+            version?: number;
+            paymentId?: string;
+            vendorId?: string;
+            network?: string;
+            last4?: string;
+            currency?: string;
+            spendLimit?: number;
+            /** Format: date */
+            expiresOn?: string;
+            status?: string;
+            /** Format: date-time */
+            issuedAt?: string;
+            issuedBy?: string;
+            chargedAmount?: number;
+            /** Format: date-time */
+            chargedAt?: string;
+            /** Format: int32 */
+            declinedAttempts?: number;
+            lastDecline?: string;
+        };
         PrepareRequest: {
             invoiceIds?: string[];
         };
@@ -1450,6 +1498,7 @@ export interface components {
             releaseBlockers?: string[];
             earlyDiscountAvailable?: boolean;
             cardAdvice?: components["schemas"]["Advice"];
+            virtualCard?: components["schemas"]["VirtualCard"];
         };
         InvoiceSummary: {
             id?: string;
@@ -2059,6 +2108,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
+    cardCharge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChargeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ChargeResult"];
                 };
             };
         };

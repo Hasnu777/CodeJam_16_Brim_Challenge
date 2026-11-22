@@ -70,13 +70,13 @@ live check (scenario 13 in `scripts/verify_approvals_payments.py`): clerk switch
 refused (403), unknown method (400), vendor that doesn't accept card (409), three audit rows, and the payment still
 needs a normal release by someone who didn't approve it.
 
-Issues to know about (not fixed, so the team can decide):
-- **It is one "Brim AP card", not virtual cards.** The goal was a Brim virtual card for vendors that accept card. A
-  virtual card would be a card number issued per vendor (or per payment), locked to that vendor and amount, shown
-  masked on the payment, and expired after use. That is a moderate addition on top of what exists: a `virtual_cards`
-  table, issue at release, masked number in the payment row and batch file, audited.
-- **Card charges go into the "EFT batch file"** with `BRIM-AP-CARD` in the account column. Fine for a simulation; in
-  reality a card charge is not an EFT.
+**Virtual cards: built after the merge (D-100).** It used to be one shared "Brim AP card". Now each card payment
+gets its own single-use Brim virtual card at release, locked to the vendor, the amount and a 30-day expiry; the batch
+file lists `VCARD Visa ···· 1234` instead of bank details; settle closes the card, a failure cancels it. A **Try a
+charge** button on released card payments (Finance Manager / Admin) demonstrates the declines. Unit-tested
+(`VirtualCardsTest`, 8 tests) and checked live (scenario 14, 2 checks).
+
+Issues still to know about:
 - **Bank reconciliation ignores card payments.** They would settle against the card statement (`card_transactions.csv`),
   not the bank statement.
 - **The terms are assumptions** (21-day grace, 5%/yr value of cash, 1% rewards, $50k limit) and the page prints them.
@@ -86,10 +86,10 @@ Issues to know about (not fixed, so the team can decide):
 
 | Check | Result |
 |---|---|
-| Backend unit tests (`gradlew test`) | 148 tests, 0 failures |
+| Backend unit tests (`gradlew test`) | 156 tests, 0 failures (after virtual cards) |
 | Frontend `tsc -b` | clean |
 | Frontend lint | 5 warnings, all known (4 from D-076, 1 from afra-work's InboxPage) |
-| `scripts/verify_approvals_payments.py` (features 6, 7 and the card bonus, live) | 24/24 |
+| `scripts/verify_approvals_payments.py` (features 6, 7, the card bonus and virtual cards, live) | 26/26 |
 | `scripts/verify_mess_table.py --process` (whole incoming batch, live) | 24/24 |
 | Browser, as Marcus (Admin) | Login, Home (reset card), Payments (card panel, release buttons), Audit log (chain verified, Export CSV), invoice page |
 

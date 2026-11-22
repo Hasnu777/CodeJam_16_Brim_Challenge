@@ -47,6 +47,7 @@ public class PaymentService {
     private final IdGenerator ids;
     private final AuditService audit;
     private final AppClock clock;
+    private final VirtualCardService virtualCards;
 
     // ---------- prepare ----------
 
@@ -177,6 +178,7 @@ public class PaymentService {
         audit.record("PAYMENT_RELEASED", "payment", id, before, snapshot(p), "Released by " + me.getFullName() + " (" + me.getRole() + ")"
                 + exception.map(e -> "; " + e).orElse(""));
         exception.ifPresent(e -> audit.record("SOD_EXCEPTION", "payment", id, null, Map.of("releasedBy", u.id(), "invoiceId", p.getInvoiceId()), e));
+        if ("CARD".equals(p.getMethod())) virtualCards.issue(p, u.id());   // D-100: single-use card for this payment only
         Invoice inv = workflow.load(p.getInvoiceId());
         if (inv.getStatus() == InvoiceStatus.SCHEDULED) workflow.transition(inv, InvoiceStatus.RELEASED, "PAYMENT_RELEASED", id + " released by " + u.id());
         return p;
@@ -239,6 +241,16 @@ public class PaymentService {
                 p.getAmountCad(), p.getScheduledDate(), p.getDiscountTaken()), CardPaymentAdvisor.Terms.DEFAULT);
     }
 
+    /** Demo of the card locks: a vendor (or anyone holding the number) tries to charge the payment's virtual card. */
+    @Transactional
+    public VirtualCardService.ChargeResult simulateCharge(String id, String merchantVendorId, BigDecimal amount) {
+        CurrentUser u = Auth.require();
+        InvoiceWorkflowService.requireRole(u, "test virtual card charges", Role.FM, Role.ADM);
+        Payment p = payments.findById(id).orElseThrow(() -> new NotFoundException("Payment " + id));
+        if (!"CARD".equals(p.getMethod())) throw new BusinessRuleException(id + " is paid by " + p.getMethod() + ", not by virtual card");
+        return virtualCards.charge(p, merchantVendorId, amount);
+    }
+
     // ---------- EFT batch, settle, fail ----------
 
     @Transactional
@@ -251,29 +263,42 @@ public class PaymentService {
         b.setId(ids.batchId());
         b.setCreatedAt(clock.now());
         b.setCreatedBy(u.id());
-        StringBuilder file = new StringBuilder("# Simulated EFT file " + b.getId() + " - Harborline Logistics - " + clock.today() + "\n");
+        StringBuilder file = new StringBuilder("# Simulated payment file " + b.getId() + " (EFT + Brim virtual card charges) - Harborline Logistics - " + clock.today() + "\n");
         file.append("payment_id,payee,institution,transit,account,currency,amount,reference\n");
         BigDecimal total = BigDecimal.ZERO;
+        int sent = 0;
         for (Payment p : released) {
             Vendor v = p.getVendorId() == null ? null : vendors.findById(p.getVendorId()).orElse(null);
             VendorBankAccount a = p.getBankAccountId() == null ? null : accounts.findById(p.getBankAccountId()).orElse(null);
             boolean card = "CARD".equals(p.getMethod());
+            VirtualCard vc = null;
+            if (card) {
+                // The batch run stands in for the vendor charging the card on the payment date (D-100).
+                vc = virtualCards.forPayment(p.getId()).filter(c -> !"CANCELLED".equals(c.getStatus())).orElseGet(() -> virtualCards.issue(p, "system"));
+                if ("ISSUED".equals(vc.getStatus())) {
+                    VirtualCardService.ChargeResult r = virtualCards.charge(p, p.getVendorId(), p.getAmount());
+                    if (!r.approved()) continue;   // stays RELEASED; the decline is in the audit log
+                    vc = r.card();
+                }
+            }
+            sent++;
             p.setStatus("SENT");
             p.setBatchId(b.getId());
             p.setReference(p.getReference() != null ? p.getReference() : "BRIM-" + p.getMethod() + "-" + p.getId().replace("PAY-", ""));
             payments.save(p);
             file.append(p.getId()).append(',').append(v == null ? "" : v.getLegalName().replace(",", " ")).append(',')
                     .append(card || a == null ? "" : a.getInstitution()).append(',').append(card || a == null ? "" : a.getTransit()).append(',')
-                    .append(card ? "BRIM-AP-CARD" : a == null ? "" : a.getAccountNumber()).append(',').append(p.getCurrency()).append(',').append(p.getAmount().toPlainString())
+                    .append(card ? "VCARD " + vc.masked() : a == null ? "" : a.getAccountNumber()).append(',').append(p.getCurrency()).append(',').append(p.getAmount().toPlainString())
                     .append(',').append(p.getReference()).append('\n');
             total = total.add(p.getAmountCad() == null ? BigDecimal.ZERO : p.getAmountCad());
             audit.record("PAYMENT_SENT", "payment", p.getId(), Map.of("status", "RELEASED"), Map.of("status", "SENT", "batch", b.getId()), "In EFT batch " + b.getId());
         }
-        b.setPaymentCount(released.size());
+        if (sent == 0) throw new BusinessRuleException("No released payments could be sent; see the declined card charges in the audit log");
+        b.setPaymentCount(sent);
         b.setTotalCad(total);
         b.setFileContent(file.toString());
         batches.save(b);
-        audit.record("EFT_BATCH_CREATED", "payment_batch", b.getId(), null, Map.of("payments", released.size(), "totalCad", total.toPlainString()), null);
+        audit.record("EFT_BATCH_CREATED", "payment_batch", b.getId(), null, Map.of("payments", sent, "totalCad", total.toPlainString()), null);
         return b;
     }
 
@@ -287,6 +312,7 @@ public class PaymentService {
         p.setPaidDate(paidDate != null ? paidDate : clock.today());
         payments.save(p);
         audit.record("PAYMENT_SETTLED", "payment", id, Map.of("status", "SENT"), Map.of("status", "SETTLED", "paidDate", p.getPaidDate().toString()), null);
+        virtualCards.close(p);
         Invoice inv = workflow.load(p.getInvoiceId());
         if (inv.getStatus() == InvoiceStatus.RELEASED) workflow.transition(inv, InvoiceStatus.PAID, "PAID", id + " settled " + p.getPaidDate());
         if (p.getAppliedCreditInvoiceIds() != null) {
@@ -309,6 +335,7 @@ public class PaymentService {
         p.setFailureReason(reason);
         payments.save(p);
         audit.record("PAYMENT_FAILED", "payment", id, null, Map.of("status", "FAILED"), reason);
+        virtualCards.cancel(p, id + " failed: " + reason);   // the retry gets its own card when it is released
         Invoice inv = workflow.load(p.getInvoiceId());
         if (inv.getStatus() == InvoiceStatus.RELEASED) {
             workflow.transition(inv, InvoiceStatus.SCHEDULED, "PAYMENT_FAILED", id + " failed: " + reason);
@@ -331,7 +358,8 @@ public class PaymentService {
     // ---------- read ----------
 
     public record PaymentRow(Payment payment, String vendorName, String invoiceNumber, String bankAccount, boolean bankVerified,
-                             List<String> releaseBlockers, boolean earlyDiscountAvailable, CardPaymentAdvisor.Advice cardAdvice) {}
+                             List<String> releaseBlockers, boolean earlyDiscountAvailable, CardPaymentAdvisor.Advice cardAdvice,
+                             VirtualCard virtualCard) {}
 
     @Transactional(readOnly = true)
     public List<PaymentRow> list(String status, boolean includeHistory) {
@@ -353,7 +381,8 @@ public class PaymentService {
             out.add(new PaymentRow(p, vendorNames.getOrDefault(p.getVendorId(), p.getVendorId()), inv == null ? null : inv.getVendorInvoiceNumber(),
                     a == null ? null : a.masked(), a != null && a.isVerified(), blockers,
                     p.getDiscountDeadline() != null && !p.getDiscountDeadline().isBefore(clock.today()) && "SCHEDULED".equals(p.getStatus()),
-                    "SCHEDULED".equals(p.getStatus()) ? advice(p, vendorById.get(p.getVendorId())) : null));
+                    "SCHEDULED".equals(p.getStatus()) ? advice(p, vendorById.get(p.getVendorId())) : null,
+                    "CARD".equals(p.getMethod()) ? virtualCards.forPayment(p.getId()).orElse(null) : null));
         }
         out.sort(Comparator.comparing((PaymentRow r) -> r.payment().getScheduledDate() == null ? LocalDate.MAX : r.payment().getScheduledDate()));
         return out;

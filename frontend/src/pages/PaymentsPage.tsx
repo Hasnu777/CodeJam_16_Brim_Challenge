@@ -1,10 +1,10 @@
-import { Anchor, Badge, Button, Card, Checkbox, Code, Group, Modal, SimpleGrid, Stack, Table, Tabs, Text, Title, Tooltip } from '@mantine/core'
+import { Alert, Anchor, Badge, Button, Card, Checkbox, Code, Group, Modal, SimpleGrid, Stack, Table, Tabs, Text, Title, Tooltip } from '@mantine/core'
 import { IconCreditCard } from '@tabler/icons-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import type { CardAdvice, CardOpportunity, InvoiceSummary, PaymentBatch, PaymentRow } from '../api/types'
+import type { CardAdvice, CardChargeResult, CardOpportunity, InvoiceSummary, PaymentBatch, PaymentRow, VirtualCard } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { Empty, Loading, MoneyCell, Why } from '../components/bits'
 import { notifyError, notifyOk } from '../components/notify'
@@ -18,6 +18,7 @@ export default function PaymentsPage() {
   const [tab, setTab] = useState<string>('SCHEDULED')
   const [picked, setPicked] = useState<string[]>([])
   const [batchFile, setBatchFile] = useState<PaymentBatch | null>(null)
+  const [tryCard, setTryCard] = useState<PaymentRow | null>(null)
   const pays = useQuery({ queryKey: ['payments', 'all'], queryFn: () => api.get<PaymentRow[]>('/payments?includeHistory=true') })
   const card = useQuery({ queryKey: ['payments', 'card-opportunity'], queryFn: () => api.get<CardOpportunity>('/analytics/card-opportunity') })
   const ready = useQuery({ queryKey: ['invoices', 'approved'], queryFn: () => api.get<InvoiceSummary[]>('/invoices?status=APPROVED&includeHistory=true') })
@@ -45,8 +46,8 @@ export default function PaymentsPage() {
           <Text size="sm" c="dimmed">Clerks prepare; a Finance Manager (up to $100,000) or the Controller releases; never someone who approved the invoice.</Text>
         </div>
         {is('FM', 'ADM') && byStatus('RELEASED').length > 0 && (
-          <Button onClick={() => run(async () => setBatchFile(await api.post<PaymentBatch>('/payments/batch')), 'EFT batch created')}>
-            Create EFT batch ({byStatus('RELEASED').length})
+          <Button onClick={() => run(async () => setBatchFile(await api.post<PaymentBatch>('/payments/batch')), 'Payment batch created')}>
+            Create payment batch ({byStatus('RELEASED').length})
           </Button>
         )}
       </Group>
@@ -105,8 +106,10 @@ export default function PaymentsPage() {
                           {num(p.creditApplied) > 0 && <Badge size="xs" color="gray" variant="light">credit −{money(p.creditApplied)}</Badge>}
                         </Table.Td>
                         <Table.Td>{date(t === 'SETTLED' ? p.paidDate : p.scheduledDate)}</Table.Td>
-                        <Table.Td><Text size="sm">{p.method} {r.bankAccount ?? ''}</Text>
+                        <Table.Td><Text size="sm">{p.method === 'CARD' && r.virtualCard ? 'Brim virtual card' : `${p.method} ${r.bankAccount ?? ''}`}</Text>
                           {p.method !== 'CARD' && r.bankAccount && !r.bankVerified && <Badge size="xs" color="red">unverified</Badge>}
+                          {r.virtualCard && <VirtualCardCell card={r.virtualCard} vendorName={r.vendorName}
+                            onTry={is('FM', 'ADM') && r.virtualCard.status === 'ISSUED' ? () => setTryCard(r) : undefined} />}
                           {r.cardAdvice && <CardAdviceCell advice={r.cardAdvice} canSwitch={is('CLK', 'FM', 'ADM')}
                             onSwitch={(m) => run(() => api.post(`/payments/${p.id}/method`, { method: m }), m === 'CARD' ? `${p.id} moved to Brim card` : `${p.id} moved back to EFT`)} />}</Table.Td>
                         <Table.Td>
@@ -140,7 +143,9 @@ export default function PaymentsPage() {
           </Tabs.Panel>
         ))}
       </Tabs>
-      <Modal opened={!!batchFile} onClose={() => setBatchFile(null)} title={`Simulated EFT file ${batchFile?.id ?? ''}`} size="xl">
+      {tryCard && <TryChargeModal row={tryCard} otherVendorId={all.find((x) => x.payment?.vendorId && x.payment.vendorId !== tryCard.payment?.vendorId)?.payment?.vendorId ?? null}
+        onClose={() => { setTryCard(null); void qc.invalidateQueries() }} />}
+      <Modal opened={!!batchFile} onClose={() => setBatchFile(null)} title={`Simulated payment file ${batchFile?.id ?? ''}`} size="xl">
         <Code block>{batchFile?.fileContent}</Code>
         {batchFile && <Anchor href={`/api/payments/batches/${batchFile.id}/file`} mt="sm" display="block">Download CSV</Anchor>}
       </Modal>
@@ -175,7 +180,7 @@ function CardOpportunityPanel({ data }: { data: CardOpportunity }) {
   return (
     <Card withBorder p="lg" className="ap-stat">
       <Group gap="xs" mb="xs"><IconCreditCard size={18} /><Text fw={600}>Brim card opportunity</Text>
-        <Text size="xs" c="dimmed">{data.cardAcceptingVendors} vendors accept card. Paying by card keeps cash in the bank until the statement is due.</Text></Group>
+        <Text size="xs" c="dimmed">{data.cardAcceptingVendors} vendors accept card. Paying by card keeps cash in the bank until the statement is due. Each card payment gets its own single-use Brim virtual card when it is released, locked to that vendor and amount.</Text></Group>
       <SimpleGrid cols={{ base: 1, sm: 3 }}>
         <div>
           <Text size="xs" c="dimmed">Scheduled now, could move to card</Text>
@@ -195,5 +200,84 @@ function CardOpportunityPanel({ data }: { data: CardOpportunity }) {
       </SimpleGrid>
       <Text size="xs" c="dimmed" mt="xs">Assumptions: statement closes month-end, due {terms.graceDays} days later; cash valued at {pct(terms.costOfCashAnnual)}/yr; rewards {pct(terms.rewardsRate)}; CAD only, up to {money(terms.perTxnLimitCad)} per charge.</Text>
     </Card>
+  )
+}
+
+const CARD_STATUS: Record<string, { label: string; color: string }> = {
+  ISSUED: { label: 'issued', color: 'grape' },
+  CHARGED: { label: 'charged', color: 'blue' },
+  CLOSED: { label: 'closed', color: 'gray' },
+  CANCELLED: { label: 'cancelled', color: 'red' },
+}
+
+/** D-100: the payment's single-use Brim virtual card, with its locks in the tooltip. */
+function VirtualCardCell({ card, vendorName, onTry }: { card: VirtualCard; vendorName?: string | null; onTry?: () => void }) {
+  const st = CARD_STATUS[card.status ?? ''] ?? { label: card.status ?? '', color: 'gray' }
+  const tip = (
+    <Stack gap={2}>
+      <Text size="xs" fw={600}>Brim virtual card {card.network} ···· {card.last4}</Text>
+      <Text size="xs">Single use · locked to {vendorName ?? card.vendorId}</Text>
+      <Text size="xs">Limit {money(card.spendLimit)} {card.currency} · expires {date(card.expiresOn)}</Text>
+      {card.chargedAmount != null && <Text size="xs">Charged {money(card.chargedAmount)}</Text>}
+      {(card.declinedAttempts ?? 0) > 0 && <Text size="xs">{card.declinedAttempts} declined attempt(s); last: {card.lastDecline}</Text>}
+    </Stack>
+  )
+  return (
+    <Stack gap={4} mt={4} align="flex-start">
+      <Tooltip label={tip} multiline w={320}>
+        <Badge size="sm" color={st.color} variant="light" leftSection={<IconCreditCard size={12} />} style={{ overflow: 'visible' }}>
+          ···· {card.last4} {st.label}
+        </Badge>
+      </Tooltip>
+      {(card.declinedAttempts ?? 0) > 0 && <Badge size="xs" color="red" variant="outline">{card.declinedAttempts} declined</Badge>}
+      {onTry && <Button size="compact-xs" variant="light" color="grape" onClick={onTry}>Try a charge</Button>}
+    </Stack>
+  )
+}
+
+/** Demo of the card locks: the right charge goes through once; anything else is declined and audited. */
+function TryChargeModal({ row, otherVendorId, onClose }: { row: PaymentRow; otherVendorId: string | null; onClose: () => void }) {
+  const p = row.payment!
+  const card = row.virtualCard!
+  const [results, setResults] = useState<{ label: string; r: CardChargeResult }[]>([])
+  const [busy, setBusy] = useState(false)
+  const limit = num(card.spendLimit)
+  const attempt = async (label: string, merchantVendorId: string | null, amount: number) => {
+    setBusy(true)
+    try {
+      const r = await api.post<CardChargeResult>(`/payments/${p.id}/card-charge`, { merchantVendorId, amount: amount.toFixed(2) })
+      setResults((x) => [{ label, r }, ...x])
+    } catch (e) {
+      notifyError(e)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <Modal opened onClose={onClose} size="lg" title={`Try a charge on ${card.network} ···· ${card.last4}`}>
+      <Stack>
+        <Text size="sm" c="dimmed">
+          This card exists only for {p.id}: {row.vendorName} may charge it once, up to {money(card.spendLimit)} {card.currency}, until {date(card.expiresOn)}.
+          Every attempt is written to the audit log.
+        </Text>
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <Button variant="light" color="red" loading={busy} onClick={() => attempt(`${row.vendorName} charges ${money(limit + 100)} (over the limit)`, p.vendorId ?? null, limit + 100)}>
+            Vendor overcharges by $100</Button>
+          <Button variant="light" color="red" loading={busy} disabled={!otherVendorId}
+            onClick={() => attempt('Another merchant uses the card number', otherVendorId, Math.min(limit, 50))}>
+            Another merchant uses it</Button>
+          <Button variant="light" loading={busy} onClick={() => attempt(`${row.vendorName} charges the bill (${money(limit)})`, p.vendorId ?? null, limit)}>
+            Vendor charges the bill</Button>
+          <Button variant="light" color="red" loading={busy} onClick={() => attempt(`${row.vendorName} charges again (${money(limit)})`, p.vendorId ?? null, limit)}>
+            Vendor charges a second time</Button>
+        </SimpleGrid>
+        {results.map(({ label, r }, i) => (
+          <Alert key={results.length - i} color={r.approved ? 'teal' : 'red'} title={r.approved ? 'Approved' : 'Declined'}>
+            <Text size="sm">{label}</Text>
+            <Text size="xs" c="dimmed">{r.reason}</Text>
+          </Alert>
+        ))}
+      </Stack>
+    </Modal>
   )
 }

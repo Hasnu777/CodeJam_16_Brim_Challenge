@@ -387,6 +387,50 @@ def scenario_card(clerk):
           and back["_status"] == 200 and again["_status"] == 200 and len(rows) == 3 and who is not None,
           f"{pid}: card={to_card['_status']} auditor={by_auditor['_status']} bad={bad['_status']} non-card vendor={not_accepted['_status']} "
           f"back={back['_status']} again={again['_status']} audit rows={len(rows)} released by {who}")
+    if who:
+        scenario_virtual_card(clerk, pid, other_vendor=detail(clerk, other_iid)["invoice"]["vendorId"] if other_iid else None)
+
+
+def card_of(c, pid):
+    return next((r.get("virtualCard") for r in payment_rows(c) if r["payment"]["id"] == pid), None)
+
+
+def scenario_virtual_card(clerk, pid, other_vendor):
+    """14. Brim virtual cards (D-100): one single-use card per released card payment, locked to vendor, amount and expiry."""
+    marcus = as_user("U002")
+    pay = next(r["payment"] for r in payment_rows(clerk) if r["payment"]["id"] == pid)
+    card = card_of(clerk, pid) or {}
+    limit, vendor = float(pay["amount"]), pay["vendorId"]
+    tries = {
+        "over limit": marcus.post(f"/payments/{pid}/card-charge", {"merchantVendorId": vendor, "amount": f"{limit + 0.01:.2f}"}),
+        "other merchant": marcus.post(f"/payments/{pid}/card-charge", {"merchantVendorId": other_vendor or "V001", "amount": "10.00"}),
+        "clerk": clerk.post(f"/payments/{pid}/card-charge", {"merchantVendorId": vendor, "amount": "1.00"}),
+        "the bill": marcus.post(f"/payments/{pid}/card-charge", {"merchantVendorId": vendor, "amount": f"{limit:.2f}"}),
+        "second use": marcus.post(f"/payments/{pid}/card-charge", {"merchantVendorId": vendor, "amount": "1.00"}),
+    }
+    got = {k: (v.get("approved"), v["_status"]) for k, v in tries.items()}
+    check("Virtual card issued at release (limit = payment, 30-day expiry); over-limit, other merchant and second use declined; "
+          "the bill approved; clerks can't run charges",
+          card.get("status") == "ISSUED" and float(card.get("spendLimit") or 0) == limit and len(card.get("last4") or "") == 4
+          and got == {"over limit": (False, 200), "other merchant": (False, 200), "clerk": (None, 403), "the bill": (True, 200), "second use": (False, 200)},
+          f"{pid}: card {card.get('network')} ····{card.get('last4')} limit {card.get('spendLimit')} expires {card.get('expiresOn')}; {got}")
+    marcus.post("/payments/batch")
+    marcus.post(f"/payments/{pid}/fail", {"reason": "Card charge reversed (edge-case script)"})
+    failed_card = card_of(clerk, pid) or {}
+    retry = next((p for p in payments_for(clerk, pay["invoiceId"]) if p["id"] != pid and p["status"] == "SCHEDULED"), None)
+    who = release_by_anyone(retry["id"]) if retry else None
+    new = card_of(clerk, retry["id"]) if retry else {}
+    marcus.post("/payments/batch")
+    sent = card_of(clerk, retry["id"]) if retry else {}
+    st = marcus.post(f"/payments/{retry['id']}/settle") if retry else {"_status": 0}
+    closed = card_of(clerk, retry["id"]) if retry else {}
+    acts = [e["action"] for e in audit(marcus, pid) if e["action"].startswith("VIRTUAL_CARD")]
+    check("Failed card payment: its card is cancelled; the retry gets a new card, the batch charges it, settling closes it",
+          failed_card.get("status") == "CANCELLED" and retry and who and new.get("status") == "ISSUED" and new.get("last4") and new.get("id") != failed_card.get("id")
+          and sent.get("status") == "CHARGED" and st["_status"] == 200 and closed.get("status") == "CLOSED"
+          and acts.count("VIRTUAL_CARD_DECLINED") == 3 and "VIRTUAL_CARD_CANCELLED" in acts,
+          f"old card {failed_card.get('id')}={failed_card.get('status')}; retry {retry and retry['id']} released by {who}: "
+          f"{new.get('id')} {new.get('status')} -> {sent.get('status')} -> {closed.get('status')}; old card audit={acts}")
 
 
 def main():
