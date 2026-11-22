@@ -402,3 +402,12 @@ current status, and the email's audit trail. `GET /api/inbox/{id}/attachments/{n
 name is listed on the email, and the resolved path must stay inside the email's attachment folder. Its content type
 comes from the file's first bytes, with `nosniff` set, so an uploaded HTML file can never render as a page. Open to
 CLK, ADM and AUD, the same roles as the inbox list. `attachmentDir` is a server path, so it is never sent to the browser.
+
+**D-084 Spend analytics by vendor category** (extends D-069): `groupBy=category` groups bills by `vendor.category`
+(e.g. "Freight & Carriers"), using whole-bill CAD totals incl. tax like the vendor view; bills with no vendor match or
+no category land in "Uncategorized". The aggregation moved out of the controller into `SpendAggregator`, a pure
+function with unit tests. The monthly trend now uses the same amounts as the rows (pre-tax lines for department/GL),
+so it always adds up to the headline total. Before this, it always summed bill totals, which did not match the
+department/GL totals. Unknown `groupBy` or `from` after `to` returns 400. For an approver, the department view only
+shows lines coded to their own department, even when one bill is split across departments. The page explains that
+the vendor/category and department/GL totals differ by the tax amount.
