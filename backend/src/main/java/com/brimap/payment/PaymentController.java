@@ -37,6 +37,13 @@ public class PaymentController {
     @PreAuthorize("hasAnyRole('FM','ADM')")
     public Payment release(@PathVariable String id) { return payments.release(id); }
 
+    public record MethodRequest(String method) {}
+
+    /** Brim card optimizer: move a scheduled payment to the AP card (or back to EFT). Audited. */
+    @PostMapping("/{id}/method")
+    @PreAuthorize("hasAnyRole('CLK','FM','ADM')")
+    public Payment changeMethod(@PathVariable String id, @RequestBody MethodRequest body) { return payments.changeMethod(id, body.method()); }
+
     @PostMapping("/batch")
     @PreAuthorize("hasAnyRole('FM','ADM')")
     public PaymentBatch batch() { return payments.batch(); }

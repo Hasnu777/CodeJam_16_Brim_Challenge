@@ -11,7 +11,29 @@ export type Flag = S['Flag']
 export type Vendor = S['Vendor']
 export type VendorRow = S['VendorRow']
 export type Payment = S['Payment']
-export type PaymentRow = S['PaymentRow']
+// cardAdvice: Brim card optimizer (bonus 5), present on SCHEDULED rows. Typed by hand until gen:api is re-run.
+export interface CardAdvice {
+  verdict: 'SWITCH' | 'ON_CARD' | 'KEEP' | 'NOT_ELIGIBLE'
+  headline: string
+  chargeDate: string | null
+  statementClose: string | null
+  cardDueDate: string | null
+  floatDays: number
+  floatValueCad: string
+  rewardsCad: string
+  benefitCad: string
+  notes: string[]
+}
+export type PaymentRow = S['PaymentRow'] & { cardAdvice?: CardAdvice | null }
+export interface CardSummary { count: number; amountCad: string; benefitCad: string; avgFloatDays: number }
+export interface CardOpportunity {
+  terms: { graceDays: number; rewardsRate: string; costOfCashAnnual: string; perTxnLimitCad: string }
+  scheduledSwitchable: CardSummary
+  paidByEftCouldHaveBeenCard: CardSummary
+  paidByCard: CardSummary
+  cardAcceptingVendors: number
+  byVendor: { vendorId: string; vendorName: string; payments: number; amountCad: string; benefitCad: string }[]
+}
 export type PaymentBatch = S['PaymentBatch']
 export type EmailMessage = S['EmailMessage']
 export type AuditEvent = S['AuditEvent']

@@ -1,9 +1,10 @@
-import { Anchor, Badge, Button, Checkbox, Code, Group, Modal, Stack, Table, Tabs, Text, Title } from '@mantine/core'
+import { Anchor, Badge, Button, Card, Checkbox, Code, Group, Modal, SimpleGrid, Stack, Table, Tabs, Text, Title, Tooltip } from '@mantine/core'
+import { IconCreditCard } from '@tabler/icons-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import type { InvoiceSummary, PaymentBatch, PaymentRow } from '../api/types'
+import type { CardAdvice, CardOpportunity, InvoiceSummary, PaymentBatch, PaymentRow } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { Empty, Loading, MoneyCell, Why } from '../components/bits'
 import { notifyError, notifyOk } from '../components/notify'
@@ -18,6 +19,7 @@ export default function PaymentsPage() {
   const [picked, setPicked] = useState<string[]>([])
   const [batchFile, setBatchFile] = useState<PaymentBatch | null>(null)
   const pays = useQuery({ queryKey: ['payments', 'all'], queryFn: () => api.get<PaymentRow[]>('/payments?includeHistory=true') })
+  const card = useQuery({ queryKey: ['payments', 'card-opportunity'], queryFn: () => api.get<CardOpportunity>('/analytics/card-opportunity') })
   const ready = useQuery({ queryKey: ['invoices', 'approved'], queryFn: () => api.get<InvoiceSummary[]>('/invoices?status=APPROVED&includeHistory=true') })
   const run = async (fn: () => Promise<unknown>, ok: string) => {
     try {
@@ -48,6 +50,7 @@ export default function PaymentsPage() {
           </Button>
         )}
       </Group>
+      {card.data && <CardOpportunityPanel data={card.data} />}
       <Tabs value={tab} onChange={(v) => { setTab(v ?? 'SCHEDULED'); setPicked([]) }}>
         <Tabs.List>
           {TABS.map((t) => {
@@ -103,7 +106,9 @@ export default function PaymentsPage() {
                         </Table.Td>
                         <Table.Td>{date(t === 'SETTLED' ? p.paidDate : p.scheduledDate)}</Table.Td>
                         <Table.Td><Text size="sm">{p.method} {r.bankAccount ?? ''}</Text>
-                          {p.method !== 'CARD' && r.bankAccount && !r.bankVerified && <Badge size="xs" color="red">unverified</Badge>}</Table.Td>
+                          {p.method !== 'CARD' && r.bankAccount && !r.bankVerified && <Badge size="xs" color="red">unverified</Badge>}
+                          {r.cardAdvice && <CardAdviceCell advice={r.cardAdvice} canSwitch={is('CLK', 'FM', 'ADM')}
+                            onSwitch={(m) => run(() => api.post(`/payments/${p.id}/method`, { method: m }), m === 'CARD' ? `${p.id} moved to Brim card` : `${p.id} moved back to EFT`)} />}</Table.Td>
                         <Table.Td>
                           {t === 'SCHEDULED' && is('FM', 'ADM') && (
                             <Why reasons={blockers}><Button size="xs" disabled={blockers.length > 0}
@@ -135,5 +140,55 @@ export default function PaymentsPage() {
         {batchFile && <Anchor href={`/api/payments/batches/${batchFile.id}/file`} mt="sm" display="block">Download CSV</Anchor>}
       </Modal>
     </Stack>
+  )
+}
+
+/** Bonus 5: per-payment Brim card advice, with the arithmetic in the tooltip. */
+function CardAdviceCell({ advice, canSwitch, onSwitch }: { advice: CardAdvice; canSwitch: boolean; onSwitch: (method: 'CARD' | 'EFT') => void }) {
+  if (advice.verdict === 'NOT_ELIGIBLE') return null
+  const tip = <Stack gap={2}><Text size="xs" fw={600}>{advice.headline}</Text>{advice.notes.map((n) => <Text key={n} size="xs">{n}</Text>)}</Stack>
+  if (advice.verdict === 'KEEP') return <Tooltip label={advice.headline} multiline w={280}><Badge size="xs" color="gray" variant="light">no card advice</Badge></Tooltip>
+  const onCard = advice.verdict === 'ON_CARD'
+  return (
+    <Group gap={4} mt={2} wrap="nowrap">
+      <Tooltip label={tip} multiline w={320}>
+        <Badge size="xs" color="grape" variant={onCard ? 'filled' : 'light'} leftSection={<IconCreditCard size={10} />}>
+          +{money(advice.benefitCad)} · {advice.floatDays}d
+        </Badge>
+      </Tooltip>
+      {canSwitch && (onCard
+        ? <Button size="compact-xs" variant="subtle" color="gray" onClick={() => onSwitch('EFT')}>Use EFT</Button>
+        : <Button size="compact-xs" variant="light" color="grape" onClick={() => onSwitch('CARD')}>Pay by Brim card</Button>)}
+    </Group>
+  )
+}
+
+function CardOpportunityPanel({ data }: { data: CardOpportunity }) {
+  const { scheduledSwitchable: s, paidByEftCouldHaveBeenCard: h, paidByCard: c, terms } = data
+  const pct = (r: string) => `${(Number(r) * 100).toFixed(Number(r) * 100 % 1 ? 1 : 0)}%`
+  const top = data.byVendor.slice(0, 3)
+  return (
+    <Card withBorder padding="md">
+      <Group gap="xs" mb="xs"><IconCreditCard size={18} /><Text fw={600}>Brim card opportunity</Text>
+        <Text size="xs" c="dimmed">{data.cardAcceptingVendors} vendors accept card. Paying by card keeps cash in the bank until the statement is due.</Text></Group>
+      <SimpleGrid cols={{ base: 1, sm: 3 }}>
+        <div>
+          <Text size="xs" c="dimmed">Scheduled now, could move to card</Text>
+          <Text fw={700} size="lg">{money(s.benefitCad)}</Text>
+          <Text size="xs" c="dimmed">{s.count} payment{s.count === 1 ? '' : 's'} · {money(s.amountCad)}{s.count > 0 ? ` · ${s.avgFloatDays} days avg float` : ''}</Text>
+        </div>
+        <div>
+          <Text size="xs" c="dimmed">Left on the table (paid by EFT/cheque)</Text>
+          <Text fw={700} size="lg" c={num(h.benefitCad) > 0 ? 'grape' : undefined}>{money(h.benefitCad)}</Text>
+          <Text size="xs" c="dimmed">{h.count} payments · {money(h.amountCad)}{top.length > 0 ? ` · mostly ${top.map((v) => v.vendorName).join(', ')}` : ''}</Text>
+        </div>
+        <div>
+          <Text size="xs" c="dimmed">Already captured on Brim card</Text>
+          <Text fw={700} size="lg">{money(c.benefitCad)}</Text>
+          <Text size="xs" c="dimmed">{c.count} payments · {money(c.amountCad)} · {c.avgFloatDays} days avg float</Text>
+        </div>
+      </SimpleGrid>
+      <Text size="xs" c="dimmed" mt="xs">Assumptions: statement closes month-end, due {terms.graceDays} days later; cash valued at {pct(terms.costOfCashAnnual)}/yr; rewards {pct(terms.rewardsRate)}; CAD only, up to {money(terms.perTxnLimitCad)} per charge.</Text>
+    </Card>
   )
 }

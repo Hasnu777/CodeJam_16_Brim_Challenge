@@ -2,6 +2,7 @@ package com.brimap.payment;
 
 import com.brimap.audit.AuditService;
 import com.brimap.auth.Auth;
+import com.brimap.bonus.CardPaymentAdvisor;
 import com.brimap.auth.CurrentUser;
 import com.brimap.auth.ForbiddenException;
 import com.brimap.common.BusinessRuleException;
@@ -171,6 +172,37 @@ public class PaymentService {
         return p;
     }
 
+    // ---------- payment method (Brim card optimizer) ----------
+
+    /** Switch a SCHEDULED payment between EFT and the Brim AP card. Card only for vendors that accept it. */
+    @Transactional
+    public Payment changeMethod(String id, String method) {
+        CurrentUser u = Auth.require();
+        InvoiceWorkflowService.requireRole(u, "change payment methods", Role.CLK, Role.FM, Role.ADM);
+        Payment p = payments.findById(id).orElseThrow(() -> new NotFoundException("Payment " + id));
+        String m = method == null ? "" : method.trim().toUpperCase();
+        if (!m.equals("CARD") && !m.equals("EFT")) throw new IllegalArgumentException("Method must be CARD or EFT");
+        if (!"SCHEDULED".equals(p.getStatus())) throw new BusinessRuleException(id + " is " + p.getStatus() + "; only SCHEDULED payments can change method");
+        if (m.equals(p.getMethod())) return p;
+        Vendor v = p.getVendorId() == null ? null : vendors.findById(p.getVendorId()).orElse(null);
+        if (m.equals("CARD") && (v == null || !v.isAcceptsCardPayment())) throw new BusinessRuleException((v == null ? "Unknown vendor" : v.getLegalName()) + " does not accept card payments");
+        Map<String, Object> before = snapshot(p);
+        before.put("method", p.getMethod());
+        p.setMethod(m);
+        payments.save(p);
+        Map<String, Object> after = snapshot(p);
+        after.put("method", m);
+        CardPaymentAdvisor.Advice a = advice(p, v);
+        audit.record("PAYMENT_METHOD_CHANGED", "payment", id, before, after,
+                before.get("method") + " -> " + m + (m.equals("CARD") && a.benefits() ? " (" + a.headline() + ")" : ""));
+        return p;
+    }
+
+    public CardPaymentAdvisor.Advice advice(Payment p, Vendor v) {
+        return CardPaymentAdvisor.advise(new CardPaymentAdvisor.Input(v != null && v.isAcceptsCardPayment(), p.getMethod(), p.getCurrency(),
+                p.getAmountCad(), p.getScheduledDate(), p.getDiscountTaken()), CardPaymentAdvisor.Terms.DEFAULT);
+    }
+
     // ---------- EFT batch, settle, fail ----------
 
     @Transactional
@@ -189,13 +221,14 @@ public class PaymentService {
         for (Payment p : released) {
             Vendor v = p.getVendorId() == null ? null : vendors.findById(p.getVendorId()).orElse(null);
             VendorBankAccount a = p.getBankAccountId() == null ? null : accounts.findById(p.getBankAccountId()).orElse(null);
+            boolean card = "CARD".equals(p.getMethod());
             p.setStatus("SENT");
             p.setBatchId(b.getId());
             p.setReference(p.getReference() != null ? p.getReference() : "BRIM-" + p.getMethod() + "-" + p.getId().replace("PAY-", ""));
             payments.save(p);
             file.append(p.getId()).append(',').append(v == null ? "" : v.getLegalName().replace(",", " ")).append(',')
-                    .append(a == null ? "" : a.getInstitution()).append(',').append(a == null ? "" : a.getTransit()).append(',')
-                    .append(a == null ? "" : a.getAccountNumber()).append(',').append(p.getCurrency()).append(',').append(p.getAmount().toPlainString())
+                    .append(card || a == null ? "" : a.getInstitution()).append(',').append(card || a == null ? "" : a.getTransit()).append(',')
+                    .append(card ? "BRIM-AP-CARD" : a == null ? "" : a.getAccountNumber()).append(',').append(p.getCurrency()).append(',').append(p.getAmount().toPlainString())
                     .append(',').append(p.getReference()).append('\n');
             total = total.add(p.getAmountCad() == null ? BigDecimal.ZERO : p.getAmountCad());
             audit.record("PAYMENT_SENT", "payment", p.getId(), Map.of("status", "RELEASED"), Map.of("status", "SENT", "batch", b.getId()), "In EFT batch " + b.getId());
@@ -258,13 +291,14 @@ public class PaymentService {
     // ---------- read ----------
 
     public record PaymentRow(Payment payment, String vendorName, String invoiceNumber, String bankAccount, boolean bankVerified,
-                             List<String> releaseBlockers, boolean earlyDiscountAvailable) {}
+                             List<String> releaseBlockers, boolean earlyDiscountAvailable, CardPaymentAdvisor.Advice cardAdvice) {}
 
     @Transactional(readOnly = true)
     public List<PaymentRow> list(String status, boolean includeHistory) {
         CurrentUser u = Auth.require();
         AppUser me = users.findById(u.id()).orElseThrow();
-        Map<String, String> vendorNames = vendors.findAll().stream().collect(Collectors.toMap(Vendor::getId, Vendor::getLegalName));
+        Map<String, Vendor> vendorById = vendors.findAll().stream().collect(Collectors.toMap(Vendor::getId, v -> v));
+        Map<String, String> vendorNames = vendorById.values().stream().collect(Collectors.toMap(Vendor::getId, Vendor::getLegalName));
         Map<String, Invoice> invs = invoices.findAll().stream().collect(Collectors.toMap(Invoice::getId, i -> i));
         List<Payment> rows = status == null || status.isBlank() ? payments.findAll()
                 : Arrays.stream(status.split(",")).flatMap(s -> payments.findByStatus(s.trim().toUpperCase()).stream()).toList();
@@ -278,7 +312,8 @@ public class PaymentService {
             Invoice inv = invs.get(p.getInvoiceId());
             out.add(new PaymentRow(p, vendorNames.getOrDefault(p.getVendorId(), p.getVendorId()), inv == null ? null : inv.getVendorInvoiceNumber(),
                     a == null ? null : a.masked(), a != null && a.isVerified(), blockers,
-                    p.getDiscountDeadline() != null && !p.getDiscountDeadline().isBefore(clock.today()) && "SCHEDULED".equals(p.getStatus())));
+                    p.getDiscountDeadline() != null && !p.getDiscountDeadline().isBefore(clock.today()) && "SCHEDULED".equals(p.getStatus()),
+                    "SCHEDULED".equals(p.getStatus()) ? advice(p, vendorById.get(p.getVendorId())) : null));
         }
         out.sort(Comparator.comparing((PaymentRow r) -> r.payment().getScheduledDate() == null ? LocalDate.MAX : r.payment().getScheduledDate()));
         return out;
