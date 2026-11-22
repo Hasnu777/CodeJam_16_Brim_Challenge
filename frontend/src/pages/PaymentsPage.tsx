@@ -70,11 +70,16 @@ export default function PaymentsPage() {
     <Stack>
       <Group justify="space-between">
         <Title order={3}>Payments</Title>
-        {is('FM', 'ADM') && byStatus('RELEASED').length > 0 && (
-          <Button onClick={() => api.get<PaymentBatch>('/payments/batch/preview').then(setPreview).catch(notifyError)}>
-            Create Payment Batch ({byStatus('RELEASED').length})
-          </Button>
-        )}
+        <Group>
+          {is('FM', 'ADM', 'AUD') && (
+              <Button component="a" href="/api/journal/export.csv?includeHistory=true" variant="default">Export journal (CSV)</Button>
+          )}
+          {is('FM', 'ADM') && byStatus('RELEASED').length > 0 && (
+              <Button onClick={() => api.get<PaymentBatch>('/payments/batch/preview').then(setPreview).catch(notifyError)}>
+                Create Payment Batch ({byStatus('RELEASED').length})
+              </Button>
+          )}
+        </Group>
       </Group>
       {card.data && <CardOpportunityPanel data={card.data} />}
       <Tabs value={tab} onChange={(v) => { setTab(v ?? 'SCHEDULED'); setPicked([]) }}>
