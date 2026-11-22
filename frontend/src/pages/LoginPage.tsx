@@ -15,16 +15,17 @@ export default function LoginPage() {
   const users = useQuery({ queryKey: ['switcher-users'], queryFn: () => api.get<UserSummary[]>('/auth/users') })
   const featured = (users.data ?? []).filter((u) => FEATURED.includes(u.id!)).sort((a, b) => FEATURED.indexOf(a.id!) - FEATURED.indexOf(b.id!))
   return (
+    <div className="ap-workspace" style={{ minHeight: '100vh' }}>
     <Container size="md" py={60}>
       <Stack gap="lg">
         <div>
-          <Title order={2}>Harborline Logistics · Accounts Payable</Title>
-          <Text c="dimmed">Inbox to payment with the right approvals and a full audit trail. Choose who you are.</Text>
+          <Title order={1} className="ap-brand" fz={30}><span>Harborline</span> AP</Title>
+          <Text c="dimmed" mt={4}>Harborline Logistics accounts payable: inbox to payment with the right approvals and a full audit trail. Choose who you are.</Text>
         </div>
         <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
           {featured.map((u) => (
             <UnstyledButton key={u.id} onClick={() => login(u.id!).catch(notifyError)} disabled={u.status === 'terminated'}>
-              <Card withBorder padding="md" h="100%">
+              <Card withBorder padding="md" h="100%" className="ap-stat">
                 <Stack gap={4}>
                   <Badge color={ROLE_COLOR[u.role!]} variant="light" w="fit-content">{ROLE_LABEL[u.role!]}</Badge>
                   <Text fw={600}>{u.fullName}</Text>
@@ -36,10 +37,11 @@ export default function LoginPage() {
         </SimpleGrid>
         <Group>
           <Text size="sm">Or any of the 40 users:</Text>
-          <UserSwitcher />
+          <UserSwitcher width={300} />
         </Group>
         <Text size="xs" c="dimmed">Demo only: there is no password. Every permission is still enforced on the server from the session.</Text>
       </Stack>
     </Container>
+    </div>
   )
 }

@@ -4,7 +4,7 @@ import {
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { IconAlertTriangle, IconCheck, IconClock, IconX } from '@tabler/icons-react'
+import { IconAlertTriangle, IconCheck, IconClock, IconSparkles, IconX } from '@tabler/icons-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -13,13 +13,24 @@ import { useAuth } from '../auth/AuthContext'
 import { ErrorBox, Hint, Loading, StatusBadge, Why } from '../components/bits'
 import { FlagCard } from '../components/FlagCard'
 import { PoSuggestions } from '../components/PoSuggestions'
+import { usesInvoiceErrorPopout } from '../lib/invoiceErrorPresentation'
 import { notifyError, notifyOk } from '../components/notify'
 import { date, dateTime, money, num } from '../lib/format'
 
 const EDITABLE = ['RECEIVED', 'EXTRACTED', 'IN_REVIEW', 'ON_HOLD', 'DUPLICATE']
 const PAYMENT_HOLDS = ['V01', 'V02', 'B01', 'B02']
 
+/**
+ * Keyed on the route id: following a flag link from one invoice to another (e.g. D02 "possible duplicate of")
+ * keeps this route mounted, so without the key every useState below (the editable fields, the approve/hold
+ * dialogs) would still hold the previous invoice's values. (Same fix as afra-work 0cb9d4a.)
+ */
 export default function InvoiceDetailPage() {
+  const { id } = useParams()
+  return <InvoiceDetailView key={id} />
+}
+
+function InvoiceDetailView() {
   const { id } = useParams()
   const { me, is } = useAuth()
   const qc = useQueryClient()
@@ -53,6 +64,7 @@ export default function InvoiceDetailPage() {
   const editable = is('CLK') && !inv.historical && EDITABLE.includes(inv.status!)
   const openFlags = d.flags.filter((f) => f.status === 'OPEN')
   const doneFlags = d.flags.filter((f) => f.status !== 'OPEN')
+  const openCodes = new Set(openFlags.map((f) => f.ruleCode))
   const steps = d.approvalSteps.filter((s) => s.decision !== 'CANCELLED')
   const current = steps.find((s) => s.decision === 'PENDING')
   const actingIds = [me!.id, ...me!.actingFor.map((a) => a.userId)]
@@ -70,6 +82,28 @@ export default function InvoiceDetailPage() {
   const nInfo = openFlags.length - nBlock - nWarn
   // The rule's raw facts are for reviewers (FM, approver, controller, auditor); the clerk works from the message.
   const showFlagDetails = !is('CLK', 'EMP')
+
+  const findings = (
+    <Stack gap="xs">
+      {openFlags.map((f) => (
+        <FlagCard key={f.id} flag={f} users={d.users} showDetails={showFlagDetails}
+          canResolve={f.severity === 'BLOCK' ? is('FM', 'ADM') : is('CLK', 'FM', 'ADM')}
+          onResolve={(resolution, note) => act('flag', () => api.post(`/flags/${f.id}/resolve`, { resolution, note }), `${f.ruleCode} ${resolution.toLowerCase()}`)}>
+          {(f.ruleCode === 'P13' || f.ruleCode === 'PO1') && inv.vendorId && !inv.historical && !is('EMP') && (
+            <PoSuggestions invoiceId={inv.id!} canLink={editable} busy={busy === 'linkPo'}
+              onLink={(poId) => act('linkPo', async () => {
+                await api.post(`/invoices/${id}/po`, { poId })
+                closeFlagsModal()
+                setLinkedPo(poId)
+              }, `Linked ${poId}`)} />
+          )}
+        </FlagCard>
+      ))}
+      {openFlags.some((f) => f.severity === 'BLOCK') && is('CLK') && (
+        <Hint>BLOCK flags can only be overridden by a Finance Manager or Controller. Vendor and bank holds (V01, V02, B01, B02) clear automatically when the vendor is approved or the bank change is verified.</Hint>
+      )}
+    </Stack>
+  )
   if (warns.length) submitBlockers.push(`Acknowledge warnings: ${[...new Set(warns.map((f) => f.ruleCode))].join(', ')}`)
   if (!inv.departmentId) submitBlockers.push('Set the department')
   const low = new Set((inv.lowConfidenceFields ?? '').split(',').filter(Boolean))
@@ -117,44 +151,29 @@ export default function InvoiceDetailPage() {
       {d.recommendation && is('APR', 'FM', 'ADM', 'AUD') && ['PENDING_APPROVAL', 'IN_REVIEW'].includes(inv.status!) && (
         <Card withBorder padding="sm" style={{ borderLeft: `4px solid var(--mantine-color-${d.recommendation.verdict === 'APPROVE' ? 'teal' : d.recommendation.verdict === 'HOLD' ? 'red' : 'yellow'}-6)` }}>
           <Text fw={600}>{d.recommendation.headline}</Text>
-          {d.recommendation.reasons.map((r) => <Text key={r} size="xs" c={r.startsWith('+') ? 'teal' : 'dimmed'}>{r}</Text>)}
+          {/* Open flags are listed once, in the errors banner/pop-up below; don't repeat them here as "- P13: ..." */}
+          {d.recommendation.reasons.filter((r) => !(r.startsWith('- ') && openCodes.has(r.slice(2).split(':')[0])))
+            .map((r) => <Text key={r} size="xs" c={r.startsWith('+') ? 'teal' : 'dimmed'}>{r}</Text>)}
         </Card>
       )}
 
-      {openFlags.length > 0 && (
-        <Alert color={nBlock ? 'red' : 'yellow'} variant="light" icon={<IconAlertTriangle size={18} />} py="xs">
-          <Group gap="xs">
-            <Text size="sm" fw={600}>{openFlags.length} {openFlags.length === 1 ? 'error' : 'errors'} found</Text>
-            {nBlock > 0 && <Badge size="sm" color="red" variant="light">{nBlock} blocking</Badge>}
-            {nWarn > 0 && <Badge size="sm" color="yellow" variant="light">{nWarn} {nWarn === 1 ? 'warning' : 'warnings'}</Badge>}
-            {nInfo > 0 && <Badge size="sm" color="gray" variant="light">{nInfo} info</Badge>}
-            <Anchor size="sm" component="button" onClick={openFlagsModal}>Click to find out more</Anchor>
-          </Group>
-        </Alert>
-      )}
-
-      <Modal opened={flagsModal && openFlags.length > 0} onClose={closeFlagsModal} size="xl"
-        title={<Text fw={600}>{openFlags.length} {openFlags.length === 1 ? 'error' : 'errors'} on {inv.id}</Text>}>
-        <Stack gap="xs">
-          {openFlags.map((f) => (
-            <FlagCard key={f.id} flag={f} users={d.users} showDetails={showFlagDetails}
-              canResolve={f.severity === 'BLOCK' ? is('FM', 'ADM') : is('CLK', 'FM', 'ADM')}
-              onResolve={(resolution, note) => act('flag', () => api.post(`/flags/${f.id}/resolve`, { resolution, note }), `${f.ruleCode} ${resolution.toLowerCase()}`)}>
-              {(f.ruleCode === 'P13' || f.ruleCode === 'PO1') && inv.vendorId && !inv.historical && (
-                <PoSuggestions invoiceId={inv.id!} canLink={editable} busy={busy === 'linkPo'}
-                  onLink={(poId) => act('linkPo', async () => {
-                    await api.post(`/invoices/${id}/po`, { poId })
-                    closeFlagsModal()
-                    setLinkedPo(poId)
-                  }, `Linked ${poId}`)} />
-              )}
-            </FlagCard>
-          ))}
-          {openFlags.some((f) => f.severity === 'BLOCK') && is('CLK') && (
-            <Hint>BLOCK flags can only be overridden by a Finance Manager or Controller. Vendor and bank holds (V01, V02, B01, B02) clear automatically when the vendor is approved or the bank change is verified.</Hint>
-          )}
-        </Stack>
-      </Modal>
+      {openFlags.length > 0 && (usesInvoiceErrorPopout(me?.role) ? (
+        <>
+          <Alert color={nBlock ? 'red' : 'yellow'} variant="light" icon={<IconAlertTriangle size={20} />} py="md">
+            <Group gap="xs">
+              <Text fw={700}>{openFlags.length} {openFlags.length === 1 ? 'error' : 'errors'} found</Text>
+              {nBlock > 0 && <Badge size="sm" color="red" variant="light">{nBlock} blocking</Badge>}
+              {nWarn > 0 && <Badge size="sm" color="yellow" variant="light">{nWarn} {nWarn === 1 ? 'warning' : 'warnings'}</Badge>}
+              {nInfo > 0 && <Badge size="sm" color="gray" variant="light">{nInfo} info</Badge>}
+              <Anchor component="button" onClick={openFlagsModal}>Click to find out more</Anchor>
+            </Group>
+          </Alert>
+          <Modal opened={flagsModal} onClose={closeFlagsModal} size="xl" centered scrollAreaComponent={ScrollArea.Autosize}
+            title={`${openFlags.length} ${openFlags.length === 1 ? 'error' : 'errors'} on ${inv.id}`}>
+            {findings}
+          </Modal>
+        </>
+      ) : findings)}
 
       <Grid>
         <Grid.Col span={{ base: 12, lg: 5 }}>
@@ -164,7 +183,8 @@ export default function InvoiceDetailPage() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 7 }}>
           <Stack>
-            <HeaderFields d={d} editable={editable} low={low} depts={depts.data ?? []} onSaved={refresh}
+            {/* re-seed the form when the server copy changes (save, re-extract, revalidation, PO link). Same as afra-work 0cb9d4a. */}
+            <HeaderFields key={`${inv.id}:${inv.version}`} d={d} editable={editable} low={low} depts={depts.data ?? []} onSaved={refresh}
               linkedPo={linkedPo} setLinkedPo={setLinkedPo} />
             <LinesTable id={id!} lines={d.lines} editable={editable} gl={gl.data ?? []} depts={depts.data ?? []} onSaved={refresh} />
             <Card withBorder padding="sm">
@@ -282,10 +302,9 @@ function HeaderFields({ d, editable, low, depts, onSaved, linkedPo, setLinkedPo 
     total: inv.total != null ? String(inv.total) : '', subtotal: inv.subtotal != null ? String(inv.subtotal) : '',
     departmentId: inv.departmentId ?? '', poId: inv.poId ?? '', shipToProvince: inv.shipToProvince ?? '',
   })
-  // Server-side changes made outside this form (linking a PO fills the PO and, if blank, the department).
-  useEffect(() => {
-    setF((prev) => ({ ...prev, poId: inv.poId ?? '', departmentId: inv.departmentId ?? '' }))
-  }, [inv.poId, inv.departmentId])
+  // Server-side changes made outside this form (e.g. linking a PO) bump inv.version, and the parent re-keys this
+  // component on it, so the fields above re-seed from the server copy.
+  const extracted = d.extractions.some((x) => x.rawJson)
   const [saving, setSaving] = useState(false)
   const poRef = useRef<HTMLInputElement>(null)
   const poFlash = !!linkedPo && inv.poId === linkedPo
@@ -320,6 +339,11 @@ function HeaderFields({ d, editable, low, depts, onSaved, linkedPo, setLinkedPo 
     <Card withBorder padding="sm">
       <Group justify="space-between" mb="xs"><Text fw={600}>Invoice fields</Text>
         {low.size > 0 && <Badge color="yellow" variant="light">highlighted = read with low confidence</Badge>}</Group>
+      {extracted && editable && (
+        <Alert color="blue" variant="light" mb="xs" icon={<IconSparkles size={16} />} title="Suggested entries">
+          These fields were read from the document automatically. Check them against the invoice on the left, correct anything wrong, then save.
+        </Alert>
+      )}
       <Grid gutter="xs">
         <Grid.Col span={4}>{field('Invoice #', 'vendorInvoiceNumber', 'invoiceNumber')}</Grid.Col>
         <Grid.Col span={4}>{field('Invoice date', 'invoiceDate')}</Grid.Col>

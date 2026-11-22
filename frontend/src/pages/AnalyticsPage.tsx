@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { api, qs } from '../api/client'
 import { Loading } from '../components/bits'
 import { money, num } from '../lib/format'
+import { MonthlySpendChart } from '../components/MonthlySpendChart'
 
 interface Row { key: string; label: string; amountCad: string; invoices: number; share: string }
 interface Resp { groupBy: string; scope: string; totalCad: string; rows: Row[]; monthly: Record<string, string> }
@@ -15,7 +16,6 @@ export default function AnalyticsPage() {
   const [to, setTo] = useState('2026-12-31')
   const q = useQuery({ queryKey: ['spend', groupBy, from, to], queryFn: () => api.get<Resp>('/analytics/spend' + qs({ groupBy, from, to })) })
   const d = q.data
-  const maxMonth = d ? Math.max(...Object.values(d.monthly).map(num), 1) : 1
   return (
     <Stack>
       <Group justify="space-between" align="flex-end">
@@ -33,14 +33,7 @@ export default function AnalyticsPage() {
         <>
           <Card withBorder>
             <Group justify="space-between" mb="xs"><Text fw={600}>By month</Text><Text fw={700}>{money(d.totalCad)}</Text></Group>
-            <Group align="flex-end" gap={6} h={120} wrap="nowrap">
-              {Object.entries(d.monthly).map(([m, v]) => (
-                <Stack key={m} gap={2} align="center" style={{ flex: 1 }}>
-                  <div title={`${m}: ${money(v)}`} style={{ width: '100%', height: `${(100 * num(v)) / maxMonth}px`, background: 'var(--mantine-color-indigo-5)', borderRadius: 4 }} />
-                  <Text size="xs" c="dimmed">{m.slice(5)}</Text>
-                </Stack>
-              ))}
-            </Group>
+            <MonthlySpendChart monthly={d.monthly} />
           </Card>
           <Table striped>
             <Table.Thead><Table.Tr><Table.Th>{groupBy === 'vendor' ? 'Vendor' : groupBy === 'dept' ? 'Department' : 'GL account'}</Table.Th>

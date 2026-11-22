@@ -1,6 +1,8 @@
-# secrets
+# secrets: .env and any variant (.env.txt, .env.local, .env.backup...); only the empty template is tracked
 .env
+.env.*
 *.env.local
+!.env.example
 
 # java / gradle
 backend/build/

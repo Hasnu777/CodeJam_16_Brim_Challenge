@@ -1,146 +1,246 @@
 import { Badge, Button, Card, FileButton, Group, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import {
+  IconAlertOctagon, IconArrowUpRight, IconBuildingBank, IconBuildingStore, IconChartLine, IconFileInvoice, IconHourglass, IconInbox,
+  IconSend, IconShieldCheck,
+} from '@tabler/icons-react'
+import { useState, type ComponentType } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api } from '../api/client'
+import { api, qs } from '../api/client'
 import type { AuditEvent, EmailMessage, InvoiceSummary, PaymentRow, QueueItem, VendorRow } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { Empty, MoneyCell, StatusBadge } from '../components/bits'
+import { MonthlySpendChart } from '../components/MonthlySpendChart'
 import { notifyError, notifyOk } from '../components/notify'
 import { dateTime, money, num } from '../lib/format'
 
-function Stat({ label, value, to, color }: { label: string; value: number | string; to: string; color?: string }) {
+type StatColor = 'violet' | 'orange' | 'red' | 'blue' | 'teal'
+interface StatDef { label: string; value: number | string; icon: ComponentType<{ size?: number }>; color: StatColor; to: string }
+
+/** Lovable stat card: label, big number, tinted icon tile, "View queue". */
+function Stat({ label, value, icon: Icon, color, to }: StatDef) {
   return (
-    <Card withBorder component={Link} to={to} padding="md">
-      <Text size="xs" c="dimmed" tt="uppercase" fw={600}>{label}</Text>
-      <Text size="xl" fw={700} c={color}>{value}</Text>
+    <Card component={Link} to={to} withBorder p="lg" className="ap-stat">
+      <Group justify="space-between" wrap="nowrap">
+        <Stack gap={8}>
+          <Text size="sm" c="dimmed" fw={600}>{label}</Text>
+          <Title order={2}>{value}</Title>
+        </Stack>
+        <div className={`ap-stat-icon ap-stat-${color}`}><Icon size={25} /></div>
+      </Group>
+      <Group gap={5} mt="lg">
+        <IconArrowUpRight size={15} />
+        <Text size="xs" c="dimmed">View queue</Text>
+      </Group>
     </Card>
   )
 }
 
-/** "What do I need to do now?" - different content per role. */
+const BILLED = new Set(['APPROVED', 'SCHEDULED', 'RELEASED', 'PAID'])
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** Same basis as the analytics endpoint (approved / scheduled / paid, CAD), for roles that cannot call it. */
+function monthlyFrom(list: InvoiceSummary[], from: string, to: string): Record<string, string> {
+  const out: Record<string, number> = {}
+  for (const i of list) {
+    const d = String(i.invoiceDate ?? '')
+    if (!BILLED.has(String(i.status)) || d < from || d > to) continue
+    out[d.slice(0, 7)] = (out[d.slice(0, 7)] ?? 0) + num(i.totalCad)
+  }
+  return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.toFixed(2)]))
+}
+
+/** "What do I need to do now?" - Lovable home layout, role-specific real data. */
 export default function HomePage() {
   const { me, is } = useAuth()
   const r = me!.role
+  const canAnalytics = is('APR', 'FM', 'ADM', 'AUD')
+  const year = me!.businessDate.slice(0, 4)
+  const from = `${year}-01-01`
+  const to = me!.businessDate
   const invoices = useQuery({ queryKey: ['invoices', 'home'], queryFn: () => api.get<InvoiceSummary[]>('/invoices') })
+  const history = useQuery({ queryKey: ['invoices', 'home', 'history'], queryFn: () => api.get<InvoiceSummary[]>('/invoices' + qs({ includeHistory: true })), enabled: r === 'CLK' })
+  const spend = useQuery({ queryKey: ['home-spend', from, to], queryFn: () => api.get<{ monthly: Record<string, string> }>('/analytics/spend' + qs({ from, to })), enabled: canAnalytics })
   const emails = useQuery({ queryKey: ['inbox'], queryFn: () => api.get<EmailMessage[]>('/inbox'), enabled: is('CLK', 'ADM', 'AUD') })
   const approvals = useQuery({ queryKey: ['approvals'], queryFn: () => api.get<QueueItem[]>('/approvals/mine'), enabled: is('APR', 'FM', 'ADM') })
   const payments = useQuery({ queryKey: ['payments', ''], queryFn: () => api.get<PaymentRow[]>('/payments'), enabled: is('CLK', 'FM', 'ADM', 'AUD') })
   const vendors = useQuery({ queryKey: ['vendors'], queryFn: () => api.get<VendorRow[]>('/vendors'), enabled: is('FM', 'ADM') })
-  const audit = useQuery({ queryKey: ['audit', 'recent'], queryFn: () => api.get<AuditEvent[]>('/audit?limit=12'), enabled: is('ADM', 'AUD') })
+  const audit = useQuery({ queryKey: ['audit', 'recent'], queryFn: () => api.get<AuditEvent[]>('/audit?limit=8'), enabled: is('ADM', 'AUD') })
 
   const inv = invoices.data ?? []
   const count = (pred: (i: InvoiceSummary) => boolean) => inv.filter(pred).length
-  const attention = (emails.data ?? []).filter((e) => e.processedAt && e.classification !== 'INVOICE').length
+  const attentionEmails = (emails.data ?? []).filter((e) => e.processedAt && e.classification !== 'INVOICE').length
   const unprocessed = (emails.data ?? []).filter((e) => !e.processedAt).length
   const pay = payments.data ?? []
   const releasable = pay.filter((p) => p.payment?.status === 'SCHEDULED' && (p.releaseBlockers?.length ?? 0) === 0).length
   const month = me!.businessDate.slice(0, 7)
   const deptSpend = inv.filter((i) => i.departmentId === me!.departmentId && String(i.invoiceDate ?? '').startsWith(month))
     .reduce((s, i) => s + num(i.totalCad), 0)
+  const queue = approvals.data ?? []
+
+  const stats: StatDef[] =
+    r === 'EMP' ? [
+      { label: 'My submissions', value: inv.length, icon: IconHourglass, color: 'violet', to: '/invoices' },
+      { label: 'In review', value: count((i) => i.status === 'IN_REVIEW'), icon: IconBuildingStore, color: 'orange', to: '/invoices?status=IN_REVIEW' },
+      { label: 'Approved', value: count((i) => i.status === 'APPROVED'), icon: IconBuildingBank, color: 'blue', to: '/invoices?status=APPROVED' },
+      { label: 'Paid', value: count((i) => i.status === 'PAID'), icon: IconSend, color: 'teal', to: '/invoices?status=PAID' },
+    ] : r === 'CLK' ? [
+      { label: 'To review', value: count((i) => i.status === 'IN_REVIEW'), icon: IconHourglass, color: 'violet', to: '/invoices?status=IN_REVIEW' },
+      { label: 'With BLOCK flags', value: count((i) => (i.blockFlags ?? 0) > 0), icon: IconAlertOctagon, color: 'red', to: '/invoices?flagged=true' },
+      { label: 'Inbox needs attention', value: attentionEmails, icon: IconInbox, color: 'orange', to: '/inbox' },
+      { label: 'Approved, to schedule', value: count((i) => i.status === 'APPROVED'), icon: IconSend, color: 'teal', to: '/payments' },
+    ] : r === 'APR' ? [
+      { label: 'Waiting for me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
+      { label: `${me!.departmentId} spend ${month}`, value: money(deptSpend), icon: IconChartLine, color: 'blue', to: '/invoices' },
+    ] : r === 'AUD' ? [
+      { label: 'Invoices this batch', value: inv.length, icon: IconFileInvoice, color: 'blue', to: '/invoices' },
+      { label: 'Flagged', value: count((i) => (i.blockFlags ?? 0) + (i.warnFlags ?? 0) > 0), icon: IconAlertOctagon, color: 'orange', to: '/invoices?flagged=true' },
+      { label: 'Paid', value: count((i) => i.status === 'PAID'), icon: IconSend, color: 'teal', to: '/invoices?status=PAID' },
+      { label: 'Audit log', value: 'Verify', icon: IconShieldCheck, color: 'violet', to: '/audit' },
+    ] : [ // FM, ADM
+      { label: 'Waiting for me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
+      { label: 'Vendors to approve', value: (vendors.data ?? []).filter((v) => v.vendor?.status === 'pending_review').length, icon: IconBuildingStore, color: 'orange', to: '/vendors' },
+      { label: 'Bank changes to verify', value: (vendors.data ?? []).filter((v) => v.pendingBankChange).length, icon: IconBuildingBank, color: 'red', to: '/vendors' },
+      { label: 'Payments to release', value: releasable, icon: IconSend, color: 'teal', to: '/payments' },
+    ]
+
+  // Attention band: the most pressing real item for this role (no sample invoice ids).
+  const firstQueued = queue.find((q) => q.topFlag) ?? queue[0]
+  const blocked = inv.filter((i) => (i.blockFlags ?? 0) > 0 && !['REJECTED', 'DUPLICATE', 'PAID'].includes(String(i.status)))
+  const firstBlocked = blocked.find((i) => i.status === 'IN_REVIEW') ?? blocked[0]
+  const attention = is('APR', 'FM', 'ADM') && firstQueued
+    ? { id: firstQueued.invoiceId!, line: `${firstQueued.vendorName} · ${firstQueued.topFlag ?? `step ${firstQueued.stepSeq} of ${firstQueued.stepCount}`}`, title: 'Invoice waiting for your decision' }
+    : r !== 'EMP' && firstBlocked
+      ? { id: firstBlocked.id!, line: `${firstBlocked.vendorName} · ${firstBlocked.blockFlags} blocking ${firstBlocked.blockFlags === 1 ? 'flag' : 'flags'}${blocked.length > 1 ? ` · ${blocked.length - 1} more blocked` : ''}`, title: 'Invoice needs your attention' }
+      : null
+
+  const monthly = canAnalytics ? spend.data?.monthly : monthlyFrom(r === 'CLK' ? (history.data ?? []) : inv, from, to)
+  const lastMonth = Number(to.slice(5, 7)) - 1
 
   return (
-    <Stack>
-      <div>
-        <Title order={3}>Good to see you, {me!.fullName.split(' ')[0]}</Title>
-        {me!.actingFor.length > 0 && (
-          <Text c="grape">You are acting as delegate for {me!.actingFor.map((a) => a.fullName).join(', ')}; their approvals appear in your queue.</Text>
-        )}
-      </div>
+    <Stack gap="xl">
+      <Group justify="space-between" align="flex-end">
+        <div>
+          <Title order={1}>Good to see you, {me!.fullName.split(' ')[0]}</Title>
+          <Text c="dimmed" mt={4}>Here’s what needs your attention today.</Text>
+          {me!.actingFor.length > 0 && (
+            <Text c="grape" size="sm" mt={4}>You are acting as delegate for {me!.actingFor.map((a) => a.fullName).join(', ')}; their approvals appear in your queue.</Text>
+          )}
+        </div>
+        <Badge variant="light">{r === 'EMP' ? 'My workspace' : 'Finance workspace'}</Badge>
+      </Group>
 
-      <SimpleGrid cols={{ base: 2, md: 4 }}>
-        {r === 'CLK' && <>
-          <Stat label="To review" value={count((i) => i.status === 'IN_REVIEW')} to="/invoices?status=IN_REVIEW" />
-          <Stat label="With BLOCK flags" value={count((i) => (i.blockFlags ?? 0) > 0)} to="/invoices?flagged=true" color="red" />
-          <Stat label="Needs attention" value={attention} to="/inbox" color="orange" />
-          <Stat label="Approved, to schedule" value={count((i) => i.status === 'APPROVED')} to="/payments" />
-        </>}
-        {(r === 'APR' || r === 'FM' || r === 'ADM') && (
-          <Stat label="Waiting for me" value={approvals.data?.length ?? '…'} to="/approvals" color="grape" />
-        )}
-        {r === 'APR' && <Stat label={`${me!.departmentId} spend ${month}`} value={money(deptSpend)} to="/invoices" />}
-        {(r === 'FM' || r === 'ADM') && <>
-          <Stat label="Vendors to approve" value={(vendors.data ?? []).filter((v) => v.vendor?.status === 'pending_review').length} to="/vendors" color="orange" />
-          <Stat label="Bank changes to verify" value={(vendors.data ?? []).filter((v) => v.pendingBankChange).length} to="/vendors" color="red" />
-          <Stat label="Payments I can release" value={releasable} to="/payments" color="teal" />
-        </>}
-        {r === 'ADM' && <Stat label="In review" value={count((i) => i.status === 'IN_REVIEW')} to="/invoices?status=IN_REVIEW" />}
-        {r === 'AUD' && <>
-          <Stat label="Invoices this batch" value={inv.length} to="/invoices" />
-          <Stat label="Flagged" value={count((i) => (i.blockFlags ?? 0) + (i.warnFlags ?? 0) > 0)} to="/invoices?flagged=true" color="orange" />
-          <Stat label="Paid" value={count((i) => i.status === 'PAID')} to="/invoices?status=PAID" color="green" />
-          <Stat label="Audit log" value="verify" to="/audit" />
-        </>}
-        {r === 'EMP' && ['IN_REVIEW', 'PENDING_APPROVAL', 'APPROVED', 'PAID'].map((s) => (
-          <Stat key={s} label={s.replace('_', ' ').toLowerCase()} value={count((i) => i.status === s)} to={`/invoices?status=${s}`} />
-        ))}
+      <SimpleGrid cols={{ base: 1, xs: 2, lg: 4 }} spacing="lg">
+        {stats.map((s) => <Stat key={s.label} {...s} />)}
       </SimpleGrid>
 
+      {attention && (
+        <Group justify="space-between" className="ap-attention-band">
+          <div>
+            <Text fw={700}>{attention.title}</Text>
+            <Text size="sm" c="dimmed">{attention.id} · {attention.line}</Text>
+          </div>
+          <Button component={Link} to={`/invoices/${attention.id}`} variant="light" color="red">Review invoice</Button>
+        </Group>
+      )}
       {r === 'CLK' && unprocessed > 0 && (
-        <Card withBorder><Group justify="space-between"><Text>{unprocessed} emails waiting in the AP inbox.</Text>
+        <Card withBorder className="ap-stat"><Group justify="space-between"><Text>{unprocessed} emails waiting in the AP inbox.</Text>
           <Button component={Link} to="/inbox">Go to inbox</Button></Group></Card>
       )}
       {r === 'EMP' && <EmployeeUpload />}
 
-      {(r === 'APR' || r === 'FM' || r === 'ADM') && (
-        <Card withBorder>
-          <Title order={5} mb="xs">Waiting for your approval</Title>
-          {(approvals.data ?? []).length === 0 ? <Text c="dimmed">Nothing waiting for you.</Text> : (
-            <Table>
-              <Table.Tbody>
-                {(approvals.data ?? []).slice(0, 8).map((q) => (
-                  <Table.Tr key={q.invoiceId}>
-                    <Table.Td><Link to={`/invoices/${q.invoiceId}`}>{q.invoiceId}</Link></Table.Td>
-                    <Table.Td>{q.vendorName}</Table.Td>
-                    <Table.Td><MoneyCell cad={q.totalCad} amount={q.total} currency={q.currency} /></Table.Td>
-                    <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">as delegate</Badge> : null}</Table.Td>
-                    <Table.Td><Text size="xs" c="dimmed">{q.topFlag}</Text></Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          )}
-        </Card>
-      )}
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl">
+        <section>
+          <Group justify="space-between" mb="md">
+            <Title order={3}>{r === 'EMP' ? 'My monthly spend' : 'Monthly AP spend'}</Title>
+            <Text size="xs" c="dimmed">Jan – {MONTHS[lastMonth]} {year} · CAD</Text>
+          </Group>
+          {monthly ? <MonthlySpendChart monthly={monthly} /> : <Text c="dimmed" size="sm">Loading…</Text>}
+          {canAnalytics && <Button component={Link} to="/analytics" variant="subtle" mt="sm">Spend analytics →</Button>}
+        </section>
 
-      {(r === 'ADM' || r === 'AUD') && (
-        <Card withBorder>
-          <Title order={5} mb="xs">Recent activity</Title>
-          <Table>
-            <Table.Tbody>
-              {(audit.data ?? []).map((e) => (
-                <Table.Tr key={e.id}>
-                  <Table.Td><Text size="xs" c="dimmed">{dateTime(e.ts)}</Text></Table.Td>
-                  <Table.Td><Text size="sm">{e.actor}{e.onBehalfOf ? ` for ${e.onBehalfOf}` : ''}</Text></Table.Td>
-                  <Table.Td><Badge variant="light" size="sm">{e.action}</Badge></Table.Td>
-                  <Table.Td><Text size="xs">{e.entity} {e.entityId}</Text></Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Card>
-      )}
+        <section>
+          {is('APR', 'FM', 'ADM') && (<>
+            <Title order={3} mb="md">Waiting for your approval</Title>
+            {queue.length ? (
+              <Table>
+                <Table.Thead><Table.Tr><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th /></Table.Tr></Table.Thead>
+                <Table.Tbody>
+                  {queue.slice(0, 6).map((q) => (
+                    <Table.Tr key={q.invoiceId}>
+                      <Table.Td><Link to={`/invoices/${q.invoiceId}`}>{q.invoiceId}</Link></Table.Td>
+                      <Table.Td>{q.vendorName}{q.topFlag && <Text size="xs" c="dimmed">{q.topFlag}</Text>}</Table.Td>
+                      <Table.Td ta="right"><MoneyCell cad={q.totalCad} amount={q.total} currency={q.currency} /></Table.Td>
+                      <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">as delegate</Badge> : null}</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            ) : <Text c="dimmed" py="xl">You’re all caught up.</Text>}
+          </>)}
 
-      {r === 'EMP' && (
-        <Card withBorder>
-          <Title order={5} mb="xs">My submissions</Title>
-          {inv.length === 0 ? <Empty>No invoices yet. Upload a supplier invoice above and AP will take it from there.</Empty> : (
-            <Table>
-              <Table.Tbody>
-                {inv.map((i) => (
-                  <Table.Tr key={i.id}>
-                    <Table.Td><Link to={`/invoices/${i.id}`}>{i.id}</Link></Table.Td>
-                    <Table.Td>{i.vendorName}</Table.Td>
-                    <Table.Td><MoneyCell cad={i.totalCad} amount={i.total} currency={i.currency} /></Table.Td>
-                    <Table.Td><StatusBadge status={i.status} /></Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          )}
-        </Card>
+          {r === 'CLK' && (<>
+            <Title order={3} mb="md">Ready for your review</Title>
+            <InvoiceTable rows={inv.filter((i) => i.status === 'IN_REVIEW').slice(0, 6)} empty="Nothing waiting for review." />
+          </>)}
+
+          {r === 'EMP' && (<>
+            <Title order={3} mb="md">My submissions</Title>
+            {inv.length === 0 ? <Empty>No invoices yet. Upload a supplier invoice above and AP will take it from there.</Empty>
+              : <InvoiceTable rows={inv.slice(0, 8)} empty="" />}
+          </>)}
+
+          {r === 'AUD' && (<>
+            <Title order={3} mb="md">Recent activity</Title>
+            <AuditTable events={audit.data ?? []} />
+          </>)}
+        </section>
+      </SimpleGrid>
+
+      {r === 'ADM' && (
+        <section>
+          <Title order={3} mb="md">Recent activity</Title>
+          <AuditTable events={audit.data ?? []} />
+        </section>
       )}
     </Stack>
+  )
+}
+
+function InvoiceTable({ rows, empty }: { rows: InvoiceSummary[]; empty: string }) {
+  if (!rows.length) return <Text c="dimmed" py="xl">{empty}</Text>
+  return (
+    <Table>
+      <Table.Thead><Table.Tr><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>Status</Table.Th></Table.Tr></Table.Thead>
+      <Table.Tbody>
+        {rows.map((i) => (
+          <Table.Tr key={i.id}>
+            <Table.Td><Link to={`/invoices/${i.id}`}>{i.id}</Link></Table.Td>
+            <Table.Td>{i.vendorName}</Table.Td>
+            <Table.Td ta="right"><MoneyCell cad={i.totalCad} amount={i.total} currency={i.currency} /></Table.Td>
+            <Table.Td><StatusBadge status={i.status} /></Table.Td>
+          </Table.Tr>
+        ))}
+      </Table.Tbody>
+    </Table>
+  )
+}
+
+function AuditTable({ events }: { events: AuditEvent[] }) {
+  if (!events.length) return <Text c="dimmed" py="xl">No activity yet.</Text>
+  return (
+    <Table>
+      <Table.Tbody>
+        {events.map((e) => (
+          <Table.Tr key={e.id}>
+            <Table.Td><Text size="xs" c="dimmed">{dateTime(e.ts)}</Text></Table.Td>
+            <Table.Td><Text size="sm">{e.actor}{e.onBehalfOf ? ` for ${e.onBehalfOf}` : ''}</Text></Table.Td>
+            <Table.Td><Badge variant="light" size="sm">{e.action}</Badge></Table.Td>
+            <Table.Td><Text size="xs">{e.entity} {e.entityId}</Text></Table.Td>
+          </Table.Tr>
+        ))}
+      </Table.Tbody>
+    </Table>
   )
 }
 
@@ -149,10 +249,10 @@ function EmployeeUpload() {
   const nav = useNavigate()
   const qc = useQueryClient()
   return (
-    <Card withBorder>
+    <Card withBorder p="lg" className="ap-stat">
       <Group justify="space-between">
         <div>
-          <Text fw={600}>Submit a supplier invoice</Text>
+          <Text fw={700}>Submit a supplier invoice</Text>
           <Text size="sm" c="dimmed">PDF or photo. It is read automatically and sent to AP for your department.</Text>
         </div>
         <FileButton accept="application/pdf,image/png,image/jpeg" onChange={async (f) => {
