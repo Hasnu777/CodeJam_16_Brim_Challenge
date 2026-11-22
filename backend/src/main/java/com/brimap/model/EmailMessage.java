@@ -18,6 +18,7 @@ public class EmailMessage {
     /** Comma-separated attachment file names. */
     @Column(columnDefinition = "text") private String attachments;
     /** Folder holding the attachments for mail fetched from the server; null for dataset emails (incoming_invoices/). */
+    @com.fasterxml.jackson.annotation.JsonIgnore // server path: never sent to the browser
     @Column(columnDefinition = "text") private String attachmentDir;
     /** RFC 5322 Message-ID of mail fetched from the server (dedupe); null for dataset emails. */
     @Column(columnDefinition = "text") private String messageId;

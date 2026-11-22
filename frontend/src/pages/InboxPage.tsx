@@ -15,7 +15,7 @@ interface InboxStatus {
   total?: number; done?: number; invoicesCreated?: number; needsAttention?: number; errors?: string[]
 }
 
-const KIND: Record<string, { label: string; color: string }> = {
+export const KIND: Record<string, { label: string; color: string }> = {
   INVOICE: { label: 'Invoice', color: 'blue' },
   NO_ATTACHMENT: { label: 'No attachment', color: 'red' },
   PAYMENT_INQUIRY: { label: 'Payment inquiry', color: 'orange' },
@@ -127,7 +127,7 @@ export default function InboxPage() {
           </Table.Thead>
           <Table.Tbody>
             {rows.map((e) => (
-              <Table.Tr key={e.id}>
+              <Table.Tr key={e.id} style={{ cursor: 'pointer' }} onClick={() => nav(`/inbox/${e.id}`)}>
                 <Table.Td><Text size="xs">{dateTime(e.receivedAt)}</Text></Table.Td>
                 <Table.Td><Text size="sm">{e.fromName}</Text><Text size="xs" c="dimmed">{e.fromAddress}</Text></Table.Td>
                 <Table.Td><Text size="sm">{e.subject}</Text>
@@ -146,7 +146,7 @@ export default function InboxPage() {
                   {e.classification && e.classification !== 'INVOICE' && <Text size="xs">{e.reason}</Text>}
                   <Group gap={6}>
                     {(e.linkedInvoiceIds ?? '').split(',').filter(Boolean).map((id) => (
-                      <Anchor key={id} component={Link} to={`/invoices/${id}`} size="sm">{id}</Anchor>
+                      <Anchor key={id} component={Link} to={`/invoices/${id}`} size="sm" onClick={(ev) => ev.stopPropagation()}>{id}</Anchor>
                     ))}
                   </Group>
                 </Table.Td>

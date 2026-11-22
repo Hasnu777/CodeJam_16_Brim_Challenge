@@ -7,6 +7,7 @@ import AuditPage from './pages/AuditPage'
 import FraudPage from './pages/FraudPage'
 import ReconciliationPage from './pages/ReconciliationPage'
 import HomePage from './pages/HomePage'
+import EmailDetailPage from './pages/EmailDetailPage'
 import InboxPage from './pages/InboxPage'
 import InvoiceDetailPage from './pages/InvoiceDetailPage'
 import InvoiceListPage from './pages/InvoiceListPage'
@@ -26,6 +27,7 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="inbox" element={<InboxPage />} />
+        <Route path="inbox/:id" element={<EmailDetailPage />} />
         <Route path="invoices" element={<InvoiceListPage />} />
         <Route path="invoices/:id" element={<InvoiceDetailPage />} />
         <Route path="approvals" element={<MyApprovalsPage />} />
