@@ -12,6 +12,7 @@ import type { Department, GlAccount, InvoiceDetail, InvoiceLine } from '../api/t
 import { useAuth } from '../auth/AuthContext'
 import { ErrorBox, Hint, Loading, StatusBadge, Why } from '../components/bits'
 import { FlagCard } from '../components/FlagCard'
+import { PoSuggestions } from '../components/PoSuggestions'
 import { notifyError, notifyOk } from '../components/notify'
 import { date, dateTime, money, num } from '../lib/format'
 
@@ -117,7 +118,12 @@ export default function InvoiceDetailPage() {
           {openFlags.map((f) => (
             <FlagCard key={f.id} flag={f} users={d.users}
               canResolve={f.severity === 'BLOCK' ? is('FM', 'ADM') : is('CLK', 'FM', 'ADM')}
-              onResolve={(resolution, note) => act('flag', () => api.post(`/flags/${f.id}/resolve`, { resolution, note }), `${f.ruleCode} ${resolution.toLowerCase()}`)} />
+              onResolve={(resolution, note) => act('flag', () => api.post(`/flags/${f.id}/resolve`, { resolution, note }), `${f.ruleCode} ${resolution.toLowerCase()}`)}>
+              {(f.ruleCode === 'P13' || f.ruleCode === 'PO1') && inv.vendorId && !inv.historical && (
+                <PoSuggestions invoiceId={inv.id!} canLink={editable} busy={busy === 'linkPo'}
+                  onLink={(poId) => act('linkPo', () => api.post(`/invoices/${id}/po`, { poId }), `Linked ${poId}`)} />
+              )}
+            </FlagCard>
           ))}
           {openFlags.some((f) => f.severity === 'BLOCK') && is('CLK') && (
             <Hint>BLOCK flags can only be overridden by a Finance Manager or Controller. Vendor and bank holds (V01, V02, B01, B02) clear automatically when the vendor is approved or the bank change is verified.</Hint>

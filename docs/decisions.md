@@ -395,3 +395,14 @@ SEEN only after it is saved, and the id is a hash of the Message-ID header, so a
 an email. Only PDF/PNG/JPEG attachments up to 20 MB are imported; inline images (logos, signatures) are skipped and
 unsupported files are noted in the body. File names are sanitized to their last path segment. Off by default
 (MAIL_ENABLED=false); the password lives in .env only.
+
+**D-083 PO suggestions are ranked by vendor, checked by date and amount, and never linked automatically.** Under a
+P13 (PO required) or PO1 (bad PO) flag, the invoice page lists the vendor's `open` / `partially_invoiced` POs
+(`GET /invoices/{id}/po-suggestions`, `PoSuggester`). The vendor is what identifies the PO: in the dataset no vendor
+has more than one open PO, so a date-only guess would mostly surface closed or other vendors' POs. Date and amount are
+sanity checks: a PO issued after the invoice date, a remaining balance below the pre-tax amount (same "billed" as
+P12: other non-rejected, non-duplicate invoices on the PO) or a currency mismatch is a warning. Ranking: fewest
+warnings, then same department, then the PO issued closest before the invoice. Each candidate shows its reasons and
+warnings. The clerk clicks Link (`POST /invoices/{id}/po`, audit `PO_LINKED`), and re-validation clears P13 or raises
+PO1/P12. P13 is a control, so it is never filled in silently. Linking fills department and requester from the PO only
+when they are blank, so an employee's own upload keeps its requester (unlike the header edit, which takes the PO's).

@@ -1,6 +1,6 @@
 import { Anchor, Badge, Button, Card, Code, Collapse, Group, Stack, Text, Textarea } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Flag } from '../api/types'
 import { dateTime } from '../lib/format'
@@ -9,11 +9,13 @@ import { SeverityBadge } from './bits'
 const BORDER: Record<string, string> = { BLOCK: 'var(--mantine-color-red-6)', WARN: 'var(--mantine-color-yellow-6)', INFO: 'var(--mantine-color-gray-5)' }
 
 /** One finding: title, one-sentence explanation with numbers, evidence, links to matched records, resolution. */
-export function FlagCard({ flag, canResolve, onResolve, users }: {
+export function FlagCard({ flag, canResolve, onResolve, users, children }: {
   flag: Flag
   canResolve: boolean
   onResolve?: (resolution: string, note: string) => Promise<void>
   users?: Record<string, string>
+  /** Extra help shown under the message, e.g. PO suggestions for P13. */
+  children?: ReactNode
 }) {
   const [open, { toggle }] = useDisclosure(false)
   const [note, setNote] = useState('')
@@ -43,6 +45,7 @@ export function FlagCard({ flag, canResolve, onResolve, users }: {
             {resolved && <Badge color="green" variant="light" size="sm">{flag.resolution === 'AUTO_CLEARED' ? 'cleared' : flag.status?.toLowerCase()}</Badge>}
           </Group>
           <Text size="sm">{flag.message}</Text>
+          {!resolved && children}
           {links.length > 0 && (
             <Group gap="xs">
               <Text size="xs" c="dimmed">Related:</Text>
