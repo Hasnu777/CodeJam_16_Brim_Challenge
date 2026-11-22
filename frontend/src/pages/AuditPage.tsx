@@ -6,11 +6,15 @@ import { Link } from 'react-router-dom'
 import { api, qs } from '../api/client'
 import type { AuditEvent } from '../api/types'
 import { Loading } from '../components/bits'
-import { dateTime } from '../lib/format'
+import { dateTime, statusLabel } from '../lib/format'
+import { useNames } from '../lib/names'
 
 interface Verify { valid: boolean; events: number; headHash: string | null; breaks: { id: number; problems: string[] }[] }
 
 export default function AuditPage() {
+  const n = useNames()
+  const entityLabel = (entity?: string | null, id?: string | null) =>
+    entity === 'vendor' ? n.vendor(id) : entity === 'user' ? n.person(id) : `${statusLabel(entity ?? '')} ${id ?? ''}`.trim()
   const [f, setF] = useState({ entity: '', entityId: '', actor: '', action: '', from: '', to: '' })
   const [applied, setApplied] = useState(f)
   const [sel, setSel] = useState<AuditEvent | null>(null)
@@ -40,7 +44,7 @@ export default function AuditPage() {
       <Group align="flex-end">
         <TextInput label="Entity" placeholder="invoice, payment, vendor…" value={f.entity} onChange={set('entity')} w={150} />
         <TextInput label="Entity id" placeholder="AP-00473" value={f.entityId} onChange={set('entityId')} w={130} />
-        <TextInput label="Actor (or on behalf of)" placeholder="U003" value={f.actor} onChange={set('actor')} w={150} />
+        <TextInput label="Actor (or on behalf of)" placeholder="Person id, e.g. U003" value={f.actor} onChange={set('actor')} w={150} />
         <TextInput label="Action" placeholder="APPROVED" value={f.action} onChange={set('action')} w={170} />
         <TextInput label="From" type="date" value={f.from} onChange={set('from')} />
         <TextInput label="To" type="date" value={f.to} onChange={set('to')} />
@@ -55,21 +59,21 @@ export default function AuditPage() {
               <Table.Tr key={e.id} style={{ cursor: 'pointer' }} onClick={() => setSel(e)}>
                 <Table.Td><Text size="xs" c="dimmed">{e.id}</Text></Table.Td>
                 <Table.Td><Text size="xs">{dateTime(e.ts)}</Text></Table.Td>
-                <Table.Td><Text size="sm">{e.actor}{e.onBehalfOf ? <Text span c="grape"> for {e.onBehalfOf}</Text> : null}</Text></Table.Td>
-                <Table.Td><Badge size="sm" variant="light" color={e.action === 'ACCESS_DENIED' ? 'red' : undefined}>{e.action}</Badge></Table.Td>
+                <Table.Td><Text size="sm">{n.person(e.actor)}{e.onBehalfOf ? <Text span c="grape"> for {n.person(e.onBehalfOf)}</Text> : null}</Text></Table.Td>
+                <Table.Td><Badge size="sm" variant="light" color={e.action === 'ACCESS_DENIED' ? 'red' : undefined}>{statusLabel(e.action ?? '')}</Badge></Table.Td>
                 <Table.Td>{e.entity === 'invoice' ? <Anchor component={Link} to={`/invoices/${e.entityId}`} size="sm" onClick={(ev) => ev.stopPropagation()}>{e.entityId}</Anchor>
-                  : <Text size="sm">{e.entity} {e.entityId}</Text>}</Table.Td>
-                <Table.Td maw={460}><Text size="xs" lineClamp={2}>{e.detail}</Text></Table.Td>
+                  : <Text size="sm">{entityLabel(e.entity, e.entityId)}</Text>}</Table.Td>
+                <Table.Td maw={460}><Text size="xs" lineClamp={2}>{n.text(e.detail)}</Text></Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
       )}
-      <Modal opened={!!sel} onClose={() => setSel(null)} size="xl" title={sel ? `Event #${sel.id} · ${sel.action}` : ''}>
+      <Modal opened={!!sel} onClose={() => setSel(null)} size="xl" title={sel ? `Event #${sel.id} · ${statusLabel(sel.action ?? '')}` : ''}>
         {sel && (
           <Stack>
-            <Text size="sm">{dateTime(sel.ts)} · {sel.actor}{sel.onBehalfOf ? ` on behalf of ${sel.onBehalfOf}` : ''} · {sel.entity} {sel.entityId}</Text>
-            {sel.detail && <Text size="sm">{sel.detail}</Text>}
+            <Text size="sm">{dateTime(sel.ts)} · {n.person(sel.actor)}{sel.onBehalfOf ? ` on behalf of ${n.person(sel.onBehalfOf)}` : ''} · {entityLabel(sel.entity, sel.entityId)}</Text>
+            {sel.detail && <Text size="sm">{n.text(sel.detail)}</Text>}
             <Grid>
               <Grid.Col span={6}><Text fw={600} size="sm">Before</Text><Code block>{pretty(sel.beforeJson)}</Code></Grid.Col>
               <Grid.Col span={6}><Text fw={600} size="sm">After</Text><Code block>{pretty(sel.afterJson)}</Code></Grid.Col>

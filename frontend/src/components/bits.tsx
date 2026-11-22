@@ -3,6 +3,7 @@ import { IconInfoCircle } from '@tabler/icons-react'
 import type { ReactNode } from 'react'
 import { ApiError } from '../api/client'
 import { money, SEVERITY_COLOR, STATUS_COLOR, statusLabel } from '../lib/format'
+import { humanize } from '../lib/names'
 
 export function StatusBadge({ status }: { status?: string | null }) {
   if (!status) return null
@@ -58,7 +59,7 @@ export function Empty({ children }: { children: ReactNode }) {
 export function Why({ reasons, children }: { reasons: string[]; children: ReactNode }) {
   if (!reasons.length) return <>{children}</>
   return (
-    <Tooltip multiline w={320} label={reasons.join(' · ')} withArrow>
+    <Tooltip multiline w={320} label={reasons.map(humanize).join(' · ')} withArrow>
       <span style={{ display: 'inline-block' }}>{children}</span>
     </Tooltip>
   )

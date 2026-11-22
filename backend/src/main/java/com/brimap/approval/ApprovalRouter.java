@@ -145,5 +145,6 @@ public final class ApprovalRouter {
         return new Result(steps, amount, matched, problems);
     }
 
-    private static String name(AppUser u) { return u == null ? "?" : u.getFullName() + " (" + u.getId() + ")"; }
+    /** People by name in routing notes, which approvers read on the invoice screen. */
+    private static String name(AppUser u) { return u == null ? "?" : u.getFullName(); }
 }

@@ -9,6 +9,7 @@ import { useAuth } from '../auth/AuthContext'
 import { ErrorBox, Loading, StatusBadge, Why } from '../components/bits'
 import { notifyError, notifyOk } from '../components/notify'
 import { date, money } from '../lib/format'
+import { useNames } from '../lib/names'
 
 interface BankAccount { id: number; version: number; institution: string | null; transit: string | null; accountNumber: string | null; last4: string; status: string; verified: boolean; verifiedBy: string | null; bankChangeRequestId: string | null }
 interface Contract { id: string; description: string; billingType: string; monthlyFee: string | null; hourlyRateCap: string | null; fuelSurchargeCapPct: string | null; notToExceedMonthly: string | null; startDate: string; endDate: string; status: string }
@@ -21,6 +22,7 @@ interface VendorDetail {
 export default function VendorDetailPage() {
   const { id } = useParams()
   const { me, is } = useAuth()
+  const n = useNames()
   const qc = useQueryClient()
   const q = useQuery({ queryKey: ['vendor', id], queryFn: () => api.get<VendorDetail>(`/vendors/${id}`) })
   const [note, setNote] = useState('')
@@ -43,7 +45,7 @@ export default function VendorDetailPage() {
         <div>
           <Group gap="xs"><Title order={3}>{v.legalName}</Title>
             <Badge color={v.status === 'active' ? 'green' : v.status === 'on_hold' ? 'red' : 'orange'}>{v.status?.replace('_', ' ')}</Badge></Group>
-          <Text c="dimmed">{v.id} · {v.category} · {v.address}</Text>
+          <Text c="dimmed">{v.category} · {v.address}</Text>
         </div>
         <Group>
           {is('FM', 'ADM') && v.status !== 'active' && (
@@ -83,7 +85,7 @@ export default function VendorDetailPage() {
                     <Table.Td>{a.version}</Table.Td>
                     <Table.Td ff="monospace">{a.institution ? `${a.institution}-${a.transit}-` : ''}…{a.last4}</Table.Td>
                     <Table.Td><Badge size="sm" variant="light" color={a.status === 'ACTIVE' ? 'green' : a.status === 'PENDING' ? 'orange' : 'gray'}>{a.status}</Badge></Table.Td>
-                    <Table.Td>{a.verified ? <Badge size="sm" color="green" variant="light">yes{a.verifiedBy ? ` (${a.verifiedBy})` : ''}</Badge> : <Badge size="sm" color="red">no</Badge>}</Table.Td>
+                    <Table.Td>{a.verified ? <Badge size="sm" color="green" variant="light">yes{a.verifiedBy ? ` (${n.person(a.verifiedBy)})` : ''}</Badge> : <Badge size="sm" color="red">no</Badge>}</Table.Td>
                     <Table.Td>{a.bankChangeRequestId}</Table.Td>
                   </Table.Tr>
                 ))}
@@ -93,7 +95,7 @@ export default function VendorDetailPage() {
             {bankChangeRequests.length === 0 ? <Text size="sm" c="dimmed">None.</Text> : bankChangeRequests.map((c) => (
               <Card key={c.id} withBorder padding="xs" mb="xs" style={{ borderLeft: `4px solid var(--mantine-color-${c.status === 'PENDING' ? 'red' : 'gray'}-5)` }}>
                 <Group justify="space-between">
-                  <Text size="sm"><b>{c.id}</b> · {date(c.changedAt)} · …{c.oldAccountLast4} → …{c.newAccountLast4} · via {c.requestChannel?.replace(/_/g, ' ')} · requested by {c.requestedBy}</Text>
+                  <Text size="sm"><b>{c.id}</b> · {date(c.changedAt)} · …{c.oldAccountLast4} → …{c.newAccountLast4} · via {c.requestChannel?.replace(/_/g, ' ')} · requested by {n.person(c.requestedBy)}</Text>
                   <Badge color={c.status === 'PENDING' ? 'red' : c.status === 'VERIFIED' ? 'green' : 'gray'}>{c.status}</Badge>
                 </Group>
                 {c.appliedBeforeVerification && c.status === 'PENDING' && <Text size="xs" c="red">Already written into the vendor master before anyone verified it: payments to this vendor are held.</Text>}
@@ -108,7 +110,7 @@ export default function VendorDetailPage() {
                       onClick={() => run(() => api.post(`/bank-change-requests/${c.id}/verify`, { callbackDone: true, approve: false, note }), `${c.id} rejected`)}>Reject</Button>
                   </Group>
                 )}
-                {c.verifiedBy && <Text size="xs" c="dimmed">{c.status?.toLowerCase()} by {c.verifiedBy}{c.note ? ` — ${c.note}` : ''}</Text>}
+                {c.verifiedBy && <Text size="xs" c="dimmed">{c.status?.toLowerCase()} by {n.person(c.verifiedBy)}{c.note ? ` — ${c.note}` : ''}</Text>}
               </Card>
             ))}
           </Card>

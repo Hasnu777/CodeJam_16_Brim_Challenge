@@ -16,12 +16,14 @@ import PaymentsPage from './pages/PaymentsPage'
 import PoliciesPage from './pages/PoliciesPage'
 import VendorDetailPage from './pages/VendorDetailPage'
 import VendorsPage from './pages/VendorsPage'
+import { NamesProvider } from './components/NamesProvider'
 
 export default function App() {
   const { me, loading } = useAuth()
   if (loading) return <Loading />
   if (!me) return <LoginPage />
   return (
+    <NamesProvider>
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
@@ -40,5 +42,6 @@ export default function App() {
         <Route path="*" element={<HomePage />} />
       </Route>
     </Routes>
+    </NamesProvider>
   )
 }

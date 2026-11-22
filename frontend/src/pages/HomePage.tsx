@@ -7,7 +7,8 @@ import type { AuditEvent, EmailMessage, InvoiceSummary, PaymentRow, QueueItem, V
 import { useAuth } from '../auth/AuthContext'
 import { Empty, MoneyCell, StatusBadge } from '../components/bits'
 import { notifyError, notifyOk } from '../components/notify'
-import { dateTime, money, num } from '../lib/format'
+import { dateTime, money, num, statusLabel } from '../lib/format'
+import { useNames } from '../lib/names'
 
 function Stat({ label, value, to, color }: { label: string; value: number | string; to: string; color?: string }) {
   return (
@@ -22,6 +23,7 @@ function Stat({ label, value, to, color }: { label: string; value: number | stri
 export default function HomePage() {
   const { me, is } = useAuth()
   const r = me!.role
+  const n = useNames()
   const invoices = useQuery({ queryKey: ['invoices', 'home'], queryFn: () => api.get<InvoiceSummary[]>('/invoices') })
   const emails = useQuery({ queryKey: ['inbox'], queryFn: () => api.get<EmailMessage[]>('/inbox'), enabled: is('CLK', 'ADM', 'AUD') })
   const approvals = useQuery({ queryKey: ['approvals'], queryFn: () => api.get<QueueItem[]>('/approvals/mine'), enabled: is('APR', 'FM', 'ADM') })
@@ -58,7 +60,7 @@ export default function HomePage() {
         {(r === 'APR' || r === 'FM' || r === 'ADM') && (
           <Stat label="Waiting for me" value={approvals.data?.length ?? '…'} to="/approvals" color="grape" />
         )}
-        {r === 'APR' && <Stat label={`${me!.departmentId} spend ${month}`} value={money(deptSpend)} to="/invoices" />}
+        {r === 'APR' && <Stat label={`${n.dept(me!.departmentId)} spend ${month}`} value={money(deptSpend)} to="/invoices" />}
         {(r === 'FM' || r === 'ADM') && <>
           <Stat label="Vendors to approve" value={(vendors.data ?? []).filter((v) => v.vendor?.status === 'pending_review').length} to="/vendors" color="orange" />
           <Stat label="Bank changes to verify" value={(vendors.data ?? []).filter((v) => v.pendingBankChange).length} to="/vendors" color="red" />
@@ -93,7 +95,7 @@ export default function HomePage() {
                     <Table.Td><Link to={`/invoices/${q.invoiceId}`}>{q.invoiceId}</Link></Table.Td>
                     <Table.Td>{q.vendorName}</Table.Td>
                     <Table.Td><MoneyCell cad={q.totalCad} amount={q.total} currency={q.currency} /></Table.Td>
-                    <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">as delegate</Badge> : null}</Table.Td>
+                    <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">for {n.person(q.onBehalfOfUserId ?? q.assignedUserId)}</Badge> : null}</Table.Td>
                     <Table.Td><Text size="xs" c="dimmed">{q.topFlag}</Text></Table.Td>
                   </Table.Tr>
                 ))}
@@ -111,9 +113,9 @@ export default function HomePage() {
               {(audit.data ?? []).map((e) => (
                 <Table.Tr key={e.id}>
                   <Table.Td><Text size="xs" c="dimmed">{dateTime(e.ts)}</Text></Table.Td>
-                  <Table.Td><Text size="sm">{e.actor}{e.onBehalfOf ? ` for ${e.onBehalfOf}` : ''}</Text></Table.Td>
-                  <Table.Td><Badge variant="light" size="sm">{e.action}</Badge></Table.Td>
-                  <Table.Td><Text size="xs">{e.entity} {e.entityId}</Text></Table.Td>
+                  <Table.Td><Text size="sm">{n.person(e.actor)}{e.onBehalfOf ? ` for ${n.person(e.onBehalfOf)}` : ''}</Text></Table.Td>
+                  <Table.Td><Badge variant="light" size="sm">{statusLabel(e.action ?? '')}</Badge></Table.Td>
+                  <Table.Td><Text size="xs">{e.entity === 'vendor' ? n.vendor(e.entityId) : e.entity === 'user' ? n.person(e.entityId) : `${statusLabel(e.entity ?? '')} ${e.entityId ?? ''}`}</Text></Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>

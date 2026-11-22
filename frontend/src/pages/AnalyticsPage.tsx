@@ -48,7 +48,7 @@ export default function AnalyticsPage() {
             <Table.Tbody>
               {d.rows.map((r) => (
                 <Table.Tr key={r.key}>
-                  <Table.Td><Text size="sm">{r.label}</Text><Text size="xs" c="dimmed">{r.key}</Text></Table.Td>
+                  <Table.Td><Text size="sm">{r.label}</Text>{groupBy === 'gl' && <Text size="xs" c="dimmed">account {r.key}</Text>}</Table.Td>
                   <Table.Td ta="right" ff="monospace">{money(r.amountCad)}</Table.Td>
                   <Table.Td w={240}><Group gap={6} wrap="nowrap"><Progress value={num(r.share)} w={160} /><Text size="xs">{r.share}%</Text></Group></Table.Td>
                   <Table.Td ta="right">{r.invoices}</Table.Td>

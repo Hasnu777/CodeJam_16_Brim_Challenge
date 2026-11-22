@@ -8,11 +8,13 @@ import { useAuth } from '../auth/AuthContext'
 import { Empty, ErrorBox, FlagCounts, Loading, MoneyCell, StatusBadge } from '../components/bits'
 import { notifyError, notifyOk } from '../components/notify'
 import { date } from '../lib/format'
+import { useNames } from '../lib/names'
 
 const STATUSES = ['RECEIVED', 'EXTRACTED', 'IN_REVIEW', 'PENDING_APPROVAL', 'APPROVED', 'SCHEDULED', 'RELEASED', 'PAID', 'ON_HOLD', 'REJECTED', 'DUPLICATE']
 
 export default function InvoiceListPage() {
   const { me, is } = useAuth()
+  const n = useNames()
   const [sp, setSp] = useSearchParams()
   const [status, setStatus] = useState<string[]>(sp.get('status') ? sp.get('status')!.split(',') : [])
   const [dept, setDept] = useState<string | null>(sp.get('dept'))
@@ -40,7 +42,7 @@ export default function InvoiceListPage() {
     }
   }
 
-  const title = me!.role === 'EMP' ? 'My submissions' : me!.role === 'APR' ? `Invoices · ${me!.departmentId}` : 'Invoices'
+  const title = me!.role === 'EMP' ? 'My submissions' : me!.role === 'APR' ? `Invoices · ${n.dept(me!.departmentId)}` : 'Invoices'
   return (
     <Stack>
       <Group justify="space-between">
@@ -53,7 +55,7 @@ export default function InvoiceListPage() {
           onChange={(v) => { setStatus(v); setSp((p) => { if (v.length) p.set('status', v.join(',')); else p.delete('status'); return p }) }} />
         {!is('EMP', 'APR') && (
           <Select label="Department" clearable w={180} value={dept} onChange={setDept}
-            data={(depts.data ?? []).map((d) => ({ value: d.id!, label: `${d.id} ${d.name}` }))} />
+            data={(depts.data ?? []).map((d) => ({ value: d.id!, label: d.name! }))} />
         )}
         <Switch label="Flagged only" checked={flagged} onChange={(e) => setFlagged(e.currentTarget.checked)} />
         <Switch label="Include 10-month history" checked={history} onChange={(e) => setHistory(e.currentTarget.checked)} />

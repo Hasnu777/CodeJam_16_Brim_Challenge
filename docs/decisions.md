@@ -414,3 +414,12 @@ added with `default 0`, so existing databases upgrade in place). Two people rele
 or double-clicking Approve, now give one success and one 409 "someone else changed this record", never two releases.
 The raw JPA/Hibernate lock exceptions are mapped to 409 as well as Spring's wrapper. Proven live by
 `scripts/verify_approvals_payments.py`, which fires two releases at the same instant.
+
+**D-087 The UI shows names, the API keeps ids.** People, departments, vendors, GL accounts, approval roles and policy
+conditions are shown by name everywhere ("Elise Tremblay on behalf of Liam O'Connor", "Facilities",
+"6610 · Rent & Operating Costs", "Department manager", "Why this step: Invoice total over $10,000 CAD"). Ids stay in
+the API, the database and the audit log because they are stable keys. `lib/names.ts` + `components/NamesProvider.tsx`
+load the reference lists once per session; `humanize()` also rewrites ids inside server text (flag messages, routing
+notes, audit details, error toasts), dropping a bracketed id when the name is already next to it. Role-gated lists
+(vendors, policies) are only fetched for roles allowed to read them; others fall back to the id. Invoice and payment
+numbers (AP-00473, PAY-00417) stay visible: they are document numbers people quote.
