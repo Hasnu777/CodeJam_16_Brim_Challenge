@@ -423,3 +423,24 @@ load the reference lists once per session; `humanize()` also rewrites ids inside
 notes, audit details, error toasts), dropping a bracketed id when the name is already next to it. Role-gated lists
 (vendors, policies) are only fetched for roles allowed to read them; others fall back to the id. Invoice and payment
 numbers (AP-00473, PAY-00417) stay visible: they are document numbers people quote.
+
+**D-088 Payment holds follow the vendor after approval.** Re-validation only re-checks bills still in review, so a
+B02 (unverified bank change) raised while a bill was in approval never cleared after the Finance Manager verified the
+change: the payment stayed stuck with "Open BLOCK flags: B02". Now any vendor change (approval, bank-change request
+or verification) also runs `ValidationService.clearStaleHolds` on that vendor's APPROVED / SCHEDULED bills: hold
+flags (V01, V02, B01, B02) whose rule no longer fires are auto-cleared and audited as `PAYMENT_HOLD_CLEARED`. It never
+adds flags or re-runs the other rules on approved bills; release already checks the vendor, its bank account and
+pending bank changes live (ReleaseRules), so a new hold still blocks.
+
+**D-089 A delegation applies whether or not the person is marked on leave.** The PRD makes delegation time-bounded
+data, not a status, but the router only used it for `on_leave` users, so "Dev delegates to Elise for this week"
+(T7) did nothing while Dev was active. Any delegation active today now routes the step to the delegate "on behalf
+of" the person. Start and end dates are inclusive; expired or future ones are ignored. Self-approval (P07) is still
+checked first, for the person and for their delegate.
+
+**D-090 Re-prepare after a bank change; retries pay the current account.** A payment records the bank-account version
+it was prepared against, and release refuses it if the vendor's verified account has changed since ("re-prepare
+it"), but nothing could re-prepare a SCHEDULED payment. `POST /payments/{id}/reprepare` (AP clerk) points it at the
+current active, verified account; it still needs a release, and the releaser sees the new account. Audited as
+`PAYMENT_REPREPARED`. A failed payment's automatic retry now also uses the vendor's current active account (a failure
+is often a closed account), not the old version.

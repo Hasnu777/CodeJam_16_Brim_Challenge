@@ -181,6 +181,27 @@ public class PaymentService {
         return p;
     }
 
+    /**
+     * Bank details changed (and were verified) after this payment was prepared, so release refuses it. The clerk points it
+     * at the vendor's current verified account; it still needs a release, and the releaser sees the new account.
+     */
+    @Transactional
+    public Payment reprepare(String id) {
+        CurrentUser u = Auth.require();
+        InvoiceWorkflowService.requireRole(u, "re-prepare payments", Role.CLK);
+        Payment p = payments.findById(id).orElseThrow(() -> new NotFoundException("Payment " + id));
+        if (!"SCHEDULED".equals(p.getStatus())) throw new BusinessRuleException(id + " is " + p.getStatus() + "; only scheduled payments can be re-prepared");
+        VendorBankAccount active = accounts.findFirstByVendorIdAndStatus(p.getVendorId() == null ? "-" : p.getVendorId(), "ACTIVE")
+                .orElseThrow(() -> new BusinessRuleException("The vendor has no active, verified bank account"));
+        if (active.getId().equals(p.getBankAccountId())) throw new BusinessRuleException(id + " already pays the current account " + active.masked());
+        Map<String, Object> before = snapshot(p);
+        p.setBankAccountId(active.getId());
+        p.setPreparedBy(u.id());
+        payments.save(p);
+        audit.record("PAYMENT_REPREPARED", "payment", id, before, snapshot(p), "Bank details changed since it was prepared; now pays " + active.masked());
+        return p;
+    }
+
     // ---------- EFT batch, settle, fail ----------
 
     @Transactional
@@ -258,7 +279,11 @@ public class PaymentService {
             retry.setInvoiceId(p.getInvoiceId()); retry.setVendorId(p.getVendorId()); retry.setMethod(p.getMethod());
             retry.setCurrency(p.getCurrency()); retry.setAmount(p.getAmount()); retry.setFxRateToCad(p.getFxRateToCad()); retry.setAmountCad(p.getAmountCad());
             retry.setDiscountTaken(p.getDiscountTaken()); retry.setScheduledDate(clock.today()); retry.setStatus("SCHEDULED");
-            retry.setPreparedBy(u.id()); retry.setBankAccountId(p.getBankAccountId());
+            // Pay the vendor's current verified account: a failure is often a closed account, and if bank details were
+            // changed and verified since, retrying the old version would fail again (or pay a superseded account).
+            retry.setPreparedBy(u.id());
+            retry.setBankAccountId(accounts.findFirstByVendorIdAndStatus(p.getVendorId() == null ? "-" : p.getVendorId(), "ACTIVE")
+                    .map(VendorBankAccount::getId).orElse(p.getBankAccountId()));
             payments.save(retry);
             audit.record("PAYMENT_PREPARED", "payment", retry.getId(), null, snapshot(retry), "Retry of failed " + id);
         }

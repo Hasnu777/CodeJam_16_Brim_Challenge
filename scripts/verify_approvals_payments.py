@@ -116,6 +116,236 @@ def audit(admin, entity_id, action=None):
     return admin.get(q)
 
 
+# ---------- shared helpers for the edge cases (scenarios 6-12) ----------
+
+_clients = {}
+
+
+def as_user(uid):
+    if uid not in _clients:
+        _clients[uid] = Client(uid)
+    return _clients[uid]
+
+
+def approve_all(iid, comment="edge-case script"):
+    """Each pending step is approved by its assignee (the delegate, if there is one). Returns the final status."""
+    clerk = as_user("U004")
+    for _ in range(8):
+        pending = [s for s in current_round(detail(clerk, iid)) if s["decision"] == "PENDING"]
+        if not pending:
+            break
+        as_user(pending[0]["assignedUserId"]).post(f"/invoices/{iid}/approve", {"comment": comment})
+    return detail(clerk, iid)["invoice"]["status"]
+
+
+def release_by_anyone(pid):
+    """First of FM, Controller, CFO that is allowed to release (P11 rules out the approvers)."""
+    for uid in ("U003", "U002", "U001"):
+        if as_user(uid).post(f"/payments/{pid}/release")["_status"] == 200:
+            return uid
+    return None
+
+
+def payment_rows(c):
+    return c.get("/payments?includeHistory=true")
+
+
+def payments_for(c, iid):
+    return [r["payment"] for r in payment_rows(c) if r["payment"]["invoiceId"] == iid]
+
+
+def submit_with_total(clerk, total, currency=None, dept=None, exclude=()):
+    """Set a clean bill's total (no tax, so subtotal = total), acknowledge its flags and submit it. Returns the invoice id."""
+    for i in clean_candidates(clerk, dept=dept):
+        if i in exclude:
+            continue
+        body = {"total": total, "subtotal": total, "gstHstAmount": "0.00", "pstQstAmount": "0.00"}
+        if currency:
+            body["currency"] = currency
+        clerk.put(f"/invoices/{i}", body)
+        if make_submittable(clerk, i):
+            continue
+        if clerk.post(f"/invoices/{i}/submit")["_status"] == 200:
+            return i
+    return None
+
+
+def parallel(*calls):
+    """Run the calls at the same instant (barrier); return their HTTP statuses in order."""
+    barrier, out = threading.Barrier(len(calls)), [None] * len(calls)
+
+    def go(k, f):
+        barrier.wait()
+        out[k] = f()["_status"]
+
+    ts = [threading.Thread(target=go, args=(k, f)) for k, f in enumerate(calls)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    return out
+
+
+def roles_of(clerk, iid):
+    return [s["requiredRole"] for s in current_round(detail(clerk, iid))]
+
+
+def scenario_boundaries(clerk):
+    """6. Exact tier boundaries end to end: 'up to' includes the amount, 'over' starts one cent above."""
+    used = []
+    for total, want in (("10000.00", ["dept_manager"]), ("10000.01", ["dept_manager", "finance_manager"]),
+                        ("50000.00", ["dept_manager", "finance_manager"]),
+                        ("50000.01", ["dept_manager", "finance_manager", "controller_admin"])):
+        iid = submit_with_total(clerk, total, exclude=used)
+        if not iid:
+            check(f"Bill of exactly CAD {total} routes to {want}", False, "no clean bill to test with")
+            continue
+        used.append(iid)
+        inv = detail(clerk, iid)["invoice"]
+        got = roles_of(clerk, iid)
+        check(f"Bill of exactly CAD {total} routes to {' + '.join(want)}", got == want, f"{iid}: routed at {inv.get('routedAmountCad')} -> {got}")
+
+
+def scenario_usd(clerk):
+    """7. A USD bill under 10k that is over 10k in CAD."""
+    iid = submit_with_total(clerk, "9000.00", currency="USD")
+    if not iid:
+        check("USD 9,000 bill routes on its CAD value", False, "no clean bill to test with")
+        return
+    inv = detail(clerk, iid)["invoice"]
+    check("USD 9,000 bill is routed on its CAD value (over 10k) and gets the Finance Manager",
+          inv["currency"] == "USD" and float(inv["totalCad"] or 0) > 10000 and roles_of(clerk, iid) == ["dept_manager", "finance_manager"],
+          f"{iid}: USD {inv['total']} = CAD {inv['totalCad']} at {inv.get('fxRateToCad')} -> {roles_of(clerk, iid)}")
+
+
+def scenario_delegation(clerk):
+    """8. 'Delegate my approvals' through the API (T7's done-when), for an approver who is still active."""
+    wen, elise = as_user("U010"), as_user("U003")
+    year = {"start": "2026-01-01", "end": "2026-12-31"}
+    other = wen.post("/delegations", {"fromUser": "U007", "toUser": "U003", **year})
+    to_emp = wen.post("/delegations", {"fromUser": "U010", "toUser": "U019", **year})
+    to_self = wen.post("/delegations", {"fromUser": "U010", "toUser": "U010", **year})
+    check("Delegation guards: not for someone else (403), not to an employee or to yourself (4xx)",
+          other["_status"] == 403 and 400 <= to_emp["_status"] < 500 and 400 <= to_self["_status"] < 500,
+          f"for Dev -> {other['_status']}; to Stefan -> {to_emp['_status']}; to self -> {to_self['_status']}")
+    made = wen.post("/delegations", {"fromUser": "U010", "toUser": "U003", "reason": "conference", **year})
+    acting = [a["userId"] for a in elise.get("/auth/me").get("actingFor", [])]
+    iid = submit_with_total(clerk, "900.00", dept="D05")
+    if made["_status"] != 200 or not iid:
+        check("Wen delegates to Elise: a new Marketing bill routes to Elise on Wen's behalf", False,
+              f"delegation -> {made['_status']} {made.get('reason', '')}; bill -> {iid}")
+        return
+    st = current_round(detail(clerk, iid))[0]
+    check("Wen (still active) delegates to Elise: a new Marketing bill routes to Elise on Wen's behalf",
+          st["assignedUserId"] == "U003" and st["onBehalfOfUserId"] == "U010" and "U010" in acting,
+          f"{iid}: step 1 -> {st['assignedUserId']} on behalf of {st['onBehalfOfUserId']}; Elise acting for {acting}")
+    queued = [q for q in elise.get("/approvals/mine") if q["invoiceId"] == iid]
+    ap = elise.post(f"/invoices/{iid}/approve", {"comment": "for Wen"})
+    pid = clerk.post("/payments/prepare", {"invoiceIds": [iid]})[0]["id"]
+    rel = [elise.post(f"/payments/{pid}/release")["_status"], as_user("U002").post(f"/payments/{pid}/release")["_status"]]
+    said = any("on behalf of" in (e.get("detail") or "") for e in audit(as_user("U002"), iid))
+    check("Elise sees it in My approvals and approves for Wen; she can't release it (P11), Marcus can; audit says 'on behalf of'",
+          len(queued) == 1 and ap["_status"] == 200 and rel == [403, 200] and said,
+          f"queue={len(queued)} approve={ap['_status']} release Elise/Marcus={rel} audit on-behalf={said}")
+
+
+def scenario_double_approve(clerk):
+    """9. Double-click Approve (two sessions of the same person at the same instant)."""
+    iid = submit_with_total(clerk, "800.00")
+    if not iid:
+        check("Double-click Approve", False, "no clean bill to test with")
+        return
+    uid = current_round(detail(clerk, iid))[0]["assignedUserId"]
+    a, b = as_user(uid), Client(uid)
+    codes = parallel(lambda: a.post(f"/invoices/{iid}/approve", {"comment": "click"}), lambda: b.post(f"/invoices/{iid}/approve", {"comment": "click"}))
+    rows = [e for e in audit(as_user("U002"), iid) if e["action"] in ("APPROVED", "APPROVAL_STEP_APPROVED")]
+    check("Double-click Approve: one 200, one refusal, the step is approved once",
+          sorted(codes)[0] == 200 and sorted(codes)[1] in (409, 422) and len(rows) == 1 and detail(clerk, iid)["invoice"]["status"] == "APPROVED",
+          f"{iid}: {codes}; approval audit rows={len(rows)}")
+
+
+def scenario_policy_edit(clerk):
+    """10. The rules are edited while a bill is mid-chain: the bill keeps the chain it was routed with."""
+    iid = submit_with_total(clerk, "12000.00")
+    if not iid:
+        check("Policy edit mid-chain", False, "no clean bill to test with")
+        return
+    admin = as_user("U002")
+    before = admin.get("/policies")
+    saved = admin.call("PUT", "/policies", [dict(p, enabled=False) if p["id"] == "P02" else p for p in before])
+    first = current_round(detail(clerk, iid))[0]
+    as_user(first["assignedUserId"]).post(f"/invoices/{iid}/approve", {"comment": "step 1"})
+    mid = detail(clerk, iid)
+    status_mid, chain = mid["invoice"]["status"], [s["requiredRole"] for s in current_round(mid)]
+    final = approve_all(iid)
+    admin.call("PUT", "/policies", before)
+    restored = [p["enabled"] for p in admin.get("/policies") if p["id"] == "P02"] == [True]
+    check("Rules edited mid-chain (P02 switched off): the bill keeps its routed chain and still needs the Finance Manager",
+          isinstance(saved, list) and chain == ["dept_manager", "finance_manager"] and status_mid == "PENDING_APPROVAL" and final == "APPROVED" and restored,
+          f"{iid}: edit saved={isinstance(saved, list)}; after step 1 status={status_mid} chain={chain}; final={final}; P02 restored={restored}")
+
+
+def scenario_bank_change(clerk):
+    """11. Vendor bank details change while the bill is in approval."""
+    iid = submit_with_total(clerk, "700.00")
+    if not iid:
+        check("Bank change during approval", False, "no clean bill to test with")
+        return
+    vid = detail(clerk, iid)["invoice"]["vendorId"]
+    bc = clerk.post(f"/vendors/{vid}/bank-change-requests",
+                    {"institution": "003", "transit": "12345", "accountNumber": "9876543210", "channel": "phone", "note": "edge-case script"})
+    status = approve_all(iid)
+    pid = clerk.post("/payments/prepare", {"invoiceIds": [iid]})[0]["id"]
+    held = [as_user(u).post(f"/payments/{pid}/release") for u in ("U003", "U002", "U001")]
+    held_ok = all(h["_status"] != 200 for h in held) and any("waiting for verification" in h.get("reason", "") for h in held)
+    own = clerk.post(f"/bank-change-requests/{bc.get('id')}/verify", {"callbackDone": True, "approve": True})
+    no_call = as_user("U003").post(f"/bank-change-requests/{bc.get('id')}/verify", {"callbackDone": False, "approve": True})
+    ver = as_user("U003").post(f"/bank-change-requests/{bc.get('id')}/verify", {"callbackDone": True, "approve": True, "note": "called the number on file"})
+    check("Bank change while in approval: the payment is held until a second person verifies it by callback",
+          bc.get("_status") == 200 and status == "APPROVED" and held_ok and own["_status"] == 403 and 400 <= no_call["_status"] < 500 and ver["_status"] == 200,
+          f"{iid}/{pid}: release while pending={[h['_status'] for h in held]} clerk verify={own['_status']} "
+          f"no callback={no_call['_status']} verify={ver['_status']}")
+    stale = next(r for r in payment_rows(clerk) if r["payment"]["id"] == pid)["releaseBlockers"]
+    re1 = clerk.post(f"/payments/{pid}/reprepare")
+    re2 = clerk.post(f"/payments/{pid}/reprepare")
+    who = release_by_anyone(pid)
+    row = next(r for r in payment_rows(clerk) if r["payment"]["id"] == pid)
+    check("After verification the payment is stale; the clerk re-prepares it onto the new account and it releases",
+          any("re-prepare" in b for b in stale) and re1["_status"] == 200 and re2["_status"] == 409 and who and (row["bankAccount"] or "").endswith("3210"),
+          f"blocker={[b for b in stale if 're-prepare' in b][:1]} re-prepare={re1['_status']} again={re2['_status']} released by {who} to {row['bankAccount']}")
+
+
+def scenario_fail_retry(clerk):
+    """12. Two batches at the same moment; then a failed payment -> retry -> paid exactly once."""
+    iid = submit_with_total(clerk, "650.00")
+    if not iid or approve_all(iid) != "APPROVED":
+        check("Failed payment retry", False, f"no clean bill approved ({iid})")
+        return
+    marcus = as_user("U002")
+    pid = clerk.post("/payments/prepare", {"invoiceIds": [iid]})[0]["id"]
+    release_by_anyone(pid)
+    codes = parallel(lambda: as_user("U003").post("/payments/batch"), lambda: as_user("U001").post("/payments/batch"))
+    sent = audit(marcus, pid, "PAYMENT_SENT")
+    check("Two people create an EFT batch at the same moment: the payment goes out in exactly one batch",
+          sorted(codes)[0] == 200 and sorted(codes)[1] in (409, 422) and len(sent) == 1, f"{pid}: batch calls={codes}; PAYMENT_SENT rows={len(sent)}")
+    fail = marcus.post(f"/payments/{pid}/fail", {"reason": "Account closed (edge-case script)"})
+    settle_failed = marcus.post(f"/payments/{pid}/settle")
+    after_fail = detail(clerk, iid)["invoice"]["status"]
+    retry = [p for p in payments_for(clerk, iid) if p["id"] != pid]
+    rid = retry[0]["id"] if retry else "none"
+    who = release_by_anyone(rid) if retry else None
+    marcus.post("/payments/batch")
+    st1 = marcus.post(f"/payments/{rid}/settle")
+    st2 = marcus.post(f"/payments/{rid}/settle")
+    late_fail = marcus.post(f"/payments/{rid}/fail", {"reason": "late"})
+    pays = payments_for(clerk, iid)
+    settled = [p for p in pays if p["status"] == "SETTLED"]
+    check("Failed payment: bill back to scheduled with one retry; retry released, sent, settled; bill PAID exactly once",
+          fail["_status"] == 200 and settle_failed["_status"] == 409 and after_fail == "SCHEDULED" and len(retry) == 1 and who
+          and st1["_status"] == 200 and st2["_status"] == 409 and late_fail["_status"] == 409 and len(settled) == 1
+          and detail(clerk, iid)["invoice"]["status"] == "PAID",
+          f"{iid}: fail={fail['_status']} settle failed={settle_failed['_status']} after fail={after_fail} retry={rid} released by {who} "
+          f"settle={st1['_status']}/{st2['_status']} fail after paid={late_fail['_status']} payments={[(p['id'], p['status']) for p in pays]}")
+
+
 def main():
     reset_and_process()
     clerk, elise, marcus, priya = Client("U004"), Client("U003"), Client("U002"), Client("U001")
@@ -217,6 +447,10 @@ def main():
               f"{big}: chain={[s['assignedUserId'] for s in chain]} status={st} FM/Controller={refused} CFO={ok} exceptions={len(exc)}")
     else:
         check("$300k bill CFO exception", False, "no bill could be raised to $300k and submitted: " + "; ".join(why_not[:4]))
+
+    for scenario in (scenario_boundaries, scenario_usd, scenario_delegation, scenario_double_approve, scenario_policy_edit,
+                     scenario_bank_change, scenario_fail_retry):
+        scenario(clerk)
 
     v = marcus.get("/audit/verify")
     check("Audit chain still verifies", v["valid"], f"{v['events']} events")

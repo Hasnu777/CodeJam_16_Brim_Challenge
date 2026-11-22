@@ -112,16 +112,21 @@ public final class ApprovalRouter {
                 // Self-approval comes before delegation: a requester's delegate acting "on behalf of" the requester
                 // would be the requester approving their own spending by proxy.
                 if (assignee.equals(requesterId)) {
-                    notes.add(name(u) + " requested this invoice and cannot approve it" + (onBehalfOf == null ? "" : ", nor can their delegate")
-                            + ": escalated to their manager (P07)");
+                    notes.add(name(u) + (onBehalfOf == null ? "" : ", the delegate for " + name(dir.user(onBehalfOf)) + ",")
+                            + " requested this invoice and cannot approve it: escalated to their manager (P07)");
                     assignee = u.getManagerId(); onBehalfOf = null; continue;
                 }
-                if (u.getStatus() == UserStatus.on_leave && onBehalfOf == null) {
+                // A delegation is time-bounded data (PRD), not a status: an active delegation applies whether or not the
+                // person is also marked on leave ("Dev delegates to Elise for this week" while Dev is still active).
+                if (onBehalfOf == null) {
                     Optional<String> del = dir.activeDelegate(u.getId());
                     if (del.isPresent()) {
-                        notes.add(name(u) + " is on leave: delegate " + name(dir.user(del.get())) + " acts on their behalf (P08)");
+                        notes.add(name(u) + (u.getStatus() == UserStatus.on_leave ? " is on leave" : " has delegated their approvals")
+                                + ": delegate " + name(dir.user(del.get())) + " acts on their behalf (P08)");
                         onBehalfOf = u.getId(); assignee = del.get(); continue;
                     }
+                }
+                if (u.getStatus() == UserStatus.on_leave && onBehalfOf == null) {
                     notes.add(name(u) + " is on leave with no delegate: escalated to their manager");
                     assignee = u.getManagerId(); continue;
                 }

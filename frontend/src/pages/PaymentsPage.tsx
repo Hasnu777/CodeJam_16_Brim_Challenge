@@ -112,6 +112,11 @@ export default function PaymentsPage() {
                           {t === 'SCHEDULED' && is('CLK') && blockers.length > 0 && !blockers.every((b) => b.includes('clerks')) && (
                             <Text size="xs" c="red">{blockers.filter((b) => !b.includes('clerks')).join(' · ')}</Text>
                           )}
+                          {t === 'SCHEDULED' && is('CLK') && blockers.some((b) => b.includes('re-prepare')) && (
+                            <Button size="xs" variant="light" mt={4}
+                              onClick={() => run(() => api.post(`/payments/${p.id}/reprepare`), `${p.id} now pays the vendor's current account`)}>
+                              Re-prepare with new bank details</Button>
+                          )}
                           {t === 'SENT' && is('FM', 'ADM') && (
                             <Group gap={4}>
                               <Button size="xs" variant="light" onClick={() => run(() => api.post(`/payments/${p.id}/settle`), `${p.id} settled`)}>Mark settled</Button>
