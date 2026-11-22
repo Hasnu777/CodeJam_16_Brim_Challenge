@@ -1,11 +1,11 @@
 import {
-  Anchor, Badge, Button, Card, Code, Grid, Group, Modal, Paper, ScrollArea, Select, Stack, Table, Tabs, Text, TextInput, Textarea,
+  Alert, Anchor, Badge, Button, Card, Code, Grid, Group, Modal, Paper, ScrollArea, Select, Stack, Table, Tabs, Text, TextInput, Textarea,
   Timeline, Title, Tooltip,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { IconAlertTriangle, IconCheck, IconClock, IconX } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Department, GlAccount, InvoiceDetail, InvoiceLine } from '../api/types'
@@ -28,6 +28,9 @@ export default function InvoiceDetailPage() {
   const gl = useQuery({ queryKey: ['gl'], queryFn: () => api.get<GlAccount[]>('/ref/gl-accounts') })
   const depts = useQuery({ queryKey: ['departments'], queryFn: () => api.get<Department[]>('/ref/departments') })
   const [busy, setBusy] = useState<string | null>(null)
+  const [flagsModal, { open: openFlagsModal, close: closeFlagsModal }] = useDisclosure(false)
+  /** PO just linked from a suggestion: the PO field is scrolled to and highlighted. */
+  const [linkedPo, setLinkedPo] = useState<string | null>(null)
 
   if (q.isLoading) return <Loading />
   if (q.error || !q.data) return <ErrorBox error={q.error} />
@@ -62,6 +65,11 @@ export default function InvoiceDetailPage() {
   const submitBlockers: string[] = []
   if (blockingOpen.length) submitBlockers.push(`Resolve BLOCK flags first: ${blockingOpen.map((f) => f.ruleCode).join(', ')}`)
   const warns = openFlags.filter((f) => f.severity === 'WARN')
+  const nBlock = openFlags.filter((f) => f.severity === 'BLOCK').length
+  const nWarn = warns.length
+  const nInfo = openFlags.length - nBlock - nWarn
+  // The rule's raw facts are for reviewers (FM, approver, controller, auditor); the clerk works from the message.
+  const showFlagDetails = !is('CLK', 'EMP')
   if (warns.length) submitBlockers.push(`Acknowledge warnings: ${[...new Set(warns.map((f) => f.ruleCode))].join(', ')}`)
   if (!inv.departmentId) submitBlockers.push('Set the department')
   const low = new Set((inv.lowConfidenceFields ?? '').split(',').filter(Boolean))
@@ -114,14 +122,31 @@ export default function InvoiceDetailPage() {
       )}
 
       {openFlags.length > 0 && (
+        <Alert color={nBlock ? 'red' : 'yellow'} variant="light" icon={<IconAlertTriangle size={18} />} py="xs">
+          <Group gap="xs">
+            <Text size="sm" fw={600}>{openFlags.length} {openFlags.length === 1 ? 'error' : 'errors'} found</Text>
+            {nBlock > 0 && <Badge size="sm" color="red" variant="light">{nBlock} blocking</Badge>}
+            {nWarn > 0 && <Badge size="sm" color="yellow" variant="light">{nWarn} {nWarn === 1 ? 'warning' : 'warnings'}</Badge>}
+            {nInfo > 0 && <Badge size="sm" color="gray" variant="light">{nInfo} info</Badge>}
+            <Anchor size="sm" component="button" onClick={openFlagsModal}>Click to find out more</Anchor>
+          </Group>
+        </Alert>
+      )}
+
+      <Modal opened={flagsModal && openFlags.length > 0} onClose={closeFlagsModal} size="xl"
+        title={<Text fw={600}>{openFlags.length} {openFlags.length === 1 ? 'error' : 'errors'} on {inv.id}</Text>}>
         <Stack gap="xs">
           {openFlags.map((f) => (
-            <FlagCard key={f.id} flag={f} users={d.users}
+            <FlagCard key={f.id} flag={f} users={d.users} showDetails={showFlagDetails}
               canResolve={f.severity === 'BLOCK' ? is('FM', 'ADM') : is('CLK', 'FM', 'ADM')}
               onResolve={(resolution, note) => act('flag', () => api.post(`/flags/${f.id}/resolve`, { resolution, note }), `${f.ruleCode} ${resolution.toLowerCase()}`)}>
               {(f.ruleCode === 'P13' || f.ruleCode === 'PO1') && inv.vendorId && !inv.historical && (
                 <PoSuggestions invoiceId={inv.id!} canLink={editable} busy={busy === 'linkPo'}
-                  onLink={(poId) => act('linkPo', () => api.post(`/invoices/${id}/po`, { poId }), `Linked ${poId}`)} />
+                  onLink={(poId) => act('linkPo', async () => {
+                    await api.post(`/invoices/${id}/po`, { poId })
+                    closeFlagsModal()
+                    setLinkedPo(poId)
+                  }, `Linked ${poId}`)} />
               )}
             </FlagCard>
           ))}
@@ -129,7 +154,7 @@ export default function InvoiceDetailPage() {
             <Hint>BLOCK flags can only be overridden by a Finance Manager or Controller. Vendor and bank holds (V01, V02, B01, B02) clear automatically when the vendor is approved or the bank change is verified.</Hint>
           )}
         </Stack>
-      )}
+      </Modal>
 
       <Grid>
         <Grid.Col span={{ base: 12, lg: 5 }}>
@@ -139,7 +164,8 @@ export default function InvoiceDetailPage() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 7 }}>
           <Stack>
-            <HeaderFields d={d} editable={editable} low={low} depts={depts.data ?? []} onSaved={refresh} />
+            <HeaderFields d={d} editable={editable} low={low} depts={depts.data ?? []} onSaved={refresh}
+              linkedPo={linkedPo} setLinkedPo={setLinkedPo} />
             <LinesTable id={id!} lines={d.lines} editable={editable} gl={gl.data ?? []} depts={depts.data ?? []} onSaved={refresh} />
             <Card withBorder padding="sm">
               <Group justify="space-between" mb={4}><Text fw={600}>Taxes</Text>
@@ -218,7 +244,7 @@ export default function InvoiceDetailPage() {
           </Stack>
         </Tabs.Panel>
         <Tabs.Panel value="resolved" pt="md">
-          <Stack gap="xs">{doneFlags.map((f) => <FlagCard key={f.id} flag={f} canResolve={false} users={d.users} />)}</Stack>
+          <Stack gap="xs">{doneFlags.map((f) => <FlagCard key={f.id} flag={f} canResolve={false} users={d.users} showDetails={showFlagDetails} />)}</Stack>
         </Tabs.Panel>
         <Tabs.Panel value="extraction" pt="md">
           {d.extractions.map((x) => (
@@ -246,14 +272,29 @@ function DocumentViewer({ id }: { id: string }) {
   return <iframe title="Invoice document" src={`/api/invoices/${id}/document#view=FitH`} style={{ width: '100%', height: '100%', border: 0 }} />
 }
 
-function HeaderFields({ d, editable, low, depts, onSaved }: { d: InvoiceDetail; editable: boolean; low: Set<string>; depts: Department[]; onSaved: () => void }) {
+function HeaderFields({ d, editable, low, depts, onSaved, linkedPo, setLinkedPo }: {
+  d: InvoiceDetail; editable: boolean; low: Set<string>; depts: Department[]; onSaved: () => void
+  linkedPo: string | null; setLinkedPo: (v: string | null) => void
+}) {
   const inv = d.invoice
   const [f, setF] = useState({
     vendorInvoiceNumber: inv.vendorInvoiceNumber ?? '', invoiceDate: inv.invoiceDate ?? '', dueDate: inv.dueDate ?? '',
     total: inv.total != null ? String(inv.total) : '', subtotal: inv.subtotal != null ? String(inv.subtotal) : '',
     departmentId: inv.departmentId ?? '', poId: inv.poId ?? '', shipToProvince: inv.shipToProvince ?? '',
   })
+  // Server-side changes made outside this form (linking a PO fills the PO and, if blank, the department).
+  useEffect(() => {
+    setF((prev) => ({ ...prev, poId: inv.poId ?? '', departmentId: inv.departmentId ?? '' }))
+  }, [inv.poId, inv.departmentId])
   const [saving, setSaving] = useState(false)
+  const poRef = useRef<HTMLInputElement>(null)
+  const poFlash = !!linkedPo && inv.poId === linkedPo
+  useEffect(() => {
+    if (!poFlash) return
+    poRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const t = setTimeout(() => setLinkedPo(null), 6000)
+    return () => clearTimeout(t)
+  }, [poFlash, setLinkedPo])
   const hl = (k: string) => (low.has(k) ? { backgroundColor: 'var(--mantine-color-yellow-1)' } : undefined)
   const save = async () => {
     setSaving(true)
@@ -291,7 +332,17 @@ function HeaderFields({ d, editable, low, depts, onSaved }: { d: InvoiceDetail; 
             data={depts.map((x) => ({ value: x.id!, label: `${x.id} ${x.name}` }))} onChange={(v) => setF({ ...f, departmentId: v ?? '' })}
             description={low.has('department') ? 'could not be inferred: please choose' : undefined} />
         </Grid.Col>
-        <Grid.Col span={4}>{field('PO', 'poId')}</Grid.Col>
+        <Grid.Col span={4}>
+          <TextInput ref={poRef} label="PO" value={f.poId} disabled={!editable}
+            onChange={(e) => { setF({ ...f, poId: e.currentTarget.value }); if (poFlash) setLinkedPo(null) }}
+            description={poFlash ? `Linked ${linkedPo} from the suggestion` : undefined}
+            styles={{
+              input: poFlash
+                ? { backgroundColor: 'var(--mantine-color-teal-0)', borderColor: 'var(--mantine-color-teal-6)', boxShadow: '0 0 0 3px var(--mantine-color-teal-2)', transition: 'all 300ms' }
+                : { transition: 'all 300ms' },
+              description: poFlash ? { color: 'var(--mantine-color-teal-8)' } : undefined,
+            }} />
+        </Grid.Col>
         <Grid.Col span={4}>{field('Ship-to province', 'shipToProvince')}</Grid.Col>
         <Grid.Col span={6}><TextInput label="Remit-to account" value={inv.remitAccount ? `${inv.remitInstitution ?? ''}-${inv.remitTransit ?? ''}-${inv.remitAccount}` : '—'} disabled /></Grid.Col>
         <Grid.Col span={6}><TextInput label="GST # on invoice" value={inv.gstNumberOnInvoice ?? '—'} disabled /></Grid.Col>
