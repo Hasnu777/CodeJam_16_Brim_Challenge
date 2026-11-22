@@ -55,6 +55,27 @@ public class InvoiceController {
     @PreAuthorize("hasRole('CLK')")
     public Invoice acceptAll(@PathVariable String id) { return review.acceptAllCoding(id); }
 
+    private final com.brimap.purchasing.PoSuggestionService poSuggestions;
+    private final InvoiceAccess access;
+
+    /** Open POs of this invoice's vendor, best match first, each with the reasons and warnings behind its rank. */
+    @GetMapping("/{id}/po-suggestions")
+    @PreAuthorize("hasAnyRole('CLK','FM','ADM','AUD','APR')")
+    public List<com.brimap.purchasing.PoSuggester.Suggestion> poSuggestions(@PathVariable String id) {
+        com.brimap.model.Invoice inv = workflow.load(id);
+        access.requireView(Auth.require(), inv);
+        return poSuggestions.suggest(inv);
+    }
+
+    public record LinkPoBody(String poId) {}
+
+    /** Link a PO the clerk picked. Audited as PO_LINKED; re-validation clears P13. */
+    @PostMapping("/{id}/po")
+    @PreAuthorize("hasRole('CLK')")
+    public Invoice linkPo(@PathVariable String id, @RequestBody LinkPoBody body) {
+        return review.linkPo(id, body.poId());
+    }
+
     public record ReasonBody(String reason, String note) {}
 
     @PostMapping("/{id}/hold")

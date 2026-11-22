@@ -98,6 +98,27 @@ public class ReviewService {
         return workflow.load(id);
     }
 
+    /**
+     * Link a purchase order picked by the clerk (usually from the PO suggestions next to a P13 flag). Only the PO
+     * changes: department and requester are filled from the PO only when blank, so an employee's own upload keeps its
+     * requester. Re-validation clears P13 (and raises PO1/P12 if the PO is closed, another vendor's, or overspent).
+     */
+    @Transactional
+    public Invoice linkPo(String id, String poId) {
+        Invoice inv = editable(id);
+        if (poId == null || poId.isBlank()) throw new IllegalArgumentException("poId is required");
+        var po = pos.findById(poId.trim()).orElseThrow(() -> new NotFoundException("PO " + poId));
+        if (po.getId().equals(inv.getPoId())) throw new BusinessRuleException(id + " is already linked to " + po.getId());
+        Map<String, Object> before = InvoiceWorkflowService.snapshot(inv);
+        inv.setPoId(po.getId());
+        if (inv.getDepartmentId() == null) inv.setDepartmentId(po.getDepartmentId());
+        if (inv.getRequesterUserId() == null) inv.setRequesterUserId(po.getRequesterUserId());
+        Invoice saved = workflow.recordChange(inv, "PO_LINKED", before, InvoiceWorkflowService.snapshot(inv),
+                "Linked " + po.getId() + " (" + po.getDescription() + ")");
+        validation.validate(saved);
+        return workflow.load(id);
+    }
+
     public record LineUpdate(String glAccount, String departmentId, String gstHstCode, String pstQstCode, String lineType) {}
 
     /** Accept or override the GL/department suggestion. A change away from the suggestion is logged as an override. */
