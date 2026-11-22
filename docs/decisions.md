@@ -621,3 +621,14 @@ pretend to do it. Closing or locking the month is not modelled. A second matchin
 cleared for a slightly different amount (within $1.00): the dataset's September rent cheque was written for
 $6,990.48 and cleared as CHEQUE 5018 for $6,990.53. It shows as one "Amount Differs" line naming the cheque (bank
 encoding error or altered cheque; claim the difference), instead of an unknown debit plus an "uncashed" cheque.
+
+**D-110 Accessibility fixes from the interface review.** A review of the AP Clerk flow found 8 HIGH issues, fixed in
+the frontend only. Every table sits in an `.ap-table-scroll` wrapper that scrolls sideways on its own: the old rule
+targeted `.mantine-Table`, a class Mantine never renders, so at phone width the invoice lines' GL Account and Department
+were clipped inside the card (the Invoices list keeps its sticky header on wide screens). Inbox subjects are links, so
+an email opens by keyboard. Explaining tooltips (disabled-button reasons, the coding "Why?") open on focus and touch,
+and disabled reasons are also read out as hidden text; the inbox's "decided by" is now visible text. A theme
+`variantColorResolver` fixes badge and button contrast (Mantine's light yellow badge was 1.74:1; every badge on
+Invoices now measures 5.46:1 or better). Flag counts carry an icon and hidden words, not colour alone.
+`respectReducedMotion` is on. The header's user switcher shrinks at 320px, and the business date and delegate status
+move to the navbar when the header hides them. Hold is orange, keeping red for Delete.
