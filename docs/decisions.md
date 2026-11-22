@@ -396,13 +396,9 @@ an email. Only PDF/PNG/JPEG attachments up to 20 MB are imported; inline images 
 unsupported files are noted in the body. File names are sanitized to their last path segment. Off by default
 (MAIL_ENABLED=false); the password lives in .env only.
 
-**D-083 PO suggestions are ranked by vendor, checked by date and amount, and never linked automatically.** Under a
-P13 (PO required) or PO1 (bad PO) flag, the invoice page lists the vendor's `open` / `partially_invoiced` POs
-(`GET /invoices/{id}/po-suggestions`, `PoSuggester`). The vendor is what identifies the PO: in the dataset no vendor
-has more than one open PO, so a date-only guess would mostly surface closed or other vendors' POs. Date and amount are
-sanity checks: a PO issued after the invoice date, a remaining balance below the pre-tax amount (same "billed" as
-P12: other non-rejected, non-duplicate invoices on the PO) or a currency mismatch is a warning. Ranking: fewest
-warnings, then same department, then the PO issued closest before the invoice. Each candidate shows its reasons and
-warnings. The clerk clicks Link (`POST /invoices/{id}/po`, audit `PO_LINKED`), and re-validation clears P13 or raises
-PO1/P12. P13 is a control, so it is never filled in silently. Linking fills department and requester from the PO only
-when they are blank, so an employee's own upload keeps its requester (unlike the header edit, which takes the PO's).
+**D-083 Inbox emails can be opened before and after processing.** `GET /api/inbox/{id}` returns the message as
+received (headers, body, attachment list) and, once processed, the classification, reason, linked bills with their
+current status, and the email's audit trail. `GET /api/inbox/{id}/attachments/{name}` serves a file only if that exact
+name is listed on the email, and the resolved path must stay inside the email's attachment folder. Its content type
+comes from the file's first bytes, with `nosniff` set, so an uploaded HTML file can never render as a page. Open to
+CLK, ADM and AUD, the same roles as the inbox list. `attachmentDir` is a server path, so it is never sent to the browser.
