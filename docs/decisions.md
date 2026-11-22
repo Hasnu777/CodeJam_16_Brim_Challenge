@@ -444,6 +444,20 @@ AP-00480 and "Jan – Oct 2026"). Monthly spend is a chronological SVG line (`Mo
 empty `LLM_API_KEY`. `.gitignore` ignores `.env` and `.env.*` (except `.env.example`), because a key saved as
 `.env.txt` (Windows hides the extension) was neither read by Docker Compose nor ignored by git.
 
+**D-089 Brim card payment optimizer (bonus 5).** `vendors.csv` marks 10 vendors `accepts_card_payment=yes`, but 3 of
+them are paid by EFT. `CardPaymentAdvisor` (pure, unit-tested) works out what paying a scheduled bill on the Brim AP
+card would gain: the card is charged on the scheduled date, the statement closes at month-end and is due 21 days
+later, so the cash stays in the bank for those days (valued at 5%/yr) and the charge earns 1% rewards. These terms
+are stated assumptions in `CardPaymentAdvisor.Terms.DEFAULT`, not dataset facts, and the UI prints them. It never
+recommends card for non-CAD bills (FX conversion would cost more than the float) or charges over $50,000. Early-pay
+discounts are kept, because the card is charged on the discount date. Each SCHEDULED payment row carries the advice;
+a clerk, FM or Admin can switch it to card (or back) with `POST /api/payments/{id}/method`, which refuses vendors that
+don't accept card, only works while SCHEDULED, and writes a `PAYMENT_METHOD_CHANGED` audit event. Card payments skip
+the bank-account checks in `ReleaseRules` (they already did) and go into the batch file with no bank details.
+`GET /api/analytics/card-opportunity` replays settled history through the same advisor ("left on the table" by EFT
+to card-accepting vendors, and what card payments already earned). Advice is never applied automatically: changing
+how money leaves is a human decision.
+
 ## Features 6 and 7 (approvals and payments)
 
 **D-090 Team confirmations for approvals and payments.** (1) The Controller and the CFO may also release payments

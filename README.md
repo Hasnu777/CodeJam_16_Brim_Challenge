@@ -104,6 +104,7 @@ pre-review verification (what was run, results, findings fixed) is in [docs/veri
 - **Fraud alerts** (`/fraud`): every payment-fraud signal in one place, including a new lookalike-sender-domain rule (V06). Today: $19,197.22 of payments held, led by Cascadia's unverified bank change.
 - **Bank reconciliation** (`/reconciliation`): 332 of 354 statement lines matched to payments; leftovers explained (bank fees, one unexplained PREAUTH DEBIT of $174.90 to investigate); "settle from statement".
 - **Approval recommendation** on the invoice screen: "Approve: within contract C012, vendor paid 10 times before, no open flags" / "Look closer: …" / "Do not approve yet: …".
+- **Brim card optimizer** (Payments page): for vendors that accept card, shows the cash-float days and rewards from paying a scheduled bill on the Brim AP card, with a one-click, audited switch. Replaying history: 26 EFT payments ($89,938) to card-accepting vendors left ~$1,338 on the table, mostly Trailhead Fuel (assumptions in D-089).
 - **Spend analytics** (`/analytics`) by vendor, department or GL with a monthly trend; approvers see their own department only.
 
 ## Design decisions

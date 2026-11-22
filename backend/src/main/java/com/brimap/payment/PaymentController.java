@@ -41,6 +41,12 @@ public class PaymentController {
     @PostMapping("/{id}/reprepare")
     @PreAuthorize("hasRole('CLK')")
     public Payment reprepare(@PathVariable String id) { return payments.reprepare(id); }
+    public record MethodRequest(String method) {}
+
+    /** Brim card optimizer: move a scheduled payment to the AP card (or back to EFT). Audited. */
+    @PostMapping("/{id}/method")
+    @PreAuthorize("hasAnyRole('CLK','FM','ADM')")
+    public Payment changeMethod(@PathVariable String id, @RequestBody MethodRequest body) { return payments.changeMethod(id, body.method()); }
 
     @PostMapping("/batch")
     @PreAuthorize("hasAnyRole('FM','ADM')")
