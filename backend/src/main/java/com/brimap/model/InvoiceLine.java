@@ -24,4 +24,8 @@ public class InvoiceLine {
     private String suggestedDepartmentId;
     @Column(columnDefinition = "text") private String suggestionReason;
     private boolean suggestionOverridden;
+    /** The clerk accepted or chose this line's coding (Accept All, or a pick in the line). Null = not yet (D-107). */
+    private Boolean codingConfirmed;
+
+    public boolean isConfirmed() { return Boolean.TRUE.equals(codingConfirmed); }
 }

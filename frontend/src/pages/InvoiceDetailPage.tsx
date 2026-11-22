@@ -341,6 +341,8 @@ function HeaderFields({ d, editable, low, depts, onSaved, linkedPo, setLinkedPo 
   // Server-side changes made outside this form (e.g. linking a PO) bump inv.version, and the parent re-keys this
   // component on it, so the fields above re-seed from the server copy.
   const extracted = d.extractions.some((x) => x.rawJson)
+  // The banner asks the clerk to check the read fields; once they have saved them it has done its job.
+  const fieldsSaved = d.history.some((h) => h.action === 'FIELDS_CORRECTED')
   const [saving, setSaving] = useState(false)
   const poRef = useRef<HTMLInputElement>(null)
   const poFlash = !!linkedPo && inv.poId === linkedPo
@@ -375,7 +377,7 @@ function HeaderFields({ d, editable, low, depts, onSaved, linkedPo, setLinkedPo 
     <Card withBorder padding="sm">
       <Group justify="space-between" mb="xs"><Text fw={600}>Invoice Fields</Text>
         {low.size > 0 && <Badge color="yellow" variant="light">highlighted = read with low confidence</Badge>}</Group>
-      {extracted && editable && (
+      {extracted && editable && !fieldsSaved && (
         <Alert color="blue" variant="light" mb="xs" icon={<IconSparkles size={16} />} title="Suggested Entries">
           These fields were read from the document automatically. Check them against the invoice on the left, correct anything wrong, then save.
         </Alert>
@@ -422,10 +424,20 @@ function LinesTable({ id, lines, editable, gl, depts, onSaved }: { id: string; l
       notifyError(e)
     }
   }
+  // Accept All has nothing left to do once every line with a suggestion is confirmed (accepted or picked by hand).
+  const confirmed = (l: InvoiceLine) => !!(l as InvoiceLine & { confirmed?: boolean }).confirmed
+  const toAccept = lines.filter((l) => l.suggestedGlAccount && !confirmed(l) && !(l.suggestionOverridden && l.glAccount)).length
+  const anyCoded = lines.some((l) => l.glAccount || l.departmentId)
+  const coding = (path: 'accept-all' | 'ignore') => api.post(`/invoices/${id}/coding/${path}`).then(onSaved).catch(notifyError)
   return (
     <Card withBorder padding="sm">
       <Group justify="space-between" mb="xs"><Text fw={600}>Lines and Coding</Text>
-        {editable && <Button size="xs" variant="light" onClick={() => api.post(`/invoices/${id}/coding/accept-all`).then(onSaved).catch(notifyError)}>Accept All Suggestions</Button>}</Group>
+        {editable && (
+          <Group gap="xs">
+            <Button size="xs" variant="subtle" color="gray" disabled={!anyCoded} onClick={() => coding('ignore')}>Ignore Suggestions</Button>
+            <Button size="xs" variant="light" disabled={toAccept === 0} onClick={() => coding('accept-all')}>Accept All Suggestions</Button>
+          </Group>
+        )}</Group>
       <Table>
         <Table.Thead><Table.Tr><Table.Th>Description</Table.Th><Table.Th>Qty × Price</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>GL Account</Table.Th><Table.Th>Department</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>
@@ -442,9 +454,9 @@ function LinesTable({ id, lines, editable, gl, depts, onSaved }: { id: string; l
                       onChange={(v) => v && setLine(l, { glAccount: v })} />
                   ) : <Text size="sm">{n.gl(l.glAccount)}</Text>}
                   <Tooltip multiline w={300} withArrow
-                    label={l.suggestionOverridden ? `Changed by the clerk (suggested ${n.gl(l.suggestedGlAccount)}). ${n.text(l.suggestionReason)}` : n.text(l.suggestionReason) || 'No suggestion'}>
-                    <Text size="xs" c={l.suggestionOverridden ? 'orange' : 'dimmed'} td="underline" style={{ cursor: 'help', whiteSpace: 'nowrap' }}>
-                      {l.suggestionOverridden ? 'Changed' : 'Why?'}</Text>
+                    label={l.suggestionOverridden && l.glAccount ? `Changed by the clerk (suggested ${n.gl(l.suggestedGlAccount)}). ${n.text(l.suggestionReason)}` : n.text(l.suggestionReason) || 'No suggestion'}>
+                    <Text size="xs" c={l.suggestionOverridden && l.glAccount ? 'orange' : 'dimmed'} td="underline" style={{ cursor: 'help', whiteSpace: 'nowrap' }}>
+                      {l.suggestionOverridden && l.glAccount ? 'Changed' : 'Why?'}</Text>
                   </Tooltip>
                 </Group>
               </Table.Td>

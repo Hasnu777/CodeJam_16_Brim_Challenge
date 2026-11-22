@@ -55,6 +55,10 @@ public class InvoiceController {
     @PreAuthorize("hasRole('CLK')")
     public Invoice acceptAll(@PathVariable String id) { return review.acceptAllCoding(id); }
 
+    @PostMapping("/{id}/coding/ignore")
+    @PreAuthorize("hasRole('CLK')")
+    public Invoice ignoreAll(@PathVariable String id) { return review.ignoreCoding(id); }
+
     private final com.brimap.purchasing.PoSuggestionService poSuggestions;
     private final InvoiceAccess access;
 

@@ -57,10 +57,13 @@ public class FlagDictionarySeed {
     );
 
     private static FlagDictionary e(String code, String cat, String title, Severity sev, String text) {
-        return new FlagDictionary(code, cat, title, sev, text);
+        return new FlagDictionary(code, cat, title, sev, text, true);
     }
 
-    public void seed() { repo.saveAll(ENTRIES); }
+    /** Saves fresh copies, so an admin's edits never leak into ENTRIES (the defaults shown next to them). */
+    public void seed() {
+        repo.saveAll(ENTRIES.stream().map(f -> new FlagDictionary(f.getCode(), f.getCategory(), f.getTitle(), f.getSeverity(), f.getExplanation(), true)).toList());
+    }
 
     public static FlagDictionary lookup(String code) {
         return ENTRIES.stream().filter(f -> f.getCode().equals(code)).findFirst()

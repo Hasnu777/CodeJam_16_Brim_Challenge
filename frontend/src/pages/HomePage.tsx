@@ -88,7 +88,7 @@ export default function HomePage() {
     ] : r === 'CLK' ? [
       { label: 'To Review', value: count((i) => i.status === 'IN_REVIEW'), icon: IconHourglass, color: 'violet', to: '/invoices?status=IN_REVIEW' },
       { label: 'Blocked', value: count((i) => (i.blockFlags ?? 0) > 0), icon: IconAlertOctagon, color: 'red', to: '/invoices?flagged=true' },
-      { label: 'Attention Needed', value: attentionEmails, icon: IconInbox, color: 'orange', to: '/inbox' },
+      { label: 'Attention Needed', value: attentionEmails, icon: IconInbox, color: 'orange', to: '/inbox?filter=attention' },
       { label: 'Approved', value: count((i) => i.status === 'APPROVED'), icon: IconSend, color: 'teal', to: '/payments' },
     ] : r === 'APR' ? [
       { label: 'Waiting For Me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
@@ -147,7 +147,7 @@ export default function HomePage() {
       )}
       {r === 'CLK' && unprocessed > 0 && (
         <Card withBorder className="ap-stat"><Group justify="space-between"><Text>{unprocessed} {unprocessed === 1 ? 'email is' : 'emails are'} waiting in your inbox.</Text>
-          <Button component={Link} to="/inbox">View Inbox</Button></Group></Card>
+          <Button component={Link} to="/inbox?filter=new">View Inbox</Button></Group></Card>
       )}
       {r === 'EMP' && <EmployeeUpload />}
 

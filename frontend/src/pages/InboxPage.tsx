@@ -1,7 +1,7 @@
 import { Anchor, Badge, Button, Card, FileButton, Group, Progress, SegmentedControl, Stack, Table, Text, Title, Tooltip } from '@mantine/core'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import type { EmailMessage } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
@@ -27,7 +27,10 @@ export default function InboxPage() {
   const { is } = useAuth()
   const qc = useQueryClient()
   const nav = useNavigate()
-  const [filter, setFilter] = useState('all')
+  // The filter lives in the URL so Home's cards can link straight to it (/inbox?filter=attention).
+  const [sp, setSp] = useSearchParams()
+  const filter = ['attention', 'new'].includes(sp.get('filter') ?? '') ? sp.get('filter')! : 'all'
+  const setFilter = (v: string) => setSp((p) => { if (v === 'all') p.delete('filter'); else p.set('filter', v); return p }, { replace: true })
   const emails = useQuery({ queryKey: ['inbox'], queryFn: () => api.get<EmailMessage[]>('/inbox') })
   const status = useQuery({
     queryKey: ['inbox-status'], queryFn: () => api.get<InboxStatus>('/inbox/status'),

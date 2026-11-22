@@ -1,10 +1,11 @@
-import { Alert, Badge, Button, Card, Grid, Group, JsonInput, MultiSelect, NumberInput, Select, Stack, Switch, Table, Text, Title } from '@mantine/core'
+import { Alert, Badge, Button, Card, Grid, Group, JsonInput, MultiSelect, NumberInput, Select, Stack, Switch, Table, Tabs, Text, Title } from '@mantine/core'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { api } from '../api/client'
 import type { ApprovalPolicy, InvoiceSummary, RouteResult } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { Loading } from '../components/bits'
+import { ValidationRules } from '../components/ValidationRules'
 import { notifyError, notifyOk } from '../components/notify'
 import { money } from '../lib/format'
 import { useNames } from '../lib/names'
@@ -29,7 +30,24 @@ function render(n: Record<string, unknown>): string {
   return `${n.field} ${ops[String(n.op)] ?? n.op} ${typeof n.value === 'number' ? n.value.toLocaleString() : JSON.stringify(n.value)}`
 }
 
+/** Policies: who approves and releases (routing rules as data), and which checks run on every bill. */
 export default function PoliciesPage() {
+  return (
+    <Stack>
+      <Title order={3}>Policies</Title>
+      <Tabs defaultValue="approval" keepMounted={false}>
+        <Tabs.List>
+          <Tabs.Tab value="approval">Approval and Payment Rules</Tabs.Tab>
+          <Tabs.Tab value="validation">Validation Rules</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="approval" pt="md"><ApprovalRules /></Tabs.Panel>
+        <Tabs.Panel value="validation" pt="md"><ValidationRules /></Tabs.Panel>
+      </Tabs>
+    </Stack>
+  )
+}
+
+function ApprovalRules() {
   const { is } = useAuth()
   const n = useNames()
   const qc = useQueryClient()
@@ -66,7 +84,6 @@ export default function PoliciesPage() {
     <Stack>
       <Group justify="space-between">
         <div>
-          <Title order={3}>Approval and Payment Rules</Title>
           <Text size="sm" c="dimmed">The routing engine reads only this table. Amounts are the invoice total in CAD, tax included.</Text>
         </div>
         {edit && <Group>

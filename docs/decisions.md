@@ -586,3 +586,25 @@ cashed) is reported as an outstanding cheque to chase with the vendor, not "in t
 (the reset is for demos and testing from a clean slate). Reopening Reply on an email restores the latest saved draft
 (To, Subject, Message, taken from the draft's audit row) unless a reply was sent after it. The signature is the
 sender's name, job title and "Harborline Logistics". PO suggestions show department names, not ids.
+
+**D-107 Coding suggestions: confirmed, accepted, ignored.** Coding fills each line with its suggestion automatically,
+so "accepted" was never recorded and Accept All could be clicked forever. Lines now carry `codingConfirmed`: set by
+Accept All or by the clerk picking a GL account or department, cleared when a re-run of coding changes the
+suggestion. Accept All is greyed out once every suggested line is confirmed. **Ignore Suggestions** clears every
+line's GL account and department (audited as `CODING_SUGGESTIONS_IGNORED`) and marks them overridden so re-coding
+after Save Fields does not refill them; submit still requires a GL account on every line. Accept All refills
+ignored lines but keeps any line the clerk coded by hand. The Suggested Entries banner disappears once the fields have
+been saved (`FIELDS_CORRECTED` in the bill's history). Also: the inbox filter lives in the URL (Home's Attention
+Needed card opens `/inbox?filter=attention`), Save Draft is off until the reply differs from what the pop-up
+opened with, the Invoices list sorts by clicking its column headers (as Payments does), and a checkbox bug that
+blanked the Payments and Invoices screens on the second pick is fixed (the handler read `e.currentTarget` inside a
+deferred state update, where React has already cleared it).
+
+**D-108 Validation rules are editable, within limits.** Policies has a second tab, Validation Rules, beside the
+approval and payment rules. Each check's logic stays in tested Java; whether it runs and its severity (Blocking /
+Warning / Info) are data on `flag_dictionary`, editable by the Admin only, each change with a required reason in the
+audit log (`RULE_CHANGED`), after which open bills are re-validated. A switched-off rule's open issues clear with the
+note "Rule switched off in Policies"; a severity change updates open issues in place. Seven core controls are locked
+on and Blocking (unknown or lookalike vendor, invoice bank account differs, unverified bank change, duplicate number,
+same document, already paid by card): nobody, including the Admin, can quietly turn off fraud or duplicate protection.
+Email intake codes are not listed (they sort emails, they do not check bills).

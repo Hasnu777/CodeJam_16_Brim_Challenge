@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -142,6 +144,7 @@ public class ReviewService {
         boolean overridden = (l.getSuggestedGlAccount() != null && !l.getSuggestedGlAccount().equals(l.getGlAccount()))
                 || (l.getSuggestedDepartmentId() != null && !l.getSuggestedDepartmentId().equals(l.getDepartmentId()));
         l.setSuggestionOverridden(overridden);
+        l.setCodingConfirmed(l.getGlAccount() != null);
         lines.save(l);
         String action = overridden ? "CODING_SUGGESTION_OVERRIDDEN" : "CODING_ACCEPTED";
         String detail = overridden
@@ -157,13 +160,34 @@ public class ReviewService {
         Invoice inv = editable(id);
         int n = 0;
         for (InvoiceLine l : lines.findByInvoiceIdOrderByLineNo(id)) {
-            if (l.isSuggestionOverridden() || l.getSuggestedGlAccount() == null) continue;
+            // Keep a coding the clerk picked by hand; refill lines that were cleared with Ignore Suggestions.
+            if (l.getSuggestedGlAccount() == null || (l.isSuggestionOverridden() && l.getGlAccount() != null)) continue;
             l.setGlAccount(l.getSuggestedGlAccount());
             l.setDepartmentId(l.getSuggestedDepartmentId());
+            l.setSuggestionOverridden(false);
+            l.setCodingConfirmed(true);
             lines.save(l);
             n++;
         }
         return workflow.recordChange(inv, "CODING_ACCEPTED", null, Map.of("lines", n), n + " line suggestions accepted");
+    }
+
+    /** Ignore Suggestions: clear every line's GL account and department so the clerk codes them by hand (D-107). */
+    @Transactional
+    public Invoice ignoreCoding(String id) {
+        Invoice inv = editable(id);
+        List<Map<String, Object>> cleared = new ArrayList<>();
+        for (InvoiceLine l : lines.findByInvoiceIdOrderByLineNo(id)) {
+            if (l.getGlAccount() == null && l.getDepartmentId() == null) continue;
+            cleared.add(lineSnapshot(l));
+            l.setGlAccount(null);
+            l.setDepartmentId(null);
+            l.setSuggestionOverridden(true); // re-running coding (after Save Fields) must not refill them
+            l.setCodingConfirmed(false);
+            lines.save(l);
+        }
+        return workflow.recordChange(inv, "CODING_SUGGESTIONS_IGNORED", Map.of("lines", cleared), null,
+                cleared.size() + " line suggestions ignored; GL accounts and departments cleared");
     }
 
     public record FlagResolution(String resolution, String note) {}

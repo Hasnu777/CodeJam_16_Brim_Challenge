@@ -5,6 +5,7 @@ import com.brimap.common.Json;
 import com.brimap.config.AppClock;
 import com.brimap.intake.InvoiceProcessingStep;
 import com.brimap.model.*;
+import com.brimap.repository.FlagDictionaryRepository;
 import com.brimap.repository.FlagRepository;
 import com.brimap.repository.InvoiceRepository;
 import com.brimap.workflow.InvoiceWorkflowService;
@@ -32,11 +33,12 @@ public class ValidationService implements InvoiceProcessingStep {
     private final AuditService audit;
     private final InvoiceWorkflowService workflow;
     private final AppClock clock;
+    private final FlagDictionaryRepository dictionary;
 
     public ValidationService(List<ValidationRule> rules, InvoiceContextFactory contexts, FlagRepository flags, InvoiceRepository invoices,
-                             AuditService audit, InvoiceWorkflowService workflow, AppClock clock) {
+                             AuditService audit, InvoiceWorkflowService workflow, AppClock clock, FlagDictionaryRepository dictionary) {
         this.rules = rules.stream().sorted(Comparator.comparing(ValidationRule::code)).toList();
-        this.contexts = contexts; this.flags = flags; this.invoices = invoices; this.audit = audit; this.workflow = workflow; this.clock = clock;
+        this.contexts = contexts; this.flags = flags; this.invoices = invoices; this.audit = audit; this.workflow = workflow; this.clock = clock; this.dictionary = dictionary;
     }
 
     @Override
@@ -65,7 +67,13 @@ public class ValidationService implements InvoiceProcessingStep {
     @Transactional
     public List<Flag> validate(Invoice invoice) {
         Invoice inv = invoices.findById(invoice.getId()).orElseThrow();
-        List<FlagDraft> drafts = evaluate(contexts.build(inv));
+        // Admin settings (D-108): a switched-off rule raises nothing, and each rule uses its configured severity.
+        Map<String, FlagDictionary> settings = dictionary.findAll().stream().collect(Collectors.toMap(FlagDictionary::getCode, d -> d));
+        List<FlagDraft> drafts = evaluate(contexts.build(inv)).stream()
+                .filter(d -> settings.get(d.code()) == null || settings.get(d.code()).isOn())
+                .map(d -> settings.get(d.code()) == null || settings.get(d.code()).getSeverity() == null || settings.get(d.code()).getSeverity() == d.severity() ? d
+                        : new FlagDraft(d.code(), settings.get(d.code()).getSeverity(), d.title(), d.message(), d.evidence()))
+                .toList();
         List<Flag> existing = flags.findByInvoiceId(inv.getId());
         Map<String, Flag> byKey = new HashMap<>();
         for (Flag f : existing) byKey.putIfAbsent(key(f.getRuleCode(), f.getMessage()), f);
@@ -76,7 +84,10 @@ public class ValidationService implements InvoiceProcessingStep {
             String k = key(d.code(), d.message());
             if (!seen.add(k)) continue;
             Flag prior = byKey.get(k);
-            if (prior != null && !"AUTO_CLEARED".equals(prior.getResolution())) continue; // unchanged; keep its state and resolution
+            if (prior != null && !"AUTO_CLEARED".equals(prior.getResolution())) { // unchanged; keep its state and resolution
+                if (prior.isOpen() && prior.getSeverity() != d.severity()) prior.setSeverity(d.severity()); // severity edited in Policies
+                continue;
+            }
             Flag f = new Flag();
             f.setInvoiceId(inv.getId());
             f.setRuleCode(d.code());
@@ -95,7 +106,8 @@ public class ValidationService implements InvoiceProcessingStep {
                 f.setResolution("AUTO_CLEARED");
                 f.setResolvedBy("system");
                 f.setResolvedAt(clock.now());
-                f.setNote("Condition no longer holds after re-validation");
+                FlagDictionary rule = settings.get(f.getRuleCode());
+                f.setNote(rule != null && !rule.isOn() ? "Rule switched off in Policies" : "Condition no longer holds after re-validation");
                 cleared.add(f.getRuleCode());
             }
         }

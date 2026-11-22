@@ -39,6 +39,8 @@ public class CodingService implements InvoiceProcessingStep {
             l.setSuggestedDepartmentId(s.departmentId());
             l.setSuggestionReason(s.reason());
             if (!l.isSuggestionOverridden()) {
+                // A new suggestion replaces what the clerk confirmed: it needs confirming again.
+                if (!java.util.Objects.equals(l.getGlAccount(), s.glAccount()) || !java.util.Objects.equals(l.getDepartmentId(), s.departmentId())) l.setCodingConfirmed(false);
                 l.setGlAccount(s.glAccount());
                 l.setDepartmentId(s.departmentId());
             }

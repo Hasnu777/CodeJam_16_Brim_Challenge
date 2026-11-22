@@ -1,5 +1,6 @@
-import { Alert, Anchor, Badge, Button, Card, Checkbox, Code, Group, Modal, SimpleGrid, Stack, Table, Tabs, Text, Title, Tooltip, UnstyledButton } from '@mantine/core'
-import { IconArrowDown, IconArrowUp, IconCreditCard, IconInfoCircle } from '@tabler/icons-react'
+import { Alert, Anchor, Badge, Button, Card, Checkbox, Code, Group, Modal, SimpleGrid, Stack, Table, Tabs, Text, Title, Tooltip } from '@mantine/core'
+import { IconCreditCard, IconInfoCircle } from '@tabler/icons-react'
+import { SortTh } from '../components/SortTh'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -91,11 +92,11 @@ export default function PaymentsPage() {
               {is('CLK') && <Group><Tooltip label="Scheduled from the vendor's terms; early-pay discounts and credit notes are applied automatically."><Button disabled={!picked.length} onClick={() => run(() => api.post('/payments/prepare', { invoiceIds: picked }), `${picked.length} payment(s) scheduled`)}>
                 Prepare {picked.length || ''} Payment{picked.length === 1 ? '' : 's'}</Button></Tooltip></Group>}
               <Table striped>
-                <Table.Thead><Table.Tr>{is('CLK') && <Table.Th>Select</Table.Th>}<Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Amount</Table.Th><SortTh label="Due" asc={asc} onToggle={() => setAsc((v) => !v)} /></Table.Tr></Table.Thead>
+                <Table.Thead><Table.Tr>{is('CLK') && <Table.Th>Select</Table.Th>}<Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Amount</Table.Th><SortTh label="Due" asc={asc} onClick={() => setAsc((v) => !v)} /></Table.Tr></Table.Thead>
                 <Table.Tbody>
                   {readySorted.map((i) => (
                     <Table.Tr key={i.id}>
-                      {is('CLK') && <Table.Td><Checkbox checked={picked.includes(i.id!)} onChange={(e) => setPicked((p) => e.currentTarget.checked ? [...p, i.id!] : p.filter((x) => x !== i.id))} /></Table.Td>}
+                      {is('CLK') && <Table.Td><Checkbox checked={picked.includes(i.id!)} onChange={(e) => { const on = e.currentTarget.checked; setPicked((p) => on ? [...p, i.id!] : p.filter((x) => x !== i.id)) }} /></Table.Td>}
                       <Table.Td><Anchor component={Link} to={`/invoices/${i.id}`}>{i.id}</Anchor></Table.Td>
                       <Table.Td>{i.vendorName}</Table.Td>
                       <Table.Td><MoneyCell cad={i.totalCad} amount={i.total} currency={i.currency} /></Table.Td>
@@ -112,7 +113,7 @@ export default function PaymentsPage() {
             {byStatus(t).length === 0 ? <Empty>No {t.toLowerCase()} payments.</Empty> : (
               <Table striped>
                 <Table.Thead><Table.Tr><Table.Th>Payment</Table.Th><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Amount</Table.Th>
-                  <SortTh label={t === 'SETTLED' ? 'Paid' : 'Scheduled'} asc={asc} onToggle={() => setAsc((v) => !v)} /><Table.Th>Method / Account</Table.Th><Table.Th /></Table.Tr></Table.Thead>
+                  <SortTh label={t === 'SETTLED' ? 'Paid' : 'Scheduled'} asc={asc} onClick={() => setAsc((v) => !v)} /><Table.Th>Method / Account</Table.Th><Table.Th /></Table.Tr></Table.Thead>
                 <Table.Tbody>
                   {sorted(t).map((r) => {
                     const p = r.payment!
@@ -186,15 +187,6 @@ export default function PaymentsPage() {
 }
 
 /** Column header that sorts by date; click to flip the order. */
-function SortTh({ label, asc, onToggle }: { label: string; asc: boolean; onToggle: () => void }) {
-  return (
-    <Table.Th>
-      <UnstyledButton onClick={onToggle} fw={700} fz="sm" aria-label={`Sort by ${label}`}>
-        <Group gap={4} wrap="nowrap">{label}{asc ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />}</Group>
-      </UnstyledButton>
-    </Table.Th>
-  )
-}
 
 /** Bonus 5: per-payment Brim card advice, with the arithmetic in the tooltip. */
 function CardAdviceCell({ advice, canSwitch, onSwitch }: { advice: CardAdvice; canSwitch: boolean; onSwitch: (method: 'CARD' | 'EFT') => void }) {

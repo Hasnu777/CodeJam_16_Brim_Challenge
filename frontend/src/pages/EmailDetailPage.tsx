@@ -207,9 +207,16 @@ function ReplyModal({ email, draft, onClose, onSaved }: { email: EmailMessage; d
   const n = useNames()
   // Signature: the person replying, their title, and the company.
   const signature = ['Thank you,', me?.fullName, me?.title, 'Harborline Logistics'].filter(Boolean).join('\n')
-  const [to, setTo] = useState(draft?.to || email.fromAddress || '')
-  const [subject, setSubject] = useState(draft?.subject || (email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject ?? ''}`))
-  const [body, setBody] = useState(draft?.body || `Hello ${email.fromName ?? ''},\n\n\n\n${signature}`)
+  // What the pop-up opened with (the template, or the reopened draft): Save Draft stays off until something changes.
+  const [initial] = useState(() => ({
+    to: draft?.to || email.fromAddress || '',
+    subject: draft?.subject || (email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject ?? ''}`),
+    body: draft?.body || `Hello ${email.fromName ?? ''},\n\n\n\n${signature}`,
+  }))
+  const [to, setTo] = useState(initial.to)
+  const [subject, setSubject] = useState(initial.subject)
+  const [body, setBody] = useState(initial.body)
+  const changed = to !== initial.to || subject !== initial.subject || body !== initial.body
   const [busy, setBusy] = useState<'send' | 'draft' | null>(null)
   const save = async (draft: boolean) => {
     setBusy(draft ? 'draft' : 'send')
@@ -234,7 +241,7 @@ function ReplyModal({ email, draft, onClose, onSaved }: { email: EmailMessage; d
         <Text size="xs" c="dimmed">Outgoing email is simulated in this demo: the reply is saved to this email's history.</Text>
         <Group justify="flex-end">
           <Button variant="subtle" color="gray" onClick={onClose}>Cancel</Button>
-          <Button variant="default" loading={busy === 'draft'} disabled={!!busy} onClick={() => save(true)}>Save Draft</Button>
+          <Button variant="default" loading={busy === 'draft'} disabled={!!busy || !changed} onClick={() => save(true)}>Save Draft</Button>
           <Button loading={busy === 'send'} disabled={!!busy || !to.trim() || !body.trim()} onClick={() => save(false)}>Send</Button>
         </Group>
       </Stack>
