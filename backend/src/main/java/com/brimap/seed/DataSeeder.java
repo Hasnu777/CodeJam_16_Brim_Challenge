@@ -73,6 +73,8 @@ public class DataSeeder {
     public SeedReport reset() {
         @SuppressWarnings("unchecked")
         List<String> tables = em.createNativeQuery("select tablename from pg_tables where schemaname = 'public'").getResultList();
+        // Lets the audit_events TRUNCATE guard (after-ddl.sql) through, for this transaction only.
+        em.createNativeQuery("select set_config('app.allow_reset', 'on', true)").getSingleResult();
         if (!tables.isEmpty()) {
             em.createNativeQuery("TRUNCATE " + String.join(", ", tables) + " RESTART IDENTITY CASCADE").executeUpdate();
         }

@@ -35,6 +35,8 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_FOLDER: ${MAIL_FOLDER:-INBOX}
       MAIL_AUTO_POLL: ${MAIL_AUTO_POLL:-false}
+      APP_DEMO_MODE: ${APP_DEMO_MODE:-true}
+      AUDIT_HMAC_KEY: ${AUDIT_HMAC_KEY:-}
     ports:
       - "8088:8088"
     volumes:

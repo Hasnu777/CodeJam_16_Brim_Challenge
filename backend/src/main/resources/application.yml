@@ -62,6 +62,7 @@ app:
     max-per-fetch: ${MAIL_MAX_PER_FETCH:50}
     auto-poll: ${MAIL_AUTO_POLL:false}
     poll-ms: ${MAIL_POLL_MS:60000}
+  demo-mode: ${APP_DEMO_MODE:false}
 
 springdoc:
   api-docs:

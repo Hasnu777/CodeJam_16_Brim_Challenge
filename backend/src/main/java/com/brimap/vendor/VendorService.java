@@ -228,6 +228,8 @@ public class VendorService {
         if (u.id().equals(c.getRequestedBy())) throw new ForbiddenException("You requested " + changeId + "; a different person must verify it");
         boolean approve = b.approve() == null || b.approve();
         if (approve && !b.callbackDone()) throw new BusinessRuleException("Call the vendor back on a number already on file before approving the change");
+        if (approve && (b.note() == null || b.note().isBlank()))
+            throw new BusinessRuleException("Write down the callback before verifying: which number on file you called and who confirmed the new account");
         Vendor v = vendors.findById(c.getVendorId()).orElseThrow();
         List<VendorBankAccount> versions = accounts.findByVendorIdOrderByVersionDesc(v.getId());
         VendorBankAccount requested = versions.stream().filter(a -> changeId.equals(a.getBankChangeRequestId())).findFirst().orElse(null);

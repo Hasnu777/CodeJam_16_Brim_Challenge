@@ -85,6 +85,30 @@ public class AuditService {
             return String.valueOf(o);
         }
     }
+    /**
+     * Admin "Verify chain": if the chain is broken, accept the rows' current contents and re-sign every row
+     * (with the HMAC key), then record who did it and which rows had been changed. The evidence stays in the log.
+     */
+    @Transactional
+    public Map<String, Object> reseal() {
+        Map<String, Object> check = verify();
+        if (Boolean.TRUE.equals(check.get("valid"))) return check;
+        em.createNativeQuery("select pg_advisory_xact_lock(" + CHAIN_LOCK + ")").getSingleResult();
+        em.createNativeQuery("select set_config('app.allow_reseal', 'on', true)").getSingleResult();
+        List<AuditEvent> all = repo.findAllByOrderByIdAsc();
+        em.clear(); // detach the rows: we rewrite only their hashes, with plain SQL below
+        String prev = AuditHasher.GENESIS;
+        for (AuditEvent e : all) {
+            e.setPrevHash(prev);
+            String h = AuditHasher.hash(e);
+            em.createNativeQuery("update audit_events set prev_hash = ?1, hash = ?2 where id = ?3")
+                    .setParameter(1, prev).setParameter(2, h).setParameter(3, e.getId()).executeUpdate();
+            prev = h;
+        }
+        record("AUDIT_RESEALED", "audit_events", "chain", Map.of("breaks", check.get("breaks")), null,
+                "Chain re-sealed by an admin after tampering was detected; the changed rows' current contents were accepted");
+        return verify();
+    }
 
     /** Re-compute the whole chain and report every break. */
     @Transactional(readOnly = true)
@@ -97,8 +121,8 @@ public class AuditService {
             String recomputed = AuditHasher.hash(e);
             List<String> problems = new ArrayList<>();
             if (e.getId() != expectedId) problems.add("gap: expected id " + expectedId);
-            if (!prev.equals(e.getPrevHash())) problems.add("prev_hash does not match previous row");
-            if (!recomputed.equals(e.getHash())) problems.add("row content does not match its hash");
+            if (!prev.equals(e.getPrevHash())) problems.add("the link to the previous record was altered (a record before it was changed or removed)");
+            if (!recomputed.equals(e.getHash())) problems.add("this record was changed after it was written, by someone with direct database access");
             if (!problems.isEmpty()) {
                 Map<String, Object> b = new LinkedHashMap<>();
                 b.put("id", e.getId());
