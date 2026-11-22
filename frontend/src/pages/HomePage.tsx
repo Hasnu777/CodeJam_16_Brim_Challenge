@@ -47,6 +47,7 @@ export default function HomePage() {
           <Text c="grape">You are acting as delegate for {me!.actingFor.map((a) => a.fullName).join(', ')}; their approvals appear in your queue.</Text>
         )}
       </div>
+      {r === 'ADM' && <DemoReset />}
 
       <SimpleGrid cols={{ base: 2, md: 4 }}>
         {r === 'CLK' && <>
@@ -175,5 +176,37 @@ function EmployeeUpload() {
         </FileButton>
       </Group>
     </Card>
+  )
+}
+
+
+/** Admin-only demo tool: wipe everything (audit log included), reload the dataset and re-process the inbox. Demo mode only. */
+function DemoReset() {
+  const [busy, setBusy] = useState(false)
+  const qc = useQueryClient()
+  const reset = async () => {
+    if (!window.confirm('This wipes ALL data, including the audit log, and reloads the demo dataset. Continue?')) return
+    setBusy(true)
+    try {
+      await api.post('/admin/reset')
+      await api.post('/inbox/process')
+      notifyOk('Demo data reset; the inbox is being processed (about a minute)')
+      qc.invalidateQueries()
+    } catch (e) {
+      notifyError(e)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+      <Card withBorder>
+        <Group justify="space-between">
+          <div>
+            <Text fw={600}>Demo tools</Text>
+            <Text size="sm" c="dimmed">Wipes all data (audit log included), reloads the dataset and processes the inbox. Only works in demo mode.</Text>
+          </div>
+          <Button color="red" variant="light" loading={busy} onClick={reset}>Reset demo data</Button>
+        </Group>
+      </Card>
   )
 }
