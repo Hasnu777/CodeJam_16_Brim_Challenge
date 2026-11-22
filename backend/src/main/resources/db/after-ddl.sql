@@ -5,6 +5,10 @@
 -- TRUNCATE (used only by the demo reset) does not fire row-level triggers.
 CREATE OR REPLACE FUNCTION audit_events_append_only() RETURNS trigger AS $$
 BEGIN
+  -- The only allowed UPDATE: an admin's re-seal, which sets app.allow_reseal for its own transaction.
+  IF TG_OP = 'UPDATE' AND current_setting('app.allow_reseal', true) = 'on' THEN
+    RETURN NEW;
+END IF;
   RAISE EXCEPTION 'audit_events is append-only (% rejected)', TG_OP;
 END;
 $$ LANGUAGE plpgsql

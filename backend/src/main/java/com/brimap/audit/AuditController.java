@@ -55,6 +55,10 @@ public class AuditController {
     @GetMapping("/verify")
     public Map<String, Object> verify() { return audit.verify(); }
 
+    @PostMapping("/reseal")
+    @PreAuthorize("hasRole('ADM')")
+    public Map<String, Object> reseal() { return audit.reseal(); }
+
     private List<AuditEvent> query(String entity, String entityId, String actor, String action, LocalDate from, LocalDate to, int limit) {
         StringBuilder q = new StringBuilder("select e from AuditEvent e where 1=1");
         Map<String, Object> p = new HashMap<>();

@@ -12,15 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * Bonus 1 - fraud alerts in one place: the payment-fraud flags (bank details, lookalikes, card double-payment),
  * unverified bank changes, and money about to go to a vendor whose bank details changed recently. Built entirely
  * from data the rules already computed: no new judgement, just the view an AP lead would want every morning.
- * Also re-checks the audit hash chain: a broken chain (history edited outside the app) is raised as the top alert.
+ * Also re-checks the audit hash chain: a broken chain (history edited outside the app) is raised as the top alert,
+ * and every admin re-seal of the chain stays visible as a warning.
  */
 @RestController
 @RequestMapping("/api/fraud")
@@ -28,6 +32,10 @@ import java.util.stream.Collectors;
 public class FraudService {
     static final Set<String> FRAUD_CODES = Set.of("B01", "B02", "B03", "B04", "V04", "V05", "V06", "D04");
     static final int RECENT_DAYS = 30;
+    /** "Nov 22 at 1:02 AM", in Harborline's own time zone (Toronto). */
+    static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("MMM d 'at' h:mm a", Locale.ENGLISH).withZone(ZoneId.of("America/Toronto"));
+    /** Pulls the row ids out of the saved list of breaks, e.g. {"breaks":[{"id":1,...}]} gives 1. */
+    static final Pattern ROW_ID = Pattern.compile("\"id\":(\\d+)");
 
     private final FlagRepository flags;
     private final InvoiceRepository invoices;
@@ -36,6 +44,8 @@ public class FraudService {
     private final PaymentRepository payments;
     private final AppClock clock;
     private final AuditService audit;
+    private final AuditEventRepository auditEvents;
+    private final AppUserRepository users;
 
     public record Alert(String kind, String severity, String title, String message, String invoiceId, String vendorId, String vendorName,
                         BigDecimal amountCad, String ref) {}
@@ -82,15 +92,27 @@ public class FraudService {
         // A broken audit chain means someone edited or removed history outside the app: the most serious signal, so it goes first.
         Map<String, Object> chain = audit.verify();
         if (!Boolean.TRUE.equals(chain.get("valid"))) {
-            // pulls ou the list of broken rows
+            // pulls out the list of broken rows
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> breaks = (List<Map<String, Object>>) chain.get("breaks");
-            //builds a short label of which rows are broken, like "#5, #6, #7".
+            // builds a short label of which rows are broken, like "#5, #6, #7"
             String rows = breaks.stream().limit(5).map(b -> "#" + b.get("id")).collect(Collectors.joining(", "));
-            //creates a new alert and puts it at position 0
+            // creates a new alert and puts it at position 0
             out.add(0, new Alert("AUDIT_TAMPER", "BLOCK", "Audit log tampered",
-                    breaks.size() + " audit row(s) fail the hash-chain check (" + rows + (breaks.size() > 5 ? ", ..." : "")
-                            + "). History was edited or removed outside the app; see Audit log > Verify.",
+                    "Tampering detected: " + breaks.size() + " audit record(s) (" + rows + (breaks.size() > 5 ? ", ..." : "")
+                            + ") were changed outside the app by someone with direct database access. Their contents can't be trusted; check database access logs and restore from backup.",
+                    null, null, null, null, "AUDIT"));
+        }
+
+        // After an admin re-seals, the chain is valid again, but the fact that history was changed must stay visible.
+        for (AuditEvent r : auditEvents.findByActionOrderByIdDesc("AUDIT_RESEALED")) {
+            String who = users.findById(r.getActor()).map(AppUser::getFullName).orElse(r.getActor());
+            String changed = ROW_ID.matcher(r.getBeforeJson() == null ? "" : r.getBeforeJson()).results()
+                    .map(m -> "#" + m.group(1)).collect(Collectors.joining(", "));
+            out.add(new Alert("AUDIT_RESEALED", "WARN", "Audit log re-sealed after tampering",
+                    who + " re-sealed the audit log on " + WHEN.format(r.getTs()) + ". "
+                            + (changed.contains(",") ? "Records " : "Record ") + changed
+                            + " had been changed outside the app; the change was accepted, not undone.",
                     null, null, null, null, "AUDIT"));
         }
 

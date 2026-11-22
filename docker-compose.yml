@@ -29,6 +29,7 @@ services:
       APP_SEED_MODE: ${APP_SEED_MODE:-if-empty}
       BUSINESS_DATE: ${BUSINESS_DATE:-2026-11-02}
       APP_DEMO_MODE: ${APP_DEMO_MODE:-true}
+      AUDIT_HMAC_KEY: ${AUDIT_HMAC_KEY:-}
     ports:
       - "8088:8088"
     volumes:
