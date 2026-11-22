@@ -346,6 +346,49 @@ def scenario_fail_retry(clerk):
           f"settle={st1['_status']}/{st2['_status']} fail after paid={late_fail['_status']} payments={[(p['id'], p['status']) for p in pays]}")
 
 
+def vendor_of(c, vid):
+    v = c.get(f"/vendors/{vid}")
+    return v.get("vendor") or v
+
+
+def scenario_card(clerk):
+    """13. Brim card bonus (D-089): switch a scheduled payment to card and back; the guards hold; every switch is audited."""
+    card_iid = other_iid = None
+    for i in clean_candidates(clerk, max_cad=20000):
+        accepts = bool(vendor_of(clerk, detail(clerk, i)["invoice"]["vendorId"]).get("acceptsCardPayment"))
+        if accepts and not card_iid:
+            card_iid = i
+        elif not accepts and not other_iid:
+            other_iid = i
+        if card_iid and other_iid:
+            break
+    ids = []
+    for i in (card_iid, other_iid):
+        if i and not make_submittable(clerk, i) and clerk.post(f"/invoices/{i}/submit")["_status"] == 200 and approve_all(i) == "APPROVED":
+            ids.append(clerk.post("/payments/prepare", {"invoiceIds": [i]})[0]["id"])
+        else:
+            ids.append(None)
+    pid, other = ids
+    if not pid:
+        check("Brim card switch", False, f"no clean bill from a card-accepting vendor ({card_iid})")
+        return
+    hannah = next((u["id"] for u in clerk.get("/auth/users") if u.get("role") == "AUD"), None)
+    to_card = clerk.post(f"/payments/{pid}/method", {"method": "CARD"})
+    by_auditor = as_user(hannah).post(f"/payments/{pid}/method", {"method": "EFT"}) if hannah else {"_status": 403}
+    bad = clerk.post(f"/payments/{pid}/method", {"method": "BITCOIN"})
+    not_accepted = clerk.post(f"/payments/{other}/method", {"method": "CARD"}) if other else {"_status": 409}
+    back = clerk.post(f"/payments/{pid}/method", {"method": "EFT"})
+    again = clerk.post(f"/payments/{pid}/method", {"method": "CARD"})
+    rows = audit(as_user("U002"), pid, "PAYMENT_METHOD_CHANGED")
+    who = release_by_anyone(pid)
+    check("Brim card: clerk switches a card-accepting vendor's payment to card and back; auditor 403, bad method 400, "
+          "non-card vendor 409; each switch audited; the card payment still needs a normal release",
+          to_card["_status"] == 200 and by_auditor["_status"] == 403 and bad["_status"] == 400 and not_accepted["_status"] == 409
+          and back["_status"] == 200 and again["_status"] == 200 and len(rows) == 3 and who is not None,
+          f"{pid}: card={to_card['_status']} auditor={by_auditor['_status']} bad={bad['_status']} non-card vendor={not_accepted['_status']} "
+          f"back={back['_status']} again={again['_status']} audit rows={len(rows)} released by {who}")
+
+
 def main():
     reset_and_process()
     clerk, elise, marcus, priya = Client("U004"), Client("U003"), Client("U002"), Client("U001")
@@ -449,7 +492,7 @@ def main():
         check("$300k bill CFO exception", False, "no bill could be raised to $300k and submitted: " + "; ".join(why_not[:4]))
 
     for scenario in (scenario_boundaries, scenario_usd, scenario_delegation, scenario_double_approve, scenario_policy_edit,
-                     scenario_bank_change, scenario_fail_retry):
+                     scenario_bank_change, scenario_fail_retry, scenario_card):
         scenario(clerk)
 
     v = marcus.get("/audit/verify")

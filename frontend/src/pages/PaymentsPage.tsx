@@ -173,7 +173,7 @@ function CardOpportunityPanel({ data }: { data: CardOpportunity }) {
   const pct = (r: string) => `${(Number(r) * 100).toFixed(Number(r) * 100 % 1 ? 1 : 0)}%`
   const top = data.byVendor.slice(0, 3)
   return (
-    <Card withBorder padding="md">
+    <Card withBorder p="lg" className="ap-stat">
       <Group gap="xs" mb="xs"><IconCreditCard size={18} /><Text fw={600}>Brim card opportunity</Text>
         <Text size="xs" c="dimmed">{data.cardAcceptingVendors} vendors accept card. Paying by card keeps cash in the bank until the statement is due.</Text></Group>
       <SimpleGrid cols={{ base: 1, sm: 3 }}>

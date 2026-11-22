@@ -110,6 +110,8 @@ pre-review verification (what was run, results, findings fixed) is in [docs/veri
 ## Design decisions
 
 A full technical walkthrough (architecture, every subsystem, diagrams) is in [docs/technical-design.md](docs/technical-design.md).
+
+How the team branches were combined (conflicts, fixes, the Brim card review, test results) is in [docs/integration-2026-11-22.md](docs/integration-2026-11-22.md); per-branch notes are in [docs/handoff-2026-11-22.md](docs/handoff-2026-11-22.md), [docs/audit-and-vendor-controls.md](docs/audit-and-vendor-controls.md) and [docs/brim-card-optimizer.md](docs/brim-card-optimizer.md).
 Team decisions and the task split from 21 Nov are in [docs/team-todo-2026-11-21.md](docs/team-todo-2026-11-21.md).
 80 logged decisions with the reasoning and the alternatives in [docs/decisions.md](docs/decisions.md), including the
 false-positive tuning done on this dataset (D-041, D-042, D-044, D-045). Highlights:

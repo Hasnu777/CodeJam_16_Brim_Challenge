@@ -144,7 +144,7 @@ public class PaymentService {
         Vendor v = in.vendor();
         VendorBankAccount acct = in.account();
         List<String> out = new ArrayList<>(ReleaseRules.blockers(in));
-        if (acct != null && p.getBankAccountId() != null) {
+        if (acct != null && p.getBankAccountId() != null && !"CARD".equals(p.getMethod())) {
             VendorBankAccount active = accounts.findFirstByVendorIdAndStatus(v.getId(), "ACTIVE").orElse(null);
             if (active != null && !active.getId().equals(p.getBankAccountId())) {
                 out.add("Vendor bank details changed since this payment was prepared (now " + active.masked() + "); re-prepare it");
@@ -217,6 +217,11 @@ public class PaymentService {
         if (m.equals(p.getMethod())) return p;
         Vendor v = p.getVendorId() == null ? null : vendors.findById(p.getVendorId()).orElse(null);
         if (m.equals("CARD") && (v == null || !v.isAcceptsCardPayment())) throw new BusinessRuleException((v == null ? "Unknown vendor" : v.getLegalName()) + " does not accept card payments");
+        // The per-charge card limit is a real constraint, not just advice: a bill above it can't go on the card (D-089).
+        BigDecimal limit = CardPaymentAdvisor.Terms.DEFAULT.perTxnLimitCad();
+        if (m.equals("CARD") && p.getAmountCad() != null && p.getAmountCad().abs().compareTo(limit) > 0) {
+            throw new BusinessRuleException(id + " is CAD " + p.getAmountCad().toPlainString() + ", above the $" + limit.toPlainString() + " card limit per charge");
+        }
         Map<String, Object> before = snapshot(p);
         before.put("method", p.getMethod());
         p.setMethod(m);

@@ -196,6 +196,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/payments/{id}/method": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["changeMethod"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/payments/{id}/fail": {
         parameters: {
             query?: never;
@@ -340,6 +356,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/invoices/{id}/po": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["linkPo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/invoices/{id}/hold": {
         parameters: {
             query?: never;
@@ -414,6 +446,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["processInbox"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inbox/fetch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["fetchMail"];
         delete?: never;
         options?: never;
         head?: never;
@@ -510,6 +558,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/audit/reseal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reseal"];
         delete?: never;
         options?: never;
         head?: never;
@@ -708,6 +772,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/invoices/{id}/po-suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["poSuggestions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/invoices/{id}/document": {
         parameters: {
             query?: never;
@@ -732,6 +812,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["list_5"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inbox/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["view"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inbox/{id}/attachments/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["attachment"];
         put?: never;
         post?: never;
         delete?: never;
@@ -876,6 +988,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["spend"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/analytics/card-opportunity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["cardOpportunity"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1155,6 +1283,9 @@ export interface components {
             creditApplied?: number;
             historical?: boolean;
         };
+        MethodRequest: {
+            method?: string;
+        };
         FailRequest: {
             reason?: string;
         };
@@ -1178,6 +1309,18 @@ export interface components {
         ReasonBody: {
             reason?: string;
             note?: string;
+        };
+        LinkPoBody: {
+            poId?: string;
+        };
+        FetchResult: {
+            /** Format: int32 */
+            read?: number;
+            /** Format: int32 */
+            saved?: number;
+            /** Format: int32 */
+            alreadyHad?: number;
+            errors?: string[];
         };
         FlagResolution: {
             resolution?: string;
@@ -1281,6 +1424,23 @@ export interface components {
             annualBudgetCad?: number;
             managerUserId?: string;
         };
+        Advice: {
+            /** @enum {string} */
+            verdict?: "SWITCH" | "ON_CARD" | "KEEP" | "NOT_ELIGIBLE";
+            headline?: string;
+            /** Format: date */
+            chargeDate?: string;
+            /** Format: date */
+            statementClose?: string;
+            /** Format: date */
+            cardDueDate?: string;
+            /** Format: int32 */
+            floatDays?: number;
+            floatValueCad?: number;
+            rewardsCad?: number;
+            benefitCad?: number;
+            notes?: string[];
+        };
         PaymentRow: {
             payment?: components["schemas"]["Payment"];
             vendorName?: string;
@@ -1289,6 +1449,7 @@ export interface components {
             bankVerified?: boolean;
             releaseBlockers?: string[];
             earlyDiscountAvailable?: boolean;
+            cardAdvice?: components["schemas"]["Advice"];
         };
         InvoiceSummary: {
             id?: string;
@@ -1319,6 +1480,22 @@ export interface components {
             currentApproverName?: string;
             topFlag?: string;
         };
+        Suggestion: {
+            poId?: string;
+            status?: string;
+            /** Format: date */
+            issueDate?: string;
+            departmentId?: string;
+            requesterUserId?: string;
+            description?: string;
+            currency?: string;
+            total?: number;
+            billed?: number;
+            remaining?: number;
+            bestMatch?: boolean;
+            reasons?: string[];
+            warnings?: string[];
+        };
         EmailMessage: {
             id?: string;
             fromName?: string;
@@ -1329,6 +1506,7 @@ export interface components {
             receivedAt?: string;
             body?: string;
             attachments?: string;
+            messageId?: string;
             classification?: string;
             intakeCode?: string;
             classifiedBy?: string;
@@ -1337,6 +1515,34 @@ export interface components {
             linkedInvoiceIds?: string;
             /** Format: date-time */
             processedAt?: string;
+        };
+        AttachmentInfo: {
+            name?: string;
+            available?: boolean;
+            contentType?: string;
+            /** Format: int64 */
+            sizeBytes?: number;
+        };
+        EmailView: {
+            email?: components["schemas"]["EmailMessage"];
+            processed?: boolean;
+            attachments?: components["schemas"]["AttachmentInfo"][];
+            linkedInvoices?: components["schemas"]["LinkedInvoice"][];
+            history?: components["schemas"]["HistoryItem"][];
+        };
+        HistoryItem: {
+            ts?: string;
+            actor?: string;
+            action?: string;
+            detail?: string;
+        };
+        LinkedInvoice: {
+            id?: string;
+            status?: string;
+            vendorId?: string;
+            vendorInvoiceNumber?: string;
+            total?: string;
+            currency?: string;
         };
         UserSummary: {
             id?: string;
@@ -1383,6 +1589,57 @@ export interface components {
             daysWaiting?: number;
             departmentId?: string;
             requesterUserId?: string;
+        };
+        Result: {
+            groupBy?: string;
+            scope?: string;
+            totalCad?: number;
+            /** Format: int64 */
+            invoiceCount?: number;
+            rows?: components["schemas"]["Row"][];
+            monthly?: {
+                [key: string]: number;
+            };
+        };
+        Row: {
+            key?: string;
+            label?: string;
+            amountCad?: number;
+            /** Format: int64 */
+            invoices?: number;
+            share?: number;
+        };
+        CardOpportunity: {
+            terms?: components["schemas"]["Terms"];
+            scheduledSwitchable?: components["schemas"]["Summary"];
+            paidByEftCouldHaveBeenCard?: components["schemas"]["Summary"];
+            paidByCard?: components["schemas"]["Summary"];
+            /** Format: int32 */
+            cardAcceptingVendors?: number;
+            byVendor?: components["schemas"]["VendorOpportunity"][];
+        };
+        Summary: {
+            /** Format: int32 */
+            count?: number;
+            amountCad?: number;
+            benefitCad?: number;
+            /** Format: int32 */
+            avgFloatDays?: number;
+        };
+        Terms: {
+            /** Format: int32 */
+            graceDays?: number;
+            rewardsRate?: number;
+            costOfCashAnnual?: number;
+            perTxnLimitCad?: number;
+        };
+        VendorOpportunity: {
+            vendorId?: string;
+            vendorName?: string;
+            /** Format: int32 */
+            payments?: number;
+            amountCad?: number;
+            benefitCad?: number;
         };
     };
     responses: never;
@@ -1754,6 +2011,32 @@ export interface operations {
             };
         };
     };
+    changeMethod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MethodRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
     fail: {
         parameters: {
             query?: never;
@@ -1972,6 +2255,32 @@ export interface operations {
             };
         };
     };
+    linkPo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LinkPoBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
     hold: {
         parameters: {
             query?: never;
@@ -2091,6 +2400,26 @@ export interface operations {
                     "*/*": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    fetchMail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FetchResult"];
                 };
             };
         };
@@ -2249,6 +2578,28 @@ export interface operations {
                 "application/json": components["schemas"]["LoginRequest"];
             };
         };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    reseal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -2522,6 +2873,28 @@ export interface operations {
             };
         };
     };
+    poSuggestions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Suggestion"][];
+                };
+            };
+        };
+    };
     document: {
         parameters: {
             query?: never;
@@ -2560,6 +2933,51 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["EmailMessage"][];
+                };
+            };
+        };
+    };
+    view: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EmailView"];
+                };
+            };
+        };
+    };
+    attachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -2766,9 +3184,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": {
-                        [key: string]: unknown;
-                    };
+                    "*/*": components["schemas"]["Result"];
+                };
+            };
+        };
+    };
+    cardOpportunity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CardOpportunity"];
                 };
             };
         };

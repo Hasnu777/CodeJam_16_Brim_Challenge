@@ -308,7 +308,7 @@ function DemoReset() {
             <Text fw={700}>Demo tools</Text>
             <Text size="sm" c="dimmed">Wipes all data (audit log included), reloads the dataset and processes the inbox. Only works in demo mode.</Text>
           </div>
-          <Button color="red" variant="light" loading={busy} onClick={reset}>Reset demo data</Button>
+          <Button color="red" variant="light" loading={busy} onClick={reset} style={{ flexShrink: 0 }}>Reset demo data</Button>
         </Group>
       </Card>
   )
