@@ -1,0 +1,53 @@
+po_id,vendor_id,department_id,requester_user_id,issue_date,description,total_amount,currency,status,approved_by
+PO-2026-0001,V047,D03,U029,2025-12-28,Events & Catering - Cedar & Sage Events,265.29,CAD,closed,U009
+PO-2026-0002,V025,D07,U037,2025-12-31,Office Furniture - Workform Furniture Ltd.,7802.72,CAD,closed,U012
+PO-2026-0003,V011,D01,U018,2026-01-02,Warehouse & Packaging - Crestline Packaging Supply,7293.08,CAD,closed,U007
+PO-2026-0004,V011,D01,U021,2026-01-02,Warehouse & Packaging - Crestline Packaging Supply,2173.52,CAD,closed,U007
+PO-2026-0005,V044,D01,U015,2026-01-05,Repairs & Maintenance - Gearwork Industrial Maintenance,3263.44,CAD,closed,U007
+PO-2026-0006,V044,D07,U038,2026-01-15,Repairs & Maintenance - Gearwork Industrial Maintenance,1456.75,CAD,closed,U012
+PO-2026-0007,V043,D01,U018,2026-02-03,Repairs & Maintenance - Handyline Facility Services,5195.97,CAD,closed,U007
+PO-2026-0008,V012,D01,U019,2026-02-05,Warehouse & Packaging - Anchor Racking Systems,6586.07,CAD,closed,U007
+PO-2026-0009,V044,D07,U037,2026-02-10,Repairs & Maintenance - Gearwork Industrial Maintenance,1588.46,CAD,closed,U012
+PO-2026-0010,V025,D07,U037,2026-02-15,Office Furniture - Workform Furniture Ltd.,7575.94,CAD,closed,U012
+PO-2026-0011,V011,D01,U019,2026-02-21,Warehouse & Packaging - Crestline Packaging Supply,4232.04,CAD,closed,U007
+PO-2026-0012,V047,D06,U035,2026-02-24,Events & Catering - Cedar & Sage Events,5610.60,CAD,closed,U011
+PO-2026-0013,V044,D07,U039,2026-02-27,Repairs & Maintenance - Gearwork Industrial Maintenance,3905.48,CAD,closed,U012
+PO-2026-0014,V043,D07,U038,2026-03-07,Repairs & Maintenance - Handyline Facility Services,1696.64,CAD,closed,U012
+PO-2026-0015,V044,D01,U018,2026-03-16,Repairs & Maintenance - Gearwork Industrial Maintenance,3662.48,CAD,closed,U007
+PO-2026-0016,V011,D01,U014,2026-04-08,Warehouse & Packaging - Crestline Packaging Supply,13516.99,CAD,closed,U007
+PO-2026-0017,V010,D01,U015,2026-04-10,Warehouse & Packaging - Oakridge Pallet Co.,5353.12,CAD,closed,U007
+PO-2026-0018,V013,D01,U015,2026-04-21,Safety Supplies - Sentinel Safety Supply,7276.19,CAD,closed,U007
+PO-2026-0019,V025,D07,U039,2026-04-23,Office Furniture - Workform Furniture Ltd.,8111.11,CAD,closed,U012
+PO-2026-0020,V043,D01,U014,2026-04-29,Repairs & Maintenance - Handyline Facility Services,3541.16,CAD,closed,U007
+PO-2026-0021,V025,D07,U037,2026-05-03,Office Furniture - Workform Furniture Ltd.,762.96,CAD,closed,U012
+PO-2026-0022,V047,D03,U028,2026-05-13,Events & Catering - Cedar & Sage Events,2943.61,CAD,closed,U009
+PO-2026-0023,V043,D01,U016,2026-05-15,Repairs & Maintenance - Handyline Facility Services,5261.27,CAD,closed,U007
+PO-2026-0024,V014,D01,U015,2026-05-23,Safety Supplies - Steeltoe Workwear Ltd.,1221.44,CAD,closed,U007
+PO-2026-0025,V010,D01,U014,2026-05-30,Warehouse & Packaging - Oakridge Pallet Co.,868.80,CAD,closed,U007
+PO-2026-0026,V043,D01,U021,2026-06-07,Repairs & Maintenance - Handyline Facility Services,3943.28,CAD,closed,U007
+PO-2026-0027,V014,D01,U021,2026-07-01,Safety Supplies - Steeltoe Workwear Ltd.,2389.22,CAD,closed,U007
+PO-2026-0028,V010,D01,U021,2026-07-05,Warehouse & Packaging - Oakridge Pallet Co.,2117.50,CAD,closed,U007
+PO-2026-0029,V013,D07,U038,2026-07-15,Safety Supplies - Sentinel Safety Supply,1321.84,CAD,closed,U012
+PO-2026-0030,V044,D01,U020,2026-07-31,Repairs & Maintenance - Gearwork Industrial Maintenance,2052.16,CAD,closed,U007
+PO-2026-0031,V012,D01,U014,2026-08-09,Warehouse & Packaging - Anchor Racking Systems,3880.00,CAD,closed,U007
+PO-2026-0032,V010,D01,U017,2026-08-11,Warehouse & Packaging - Oakridge Pallet Co.,11708.64,CAD,closed,U007
+PO-2026-0033,V043,D07,U038,2026-08-19,Repairs & Maintenance - Handyline Facility Services,1923.02,CAD,closed,U012
+PO-2026-0034,V014,D01,U017,2026-08-22,Safety Supplies - Steeltoe Workwear Ltd.,6071.80,CAD,closed,U007
+PO-2026-0035,V011,D01,U016,2026-08-25,Warehouse & Packaging - Crestline Packaging Supply,13707.36,CAD,closed,U007
+PO-2026-0036,V010,D01,U020,2026-09-11,Warehouse & Packaging - Oakridge Pallet Co.,7994.49,CAD,closed,U007
+PO-2026-0037,V013,D07,U038,2026-09-14,Safety Supplies - Sentinel Safety Supply,6491.85,CAD,closed,U012
+PO-2026-0038,V025,D07,U038,2026-09-18,Office Furniture - Workform Furniture Ltd. (Calgary office fit-out),256000.00,CAD,open,U012
+PO-2026-0039,V011,D01,U019,2026-09-21,Warehouse & Packaging - Crestline Packaging Supply,865.20,CAD,closed,U007
+PO-2026-0040,V012,D01,U021,2026-09-29,Warehouse & Packaging - Anchor Racking Systems (Calgary racking expansion),72000.00,CAD,open,U007
+PO-2026-0041,V047,D06,U035,2026-09-30,Events & Catering - Cedar & Sage Events,3655.27,CAD,closed,U011
+PO-2026-0042,V047,D03,U027,2026-10-02,Events & Catering - Cedar & Sage Events,5200.00,CAD,open,U009
+PO-2026-0043,V013,D01,U017,2026-10-06,Safety Supplies - Sentinel Safety Supply,3267.32,CAD,closed,U007
+PO-2026-0044,V054,D06,U036,2026-10-06,Events & Catering - Maplewood Catering Co. (fall staff event),3480.00,CAD,open,U011
+PO-2026-0045,V010,D01,U013,2026-10-08,Warehouse & Packaging - Oakridge Pallet Co.,1200.00,CAD,partially_invoiced,U007
+PO-2026-0046,V044,D01,U016,2026-10-09,Repairs & Maintenance - Gearwork Industrial Maintenance,3900.00,CAD,open,U007
+PO-2026-0047,V012,D01,U017,2026-10-10,Warehouse & Packaging - Anchor Racking Systems,8577.01,CAD,closed,U007
+PO-2026-0048,V011,D01,U020,2026-10-14,Warehouse & Packaging - Crestline Packaging Supply,4600.00,CAD,open,U007
+PO-2026-0049,V011,D01,U017,2026-10-16,Warehouse & Packaging - Crestline Packaging Supply,2691.33,CAD,open,U007
+PO-2026-0050,V014,D01,U020,2026-10-21,Safety Supplies - Steeltoe Workwear Ltd.,2209.36,CAD,open,U007
+PO-2026-0051,V014,D01,U019,2026-10-25,Safety Supplies - Steeltoe Workwear Ltd.,1327.43,CAD,open,U007
+PO-2026-0052,V010,D01,U013,2026-10-28,Warehouse & Packaging - Oakridge Pallet Co.,5126.84,CAD,open,U007

@@ -40,7 +40,7 @@ services:
     ports:
       - "8088:8088"
     volumes:
-      - ./dataset_given:/data:ro
+      - ${DATASET_DIR:-./dataset_given}:/data:ro
       - storage:/storage
 
   frontend:

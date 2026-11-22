@@ -1,0 +1,4030 @@
+[
+ {
+  "file": "sparkleprojanito_INV00756.pdf",
+  "email_id": "EM-002",
+  "email_subject": "Invoice INV-00756 from Sparkle Pro Janitorial",
+  "received_at": "2026-10-20T08:10:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V045",
+  "vendor": {
+   "name": "Sparkle Pro Janitorial",
+   "address": "3200 Dufferin St, Toronto ON M6A 2T3",
+   "gst": "274938245RT0001",
+   "qst": "",
+   "email": "ar@sparklepro.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "INV-00756",
+  "invoice_date": "2026-10-20",
+  "due_date": "2026-11-19",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Janitorial services - Toronto HQ - October",
+    "quantity": "1",
+    "unit_price": "2475.00",
+    "amount": "2475.00"
+   }
+  ],
+  "subtotal": "2475.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "321.75"
+   }
+  ],
+  "total": "2796.75",
+  "remit_to": {
+   "institution": "016",
+   "transit": "41870",
+   "account": "820417736"
+  },
+  "requester_hint": {
+   "user_id": "U037",
+   "name": "Kavya Morrison",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Remit-to bank account on the invoice differs from the vendor master; the email asks AP to 'update your records'.",
+  "expected": "Bank-details mismatch fraud alert; payment hold until verified."
+ },
+ {
+  "file": "ontariolakesideh_INV01231.pdf",
+  "email_id": "EM-001",
+  "email_subject": "Invoice INV-01231",
+  "received_at": "2026-10-20T13:14:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V040",
+  "vendor": {
+   "name": "Ontario Lakeside Hydro",
+   "address": "14 Carlton St, Toronto ON M5B 1K5",
+   "gst": "172031228RT0001",
+   "qst": "",
+   "email": "ar@lakesidehydro.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "INV-01231",
+  "invoice_date": "2026-10-15",
+  "due_date": "2026-11-05",
+  "terms": "Net 21",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Electricity - October",
+    "quantity": "1",
+    "unit_price": "2318.44",
+    "amount": "2318.44"
+   }
+  ],
+  "subtotal": "2318.44",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "301.40"
+   }
+  ],
+  "total": "2619.84",
+  "remit_to": {
+   "institution": "001",
+   "transit": "60169",
+   "account": "485794925"
+  },
+  "requester_hint": {
+   "user_id": "U039",
+   "name": "Yara Bouchard",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Clean utility bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "Invoice 000490.pdf",
+  "email_id": "EM-003",
+  "email_subject": "Invoice 000490 from Coastal Energy Utility",
+  "received_at": "2026-10-21T09:29:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V041",
+  "vendor": {
+   "name": "Coastal Energy Utility",
+   "address": "333 Dunsmuir St, Vancouver BC V6B 5R3",
+   "gst": "219380078RT0001",
+   "qst": "",
+   "email": "ar@coastalenergy.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "000490",
+  "invoice_date": "2026-10-17",
+  "due_date": "2026-11-07",
+  "terms": "Net 21",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Energy - October",
+    "quantity": "1",
+    "unit_price": "2684.30",
+    "amount": "2684.30"
+   },
+   {
+    "line_no": 2,
+    "description": "Delivery and regulatory charges",
+    "quantity": "1",
+    "unit_price": "311.85",
+    "amount": "311.85"
+   }
+  ],
+  "subtotal": "2996.15",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "149.81"
+   }
+  ],
+  "total": "3245.96",
+  "correct_total": "3145.96",
+  "remit_to": {
+   "institution": "003",
+   "transit": "96439",
+   "account": "895668059"
+  },
+  "requester_hint": {
+   "user_id": "U038",
+   "name": "Olivia Kowalski",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Printed total is $100.00 more than subtotal + GST.",
+  "expected": "Arithmetic (total) mismatch."
+ },
+ {
+  "file": "northwindfreight_000874.pdf",
+  "email_id": "EM-004",
+  "email_subject": "Payment due: invoice 000874",
+  "received_at": "2026-10-21T13:52:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V001",
+  "vendor": {
+   "name": "Northwind Freight Lines Ltd.",
+   "address": "2280 Burlington St E, Hamilton ON L8H 3L2",
+   "gst": "662177263RT0001",
+   "qst": "",
+   "email": "ar@northwindfreight.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "000874",
+  "invoice_date": "2026-10-20",
+  "due_date": "2026-11-19",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Hamilton-Calgary",
+    "quantity": "1",
+    "unit_price": "2460.00",
+    "amount": "2460.00"
+   },
+   {
+    "line_no": 2,
+    "description": "LTL shipment Hamilton-Winnipeg",
+    "quantity": "1",
+    "unit_price": "1310.00",
+    "amount": "1310.00"
+   },
+   {
+    "line_no": 3,
+    "description": "Fuel surcharge (10.50%)",
+    "quantity": "1",
+    "unit_price": "395.85",
+    "amount": "395.85"
+   }
+  ],
+  "subtotal": "4165.85",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "541.56"
+   }
+  ],
+  "total": "4707.41",
+  "remit_to": {
+   "institution": "004",
+   "transit": "64187",
+   "account": "39485757"
+  },
+  "requester_hint": {
+   "user_id": "U013",
+   "name": "Aiden Grant",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Clean freight bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "prairiegaspower-inv-047.pdf",
+  "email_id": "EM-005",
+  "email_subject": "Invoice PR26-2258 from Prairie Gas & Power",
+  "received_at": "2026-10-21T16:30:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V042",
+  "vendor": {
+   "name": "Prairie Gas & Power",
+   "address": "110 12 Ave SW, Calgary AB T2R 0G7",
+   "gst": "437771868RT0001",
+   "qst": "",
+   "email": "ar@prairiegaspower.example",
+   "province": "AB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "PR26-2258",
+  "invoice_date": "2026-10-12",
+  "due_date": "2026-11-02",
+  "terms": "Net 21",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Energy - October",
+    "quantity": "1",
+    "unit_price": "2905.10",
+    "amount": "2905.10"
+   },
+   {
+    "line_no": 2,
+    "description": "Delivery and regulatory charges",
+    "quantity": "1",
+    "unit_price": "264.35",
+    "amount": "264.35"
+   }
+  ],
+  "subtotal": "3169.45",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "158.47"
+   }
+  ],
+  "total": "3327.92",
+  "remit_to": {
+   "institution": "006",
+   "transit": "22367",
+   "account": "150093153"
+  },
+  "requester_hint": {
+   "user_id": "U039",
+   "name": "Yara Bouchard",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Clean utility bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "granitetirefleet_627.pdf",
+  "email_id": "EM-006",
+  "email_subject": "Payment due: invoice 627",
+  "received_at": "2026-10-22T08:13:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V009",
+  "vendor": {
+   "name": "Granite Tire & Fleet Service",
+   "address": "1205 Barton St E, Hamilton ON L8H 2V5",
+   "gst": "124643813RT0001",
+   "qst": "",
+   "email": "ar@granitetire.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "627",
+  "invoice_date": "2026-10-21",
+  "due_date": "2026-11-05",
+  "terms": "Net 15",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Tire service (units)",
+    "quantity": "12",
+    "unit_price": "336.00",
+    "amount": "4032.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Wheel alignment",
+    "quantity": "4",
+    "unit_price": "149.00",
+    "amount": "596.00"
+   }
+  ],
+  "subtotal": "4628.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "601.64"
+   }
+  ],
+  "total": "5229.64",
+  "remit_to": {
+   "institution": "016",
+   "transit": "39704",
+   "account": "489286829"
+  },
+  "requester_hint": {
+   "user_id": "U014",
+   "name": "Farid Fraser",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Clean bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "northwindfreight_000791.pdf",
+  "email_id": "EM-007",
+  "email_subject": "Northwind Freight Lines Ltd. - Invoice 000791 attached",
+  "received_at": "2026-10-22T08:35:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V001",
+  "vendor": {
+   "name": "Northwind Freight Lines Ltd.",
+   "address": "2280 Burlington St E, Hamilton ON L8H 3L2",
+   "gst": "662177263RT0001",
+   "qst": "",
+   "email": "ar@northwindfreight.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "000791",
+  "invoice_date": "2026-09-23",
+  "due_date": "2026-10-23",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Quebec City-Saskatoon",
+    "quantity": "1",
+    "unit_price": "1444.45",
+    "amount": "1444.45"
+   },
+   {
+    "line_no": 2,
+    "description": "LTL shipment Saskatoon-Montreal",
+    "quantity": "1",
+    "unit_price": "2021.07",
+    "amount": "2021.07"
+   },
+   {
+    "line_no": 3,
+    "description": "LTL shipment Toronto-Edmonton",
+    "quantity": "1",
+    "unit_price": "1191.87",
+    "amount": "1191.87"
+   },
+   {
+    "line_no": 4,
+    "description": "LTL shipment Quebec City-Ottawa",
+    "quantity": "1",
+    "unit_price": "826.78",
+    "amount": "826.78"
+   },
+   {
+    "line_no": 5,
+    "description": "Fuel surcharge (6.28%)",
+    "quantity": "1",
+    "unit_price": "344.41",
+    "amount": "344.41"
+   }
+  ],
+  "subtotal": "5828.58",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "291.43"
+   }
+  ],
+  "total": "6120.01",
+  "remit_to": {
+   "institution": "004",
+   "transit": "64187",
+   "account": "39485757"
+  },
+  "requester_hint": {
+   "user_id": "U017",
+   "name": "Camille Dubois",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Invoice number already in history and paid (exact re-send).",
+  "expected": "Duplicate (exact)."
+ },
+ {
+  "file": "sentinelsafetysu_1902.pdf",
+  "email_id": "EM-009",
+  "email_subject": "Invoice 1902",
+  "received_at": "2026-10-22T09:44:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V013",
+  "vendor": {
+   "name": "Sentinel Safety Supply",
+   "address": "2711 Hopewell Pl NE, Calgary AB T1Y 7J7",
+   "gst": "294386709RT0001",
+   "qst": "",
+   "email": "ar@sentinelsafety.example",
+   "province": "AB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "1902",
+  "invoice_date": "2026-10-21",
+  "due_date": "2026-11-20",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Safety boots",
+    "quantity": "14",
+    "unit_price": "158.00",
+    "amount": "2212.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Hi-vis vests",
+    "quantity": "40",
+    "unit_price": "18.50",
+    "amount": "740.00"
+   }
+  ],
+  "subtotal": "2952.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "147.60"
+   }
+  ],
+  "total": "3099.60",
+  "remit_to": {
+   "institution": "016",
+   "transit": "33676",
+   "account": "303961154"
+  },
+  "requester_hint": {
+   "user_id": "U017",
+   "name": "Camille Dubois",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Sentinel requires a PO; none on the invoice.",
+  "expected": "Missing PO: hold (P13)."
+ },
+ {
+  "file": "pressworksprints-inv-053.pdf",
+  "email_id": "EM-008",
+  "email_subject": "Invoice 799 from Pressworks Print & Signage",
+  "received_at": "2026-10-22T15:00:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V033",
+  "vendor": {
+   "name": "Pressworks Print & Signage",
+   "address": "2600 Argentia Rd, Mississauga ON L5N 5V4",
+   "gst": "235655173RT0001",
+   "qst": "",
+   "email": "ar@pressworks.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "799",
+  "invoice_date": "2026-10-22",
+  "due_date": "2026-11-21",
+  "terms": "Net 30 (2/10 net 30)",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Printed brochures",
+    "quantity": "2500",
+    "unit_price": "0.48",
+    "amount": "1200.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Trade show banners",
+    "quantity": "3",
+    "unit_price": "265.00",
+    "amount": "795.00"
+   }
+  ],
+  "subtotal": "1995.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "99.75"
+   }
+  ],
+  "total": "2094.75",
+  "remit_to": {
+   "institution": "016",
+   "transit": "01809",
+   "account": "868520920"
+  },
+  "requester_hint": {
+   "user_id": "U029",
+   "name": "Zane Reyes",
+   "department_id": "D03"
+  },
+  "notes": "",
+  "planted_issue": "Clean bill; 2/10 net 30 discount available until 2026-11-01.",
+  "expected": "Routine; early-pay discount."
+ },
+ {
+  "file": "silverbirchcouri_SB1187.pdf",
+  "email_id": "EM-010",
+  "email_subject": "Silver Birch Couriers - Invoice SB-1187 attached",
+  "received_at": "2026-10-22T15:59:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": null,
+  "vendor": {
+   "name": "Silver Birch Couriers",
+   "address": "77 Signet Dr, Toronto ON M9L 1T9",
+   "gst": "307444618RT0001",
+   "qst": "",
+   "email": "billing@silverbirchcouriers.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "SB-1187",
+  "invoice_date": "2026-10-21",
+  "due_date": "2026-11-20",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Same-day courier - Toronto",
+    "quantity": "14",
+    "unit_price": "38.50",
+    "amount": "539.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Next-day courier - Toronto-Ottawa",
+    "quantity": "6",
+    "unit_price": "64.00",
+    "amount": "384.00"
+   }
+  ],
+  "subtotal": "923.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "119.99"
+   }
+  ],
+  "total": "1042.99",
+  "remit_to": {
+   "institution": "004",
+   "transit": "33120",
+   "account": "5520091847"
+  },
+  "requester_hint": {
+   "user_id": "U019",
+   "name": "Stefan Haddad",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Vendor not in the vendor master.",
+  "expected": "Unknown vendor: hold + onboarding."
+ },
+ {
+  "file": "gearworkindustri-inv-029.pdf",
+  "email_id": "EM-011",
+  "email_subject": "Payment due: invoice 2686",
+  "received_at": "2026-10-23T11:59:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V044",
+  "vendor": {
+   "name": "Gearwork Industrial Maintenance",
+   "address": "4404 75 Ave SE, Calgary AB T2C 2K9",
+   "gst": "927827891RT0001",
+   "qst": "",
+   "email": "ar@gearworkindustrial.example",
+   "province": "AB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "2686",
+  "invoice_date": "2026-10-22",
+  "due_date": "2026-11-21",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": "PO-2026-0046",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Dock leveler repair",
+    "quantity": "1",
+    "unit_price": "2280.00",
+    "amount": "2280.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Forklift repair parts",
+    "quantity": "4",
+    "unit_price": "312.50",
+    "amount": "1250.00"
+   }
+  ],
+  "subtotal": "3530.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "176.50"
+   }
+  ],
+  "total": "3706.50",
+  "remit_to": {
+   "institution": "002",
+   "transit": "35350",
+   "account": "248670361"
+  },
+  "requester_hint": {
+   "user_id": "U016",
+   "name": "Wyatt Mitchell",
+   "department_id": "D01"
+  },
+  "notes": "Footer: 'Billed under maintenance services agreement C025'.",
+  "planted_issue": "Billed under maintenance agreement C025, which expired 2026-06-30.",
+  "expected": "Expired-contract flag."
+ },
+ {
+  "file": "tallyhousecharte-inv-023.pdf",
+  "email_id": "EM-012",
+  "email_subject": "Invoice 310 from Tallyhouse Chartered Professional Accountants",
+  "received_at": "2026-10-23T14:26:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V028",
+  "vendor": {
+   "name": "Tallyhouse Chartered Professional Accountants",
+   "address": "4100 Yonge St, Toronto ON M2P 2B5",
+   "gst": "196109299RT0001",
+   "qst": "",
+   "email": "ar@tallyhousecpa.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "310",
+  "invoice_date": "2026-10-22",
+  "due_date": "2026-11-21",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Quarterly review engagement - Q3",
+    "quantity": "1",
+    "unit_price": "4200.00",
+    "amount": "4200.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Tax advisory hours",
+    "quantity": "12",
+    "unit_price": "425.00",
+    "amount": "5100.00"
+   }
+  ],
+  "subtotal": "9300.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "1209.00"
+   }
+  ],
+  "total": "10509.00",
+  "remit_to": {
+   "institution": "003",
+   "transit": "82990",
+   "account": "875135032"
+  },
+  "requester_hint": {
+   "user_id": "U030",
+   "name": "Camille Campbell",
+   "department_id": "D04"
+  },
+  "notes": "",
+  "planted_issue": "Tax advisory billed at $425/h vs the $380/h cap in the retainer.",
+  "expected": "Contract rate cap exceeded."
+ },
+ {
+  "file": "Invoice INV-00834.pdf",
+  "email_id": "EM-013",
+  "email_subject": "Facture INV-00834",
+  "received_at": "2026-10-23T14:39:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V015",
+  "vendor": {
+   "name": "Driftwood Software Inc.",
+   "address": "155 Wellington St W, Toronto ON M5V 3H1",
+   "gst": "686514176RT0001",
+   "qst": "",
+   "email": "ar@driftwoodsoftware.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "INV-00834",
+  "invoice_date": "2026-09-08",
+  "due_date": "2026-10-08",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Driftwood Workspace subscription (28 seats)",
+    "quantity": "1",
+    "unit_price": "2650.00",
+    "amount": "2650.00"
+   }
+  ],
+  "subtotal": "2650.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "132.50"
+   }
+  ],
+  "total": "2782.50",
+  "remit_to": null,
+  "requester_hint": {
+   "user_id": "U031",
+   "name": "Elena Bouchard",
+   "department_id": "D05"
+  },
+  "notes": "",
+  "planted_issue": "September subscription invoice re-sent; same number as the paid one.",
+  "expected": "Duplicate (exact)."
+ },
+ {
+  "file": "brightwavemediab-inv-026.pdf",
+  "email_id": "EM-014",
+  "email_subject": "Payment due: invoice BR26-1961",
+  "received_at": "2026-10-24T08:41:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V032",
+  "vendor": {
+   "name": "Brightwave Media Buying",
+   "address": "1 Hunter St E, Hamilton ON L8N 3W1",
+   "gst": "851878777RT0001",
+   "qst": "",
+   "email": "ar@brightwavemedia.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "BR26-1961",
+  "invoice_date": "2026-10-23",
+  "due_date": "2026-11-22",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Digital ad campaign - Search ads (weeks)",
+    "quantity": "18",
+    "unit_price": "225.00",
+    "amount": "4250.00",
+    "correct_amount": "4050.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Creative design services",
+    "quantity": "1",
+    "unit_price": "1150.00",
+    "amount": "1150.00"
+   }
+  ],
+  "subtotal": "5400.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "702.00"
+   }
+  ],
+  "total": "6102.00",
+  "remit_to": {
+   "institution": "016",
+   "transit": "94102",
+   "account": "899506320"
+  },
+  "requester_hint": {
+   "user_id": "U027",
+   "name": "Isla Morrison",
+   "department_id": "D03"
+  },
+  "notes": "",
+  "planted_issue": "Line 1 prints 18 x $225.00 as $4,250.00 (should be $4,050.00); subtotal and tax follow the wrong figure.",
+  "expected": "Arithmetic error flag."
+ },
+ {
+  "file": "scan_5520.png",
+  "email_id": "EM-016",
+  "email_subject": "Invoice FA-000554",
+  "received_at": "2026-10-24T10:37:00",
+  "format": "PNG scan",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V003",
+  "vendor": {
+   "name": "Red River Haulage",
+   "address": "1650 Inkster Blvd, Winnipeg MB R2X 2W8",
+   "gst": "825712785RT0001",
+   "qst": "",
+   "email": "ar@redriverhaulage.example",
+   "province": "MB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "FA-000554",
+  "invoice_date": "2026-10-22",
+  "due_date": "2026-11-21",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Winnipeg-Regina",
+    "quantity": "1",
+    "unit_price": "1185.00",
+    "amount": "1185.00"
+   },
+   {
+    "line_no": 2,
+    "description": "LTL shipment Winnipeg-Toronto",
+    "quantity": "1",
+    "unit_price": "2210.00",
+    "amount": "2210.00"
+   }
+  ],
+  "subtotal": "3395.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "441.35"
+   }
+  ],
+  "total": "3836.35",
+  "remit_to": {
+   "institution": "016",
+   "transit": "57368",
+   "account": "130782583"
+  },
+  "requester_hint": {
+   "user_id": "U021",
+   "name": "Ben Sokolov",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Clean bill, scanned (PNG).",
+  "expected": "Routine; extraction from a scan."
+ },
+ {
+  "file": "ashbycranellp-inv-005.pdf",
+  "email_id": "EM-015",
+  "email_subject": "Payment due: invoice 000482",
+  "received_at": "2026-10-24T11:51:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V026",
+  "vendor": {
+   "name": "Ashby & Crane LLP",
+   "address": "66 Wellington St W, Toronto ON M5K 1E6",
+   "gst": "688630805RT0001",
+   "qst": "",
+   "email": "ar@ashbycrane.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "000482",
+  "invoice_date": "2026-09-05",
+  "due_date": "2026-10-05",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Legal services - Employment matter",
+    "quantity": "5",
+    "unit_price": "441.12",
+    "amount": "2205.60"
+   }
+  ],
+  "subtotal": "2205.60",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "110.28"
+   }
+  ],
+  "total": "2315.88",
+  "remit_to": {
+   "institution": "004",
+   "transit": "38022",
+   "account": "283803535"
+  },
+  "requester_hint": {
+   "user_id": "U040",
+   "name": "Elena Hussain",
+   "department_id": "D08"
+  },
+  "notes": "",
+  "planted_issue": "Invoice number already in history and paid.",
+  "expected": "Duplicate (exact)."
+ },
+ {
+  "file": "Invoice 000752.pdf",
+  "email_id": "EM-017",
+  "email_subject": "Invoice 000752",
+  "received_at": "2026-10-24T16:37:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V010",
+  "vendor": {
+   "name": "Oakridge Pallet Co.",
+   "address": "61 Brockley Dr, Hamilton ON L8E 3C3",
+   "gst": "140377958RT0001",
+   "qst": "",
+   "email": "ar@oakridgepallet.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "000752",
+  "invoice_date": "2026-10-24",
+  "due_date": "2026-11-23",
+  "terms": "Net 30 (2/10 net 30)",
+  "currency": "CAD",
+  "po_number": "PO-2026-0045",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Pallets (48x40), qty 280",
+    "quantity": "280",
+    "unit_price": "9.25",
+    "amount": "2590.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Stretch wrap cases",
+    "quantity": "6",
+    "unit_price": "58.00",
+    "amount": "348.00"
+   }
+  ],
+  "subtotal": "2938.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "381.94"
+   }
+  ],
+  "total": "3319.94",
+  "remit_to": {
+   "institution": "016",
+   "transit": "99842",
+   "account": "571688453"
+  },
+  "requester_hint": {
+   "user_id": "U013",
+   "name": "Aiden Grant",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "PO remaining balance is $1,200.00; the invoice total is far higher.",
+  "expected": "Over PO balance: goes to the finance manager (P12)."
+ },
+ {
+  "file": "desjardinslavall_FA000720.pdf",
+  "email_id": "EM-018",
+  "email_subject": "Payment due: invoice FA-000720",
+  "received_at": "2026-10-25T11:11:00",
+  "format": "PDF",
+  "language": "fr",
+  "document_type": "invoice",
+  "vendor_id": "V027",
+  "vendor": {
+   "name": "Desjardins Lavallee S.E.N.C.R.L.",
+   "address": "1501 avenue McGill College, Montreal QC H3A 3N9",
+   "gst": "573587344RT0001",
+   "qst": "9020524267TQ0001",
+   "email": "ar@desjardinslavallee.example",
+   "province": "QC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5"
+  },
+  "ship_to": {
+   "name": "Harborline Logistique - Bureau de Montreal",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5",
+   "province": "QC"
+  },
+  "invoice_number": "FA-000720",
+  "invoice_date": "2026-10-23",
+  "due_date": "2026-11-22",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Legal services - Commercial lease review",
+    "quantity": "16",
+    "unit_price": "455.00",
+    "amount": "7280.00"
+   }
+  ],
+  "subtotal": "7280.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "TPS 5 %",
+    "amount": "364.00"
+   }
+  ],
+  "total": "7644.00",
+  "remit_to": {
+   "institution": "016",
+   "transit": "17296",
+   "account": "690441114"
+  },
+  "requester_hint": {
+   "user_id": "U030",
+   "name": "Camille Campbell",
+   "department_id": "D04"
+  },
+  "notes": "",
+  "planted_issue": "Delivered to the Montreal office (QC) but only GST/TPS is charged; QST/TVQ missing.",
+  "expected": "Tax mismatch vs ship-to province."
+ },
+ {
+  "file": "Invoice CE26-2903.pdf",
+  "email_id": "EM-019",
+  "email_subject": "Invoice CE26-2903 from Cedar & Sage Events",
+  "received_at": "2026-10-25T17:53:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V047",
+  "vendor": {
+   "name": "Cedar & Sage Events",
+   "address": "1500 Main St, Vancouver BC V6A 2W5",
+   "gst": "935639168RT0001",
+   "qst": "",
+   "email": "ar@cedarsage.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5"
+  },
+  "ship_to": {
+   "name": "Harborline Logistique - Bureau de Montreal",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5",
+   "province": "QC"
+  },
+  "invoice_number": "CE26-2903",
+  "invoice_date": "2026-10-24",
+  "due_date": "2026-11-23",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": "PO-2026-0042",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Team event catering",
+    "quantity": "1",
+    "unit_price": "2860.00",
+    "amount": "2860.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Venue rental",
+    "quantity": "1",
+    "unit_price": "1450.00",
+    "amount": "1450.00"
+   }
+  ],
+  "subtotal": "4310.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "215.50"
+   },
+   {
+    "code": "QST9975",
+    "label": "QST 9.975%",
+    "amount": "429.92"
+   }
+  ],
+  "total": "4955.42",
+  "remit_to": {
+   "institution": "010",
+   "transit": "87397",
+   "account": "235239167"
+  },
+  "requester_hint": {
+   "user_id": "U027",
+   "name": "Isla Morrison",
+   "department_id": "D03"
+  },
+  "notes": "",
+  "planted_issue": "Clean bill against an open PO.",
+  "expected": "Routine; PO match."
+ },
+ {
+  "file": "kitecompasscreat_1372.pdf",
+  "email_id": "EM-020",
+  "email_subject": "Invoice 1372 from Kite & Compass Creative",
+  "received_at": "2026-10-26T08:32:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V031",
+  "vendor": {
+   "name": "Kite & Compass Creative",
+   "address": "55 Water St, Vancouver BC V6B 1A1",
+   "gst": "617134247RT0001",
+   "qst": "",
+   "email": "ar@kitecompass.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "1372",
+  "invoice_date": "2026-10-24",
+  "due_date": "2026-11-23",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Creative design services - fall catalogue",
+    "quantity": "1",
+    "unit_price": "3600.00",
+    "amount": "3600.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Digital ad campaign - Holiday campaign",
+    "quantity": "1",
+    "unit_price": "2250.00",
+    "amount": "2250.00"
+   }
+  ],
+  "subtotal": "5850.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "292.50"
+   },
+   {
+    "code": "PST7_BC",
+    "label": "PST 7%",
+    "amount": "409.50"
+   }
+  ],
+  "total": "6552.00",
+  "remit_to": {
+   "institution": "006",
+   "transit": "02829",
+   "account": "729362428"
+  },
+  "requester_hint": {
+   "user_id": "U028",
+   "name": "Noah Haddad",
+   "department_id": "D03"
+  },
+  "notes": "",
+  "planted_issue": "BC PST 7% charged on services (PST applies to goods only).",
+  "expected": "Tax mismatch: PST on services."
+ },
+ {
+  "file": "Invoice FA-000992.pdf",
+  "email_id": "EM-021",
+  "email_subject": "Payment due: invoice FA-000992",
+  "received_at": "2026-10-26T12:59:00",
+  "format": "PDF",
+  "language": "fr",
+  "document_type": "invoice",
+  "vendor_id": "V005",
+  "vendor": {
+   "name": "Fleuve Logistique Inc.",
+   "address": "8400 boul. Henri-Bourassa O, Montreal QC H4S 1P4",
+   "gst": "684883053RT0001",
+   "qst": "3883018002TQ0001",
+   "email": "ar@fleuvelogistique.example",
+   "province": "QC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5"
+  },
+  "ship_to": {
+   "name": "Harborline Logistique - Bureau de Montreal",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5",
+   "province": "QC"
+  },
+  "invoice_number": "FA-000992",
+  "invoice_date": "2026-10-24",
+  "due_date": "2026-11-23",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Expedition LTL Montreal-Toronto",
+    "quantity": "1",
+    "unit_price": "1735.00",
+    "amount": "1735.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Expedition LTL Montreal-Quebec City",
+    "quantity": "1",
+    "unit_price": "880.40",
+    "amount": "880.40"
+   },
+   {
+    "line_no": 3,
+    "description": "Supplement carburant (9,10 %)",
+    "quantity": "1",
+    "unit_price": "238.00",
+    "amount": "238.00"
+   }
+  ],
+  "subtotal": "2853.40",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "TPS 5 %",
+    "amount": "142.67"
+   },
+   {
+    "code": "QST9975",
+    "label": "TVQ 9,975 %",
+    "amount": "284.63"
+   }
+  ],
+  "total": "3280.70",
+  "remit_to": {
+   "institution": "003",
+   "transit": "05943",
+   "account": "14260714"
+  },
+  "requester_hint": {
+   "user_id": "U018",
+   "name": "Amara Walker",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "French invoice: amounts printed as '1 234,56 $', TPS/TVQ labels.",
+  "expected": "Normalisation to GST5 + QST9975."
+ },
+ {
+  "file": "ridgelinefuelser-inv-038.pdf",
+  "email_id": "EM-023",
+  "email_subject": "Invoice RI26-1786-R from Ridgeline Fuel Services",
+  "received_at": "2026-10-26T15:34:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V007",
+  "vendor": {
+   "name": "Ridgeline Fuel Services",
+   "address": "88 Industry St, Toronto ON M6M 4L8",
+   "gst": "759286076RT0001",
+   "qst": "",
+   "email": "ar@ridgelinefuel.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5"
+  },
+  "ship_to": {
+   "name": "Harborline Logistique - Bureau de Montreal",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5",
+   "province": "QC"
+  },
+  "invoice_number": "RI26-1786-R",
+  "invoice_date": "2026-09-04",
+  "due_date": "2026-09-19",
+  "terms": "Net 15",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Fleet fuel card charges - September",
+    "quantity": "1",
+    "unit_price": "6307.90",
+    "amount": "6307.90"
+   }
+  ],
+  "subtotal": "6307.90",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "315.40"
+   },
+   {
+    "code": "QST9975",
+    "label": "QST 9.975%",
+    "amount": "629.21"
+   }
+  ],
+  "total": "7252.51",
+  "remit_to": {
+   "institution": "010",
+   "transit": "08522",
+   "account": "761602888"
+  },
+  "requester_hint": {
+   "user_id": "U018",
+   "name": "Amara Walker",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Re-issue of paid RI26-1786 with '-R' suffix, same amount and date.",
+  "expected": "Possible duplicate (near-exact)."
+ },
+ {
+  "file": "Invoice 2672.pdf",
+  "email_id": "EM-022",
+  "email_subject": "Invoice 2672",
+  "received_at": "2026-10-26T16:21:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V054",
+  "vendor": {
+   "name": "Maplewood Catering Co.",
+   "address": "2150 Granville St, Vancouver BC V6H 3E9",
+   "gst": "",
+   "qst": "",
+   "email": "ar@maplewoodcatering.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "2672",
+  "invoice_date": "2026-10-24",
+  "due_date": "2026-11-23",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": "PO-2026-0044",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Staff appreciation lunch (85 guests)",
+    "quantity": "85",
+    "unit_price": "34.00",
+    "amount": "2890.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Service staff (hours)",
+    "quantity": "12",
+    "unit_price": "39.00",
+    "amount": "468.00"
+   }
+  ],
+  "subtotal": "3358.00",
+  "taxes": [],
+  "total": "3358.00",
+  "remit_to": {
+   "institution": "002",
+   "transit": "18874",
+   "account": "109432138"
+  },
+  "requester_hint": {
+   "user_id": "U036",
+   "name": "Olivia Singh",
+   "department_id": "D06"
+  },
+  "notes": "",
+  "planted_issue": "Vendor status pending_review and no GST number on file; no tax charged.",
+  "expected": "New/pending vendor adds the finance-manager step (P05); held until vendor approved."
+ },
+ {
+  "file": "northwindfreight-inv-020.pdf",
+  "email_id": "EM-024",
+  "email_subject": "Northwind Freight Lines Ltd. - Invoice 000858 attached",
+  "received_at": "2026-10-27T07:25:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V001",
+  "vendor": {
+   "name": "Northwind Freight Lines Ltd.",
+   "address": "2280 Burlington St E, Hamilton ON L8H 3L2",
+   "gst": "662177263RT0001",
+   "qst": "",
+   "email": "ar@northwindfreight.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "000858",
+  "invoice_date": "2026-10-26",
+  "due_date": "2026-11-25",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Hamilton-Montreal",
+    "quantity": "1",
+    "unit_price": "2140.00",
+    "amount": "2140.00"
+   },
+   {
+    "line_no": 2,
+    "description": "LTL shipment Hamilton-Ottawa",
+    "quantity": "1",
+    "unit_price": "1365.00",
+    "amount": "1365.00"
+   },
+   {
+    "line_no": 3,
+    "description": "Fuel surcharge (21%)",
+    "quantity": "1",
+    "unit_price": "736.05",
+    "amount": "736.05"
+   }
+  ],
+  "subtotal": "4241.05",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "551.34"
+   }
+  ],
+  "total": "4792.39",
+  "remit_to": {
+   "institution": "004",
+   "transit": "64187",
+   "account": "39485757"
+  },
+  "requester_hint": {
+   "user_id": "U014",
+   "name": "Farid Fraser",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Fuel surcharge 21% vs the 12% cap in contract C018.",
+  "expected": "Contract fuel-surcharge cap exceeded."
+ },
+ {
+  "file": "Invoice FA-000422.pdf",
+  "email_id": "EM-025",
+  "email_subject": "Payment due: invoice FA-000422",
+  "received_at": "2026-10-27T07:48:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V048",
+  "vendor": {
+   "name": "Talentpath Recruiting",
+   "address": "120 King St W, Hamilton ON L8P 4V2",
+   "gst": "639784054RT0001",
+   "qst": "",
+   "email": "ar@talentpath.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "FA-000422",
+  "invoice_date": "2026-10-26",
+  "due_date": "2026-11-25",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Placement fee - Senior Accountant",
+    "quantity": "1",
+    "unit_price": "11850.00",
+    "amount": "11850.00"
+   }
+  ],
+  "subtotal": "11850.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "1540.50"
+   }
+  ],
+  "total": "13390.50",
+  "remit_to": {
+   "institution": "002",
+   "transit": "13352",
+   "account": "614858490"
+  },
+  "requester_hint": {
+   "user_id": "U035",
+   "name": "Wyatt Bhatt",
+   "department_id": "D06"
+  },
+  "notes": "",
+  "planted_issue": "Clean, over $10k.",
+  "expected": "Routine; adds the Finance Manager (P02)."
+ },
+ {
+  "file": "handylinefacilit-inv-014.pdf",
+  "email_id": "EM-026",
+  "email_subject": "Credit note CN-FA-001101",
+  "received_at": "2026-10-27T11:05:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "credit_note",
+  "vendor_id": "V043",
+  "vendor": {
+   "name": "Handyline Facility Services",
+   "address": "40 Bertrand Ave, Toronto ON M1L 2P6",
+   "gst": "837099251RT0001",
+   "qst": "",
+   "email": "ar@handylinefacility.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "CN-FA-001101",
+  "invoice_date": "2026-10-25",
+  "due_date": "2026-11-24",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Credit - Dock leveler repair (invoice FA-001101)",
+    "quantity": "-1",
+    "unit_price": "1587.58",
+    "amount": "-1587.58"
+   },
+   {
+    "line_no": 2,
+    "description": "Credit - Forklift repair parts (invoice FA-001101)",
+    "quantity": "-1",
+    "unit_price": "335.44",
+    "amount": "-335.44"
+   }
+  ],
+  "subtotal": "-1923.02",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "-249.99"
+   }
+  ],
+  "total": "-2173.01",
+  "remit_to": {
+   "institution": "004",
+   "transit": "40512",
+   "account": "432305283"
+  },
+  "requester_hint": {
+   "user_id": "U038",
+   "name": "Olivia Kowalski",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Credit note for the full amount of paid invoice FA-001101 (AP-00336).",
+  "expected": "Credit handling; credit equals a paid invoice (refund or offset)."
+ },
+ {
+  "file": "bayshoretranspor_BA260282.pdf",
+  "email_id": "EM-027",
+  "email_subject": "Facture BA26-0282",
+  "received_at": "2026-10-27T14:16:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V053",
+  "vendor": {
+   "name": "Bayshore Transport Incorporated",
+   "address": "7035 Ordan Dr, Mississauga ON L5T 1T1",
+   "gst": "194291200RT0001",
+   "qst": "",
+   "email": "ar@bayshoretransport.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "BA26-0282",
+  "invoice_date": "2026-10-25",
+  "due_date": "2026-11-24",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Mississauga-Montreal",
+    "quantity": "1",
+    "unit_price": "1520.00",
+    "amount": "1520.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Fuel surcharge (9.00%)",
+    "quantity": "1",
+    "unit_price": "136.80",
+    "amount": "136.80"
+   }
+  ],
+  "subtotal": "1656.80",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "215.38"
+   }
+  ],
+  "total": "1872.18",
+  "remit_to": {
+   "institution": "004",
+   "transit": "72122",
+   "account": "489883422"
+  },
+  "requester_hint": {
+   "user_id": "U019",
+   "name": "Stefan Haddad",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Billed by V053, a duplicate record of Bayshore Transport Inc. (V002) that is on_hold; same bank account.",
+  "expected": "Vendor on hold / duplicate vendor record."
+ },
+ {
+  "file": "Invoice 001083.pdf",
+  "email_id": "EM-028",
+  "email_subject": "Payment due: invoice 001083",
+  "received_at": "2026-10-27T15:11:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V006",
+  "vendor": {
+   "name": "Foothills Courier Co.",
+   "address": "3915 61 Ave SE, Calgary AB T2C 1V5",
+   "gst": "456454362RT0001",
+   "qst": "",
+   "email": "ar@foothillscourier.example",
+   "province": "AB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "001083",
+  "invoice_date": "2026-10-25",
+  "due_date": "2026-11-24",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Calgary-Edmonton",
+    "quantity": "1",
+    "unit_price": "940.00",
+    "amount": "940.00"
+   },
+   {
+    "line_no": 2,
+    "description": "LTL shipment Calgary-Red Deer",
+    "quantity": "1",
+    "unit_price": "615.00",
+    "amount": "615.00"
+   }
+  ],
+  "subtotal": "1555.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "202.15"
+   }
+  ],
+  "total": "1757.15",
+  "remit_to": {
+   "institution": "002",
+   "transit": "51766",
+   "account": "825171731"
+  },
+  "requester_hint": {
+   "user_id": "U017",
+   "name": "Camille Dubois",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Ontario HST 13% charged on a delivery to the Calgary warehouse (AB should be GST 5%).",
+  "expected": "Tax mismatch vs ship-to province."
+ },
+ {
+  "file": "anchorrackingsys-inv-035.pdf",
+  "email_id": "EM-030",
+  "email_subject": "Anchor Racking Systems - Invoice AN26-0703 attached",
+  "received_at": "2026-10-28T10:24:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V012",
+  "vendor": {
+   "name": "Anchor Racking Systems",
+   "address": "3502 Millar Ave, Saskatoon SK S7P 0B1",
+   "gst": "171399996RT0001",
+   "qst": "",
+   "email": "ar@anchorracking.example",
+   "province": "SK",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "AN26-0703",
+  "invoice_date": "2026-10-27",
+  "due_date": "2026-11-26",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": "PO-2026-0040",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Selective pallet racking - uprights and beams",
+    "quantity": "1",
+    "unit_price": "48600.00",
+    "amount": "48600.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Installation labour",
+    "quantity": "1",
+    "unit_price": "9900.00",
+    "amount": "9900.00"
+   },
+   {
+    "line_no": 3,
+    "description": "Seismic anchoring and engineering stamp",
+    "quantity": "1",
+    "unit_price": "3300.00",
+    "amount": "3300.00"
+   }
+  ],
+  "subtotal": "61800.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "3090.00"
+   }
+  ],
+  "total": "64890.00",
+  "remit_to": {
+   "institution": "002",
+   "transit": "21842",
+   "account": "808553817"
+  },
+  "requester_hint": {
+   "user_id": "U021",
+   "name": "Ben Sokolov",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "$64,890 total: over $50k.",
+  "expected": "Approval adds the Controller (P03)."
+ },
+ {
+  "file": "Invoice 990.pdf",
+  "email_id": "EM-029",
+  "email_subject": "Invoices 990 and 993",
+  "received_at": "2026-10-28T10:59:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V029",
+  "vendor": {
+   "name": "Meridian Advisory Group",
+   "address": "21 King St W, Hamilton ON L8P 4W7",
+   "gst": "680447034RT0001",
+   "qst": "",
+   "email": "ar@meridianadvisory.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "990",
+  "invoice_date": "2026-10-27",
+  "due_date": "2026-11-26",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Consulting hours - Fleet routing study",
+    "quantity": "19",
+    "unit_price": "230.00",
+    "amount": "4370.00"
+   }
+  ],
+  "subtotal": "4370.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "568.10"
+   }
+  ],
+  "total": "4938.10",
+  "remit_to": {
+   "institution": "006",
+   "transit": "78276",
+   "account": "533726310"
+  },
+  "requester_hint": {
+   "user_id": "U021",
+   "name": "Ben Sokolov",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "One of three Meridian invoices dated 2026-10-27 for the same project, each under the $10,000 approver limit.",
+  "expected": "Split-invoice flag; route at the combined amount (adds Finance Manager)."
+ },
+ {
+  "file": "meridianadvisory_993.pdf",
+  "email_id": "EM-029",
+  "email_subject": "Invoices 990 and 993",
+  "received_at": "2026-10-28T10:59:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V029",
+  "vendor": {
+   "name": "Meridian Advisory Group",
+   "address": "21 King St W, Hamilton ON L8P 4W7",
+   "gst": "680447034RT0001",
+   "qst": "",
+   "email": "ar@meridianadvisory.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "993",
+  "invoice_date": "2026-10-27",
+  "due_date": "2026-11-26",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Consulting hours - Fleet routing study",
+    "quantity": "18.25",
+    "unit_price": "230.00",
+    "amount": "4197.50"
+   }
+  ],
+  "subtotal": "4197.50",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "545.68"
+   }
+  ],
+  "total": "4743.18",
+  "remit_to": {
+   "institution": "006",
+   "transit": "78276",
+   "account": "533726310"
+  },
+  "requester_hint": {
+   "user_id": "U021",
+   "name": "Ben Sokolov",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "One of three Meridian invoices dated 2026-10-27 for the same project, each under the $10,000 approver limit.",
+  "expected": "Split-invoice flag; route at the combined amount (adds Finance Manager)."
+ },
+ {
+  "file": "Invoice AC26-2763.pdf",
+  "email_id": "EM-031",
+  "email_subject": "Invoice AC26-2763 from Ashby and Crane LLP",
+  "received_at": "2026-10-28T14:52:00",
+  "format": "PDF",
+  "language": "fr",
+  "document_type": "invoice",
+  "vendor_id": "V052",
+  "vendor": {
+   "name": "Ashby and Crane LLP",
+   "address": "390 Bay St, Toronto ON M5H 2Y2",
+   "gst": "175520131RT0001",
+   "qst": "",
+   "email": "billing@ashbyandcrane-llp.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "AC26-2763",
+  "invoice_date": "2026-10-26",
+  "due_date": "2026-11-25",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Legal services - Carrier agreement negotiation",
+    "quantity": "14.5",
+    "unit_price": "495.00",
+    "amount": "7177.50"
+   },
+   {
+    "line_no": 2,
+    "description": "Disbursements and filing fees",
+    "quantity": "1",
+    "unit_price": "212.40",
+    "amount": "212.40"
+   }
+  ],
+  "subtotal": "7389.90",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "TVH 13 %",
+    "amount": "960.69"
+   }
+  ],
+  "total": "8350.59",
+  "remit_to": {
+   "institution": "002",
+   "transit": "40863",
+   "account": "975891949"
+  },
+  "requester_hint": {
+   "user_id": "U040",
+   "name": "Elena Hussain",
+   "department_id": "D08"
+  },
+  "notes": "",
+  "planted_issue": "'Ashby and Crane LLP' (V052) is a lookalike of 'Ashby & Crane LLP' (V026): different GST #, bank account and email domain (ashbyandcrane-llp.example vs ashbycrane.example). Email is in French.",
+  "expected": "Lookalike vendor / sender alert; Legal adds the finance-manager step."
+ },
+ {
+  "file": "meridianadvisory-inv-011.pdf",
+  "email_id": "EM-032",
+  "email_subject": "Facture 977",
+  "received_at": "2026-10-28T16:42:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V029",
+  "vendor": {
+   "name": "Meridian Advisory Group",
+   "address": "21 King St W, Hamilton ON L8P 4W7",
+   "gst": "680447034RT0001",
+   "qst": "",
+   "email": "ar@meridianadvisory.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "977",
+  "invoice_date": "2026-10-27",
+  "due_date": "2026-11-26",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Consulting hours - Fleet routing study",
+    "quantity": "18.5",
+    "unit_price": "230.00",
+    "amount": "4255.00"
+   }
+  ],
+  "subtotal": "4255.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "553.15"
+   }
+  ],
+  "total": "4808.15",
+  "remit_to": {
+   "institution": "006",
+   "transit": "78276",
+   "account": "533726310"
+  },
+  "requester_hint": {
+   "user_id": "U021",
+   "name": "Ben Sokolov",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "One of three Meridian invoices dated 2026-10-27 for the same project, each under the $10,000 approver limit.",
+  "expected": "Split-invoice flag; route at the combined amount (adds Finance Manager)."
+ },
+ {
+  "file": "scan_3317.png",
+  "email_id": "EM-033",
+  "email_subject": "Invoice 908 from Coastline Cartage Ltd.",
+  "received_at": "2026-10-29T08:11:00",
+  "format": "PNG scan",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V004",
+  "vendor": {
+   "name": "Coastline Cartage Ltd.",
+   "address": "12120 Horseshoe Way, Richmond BC V7A 4V5",
+   "gst": "605157729RT0001",
+   "qst": "",
+   "email": "ar@coastlinecartage.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "908",
+  "invoice_date": "2026-10-27",
+  "due_date": "2026-11-26",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Vancouver-Calgary",
+    "quantity": "1",
+    "unit_price": "1840.00",
+    "amount": "1840.00"
+   },
+   {
+    "line_no": 2,
+    "description": "LTL shipment Richmond-Edmonton",
+    "quantity": "1",
+    "unit_price": "1295.50",
+    "amount": "1295.50"
+   },
+   {
+    "line_no": 3,
+    "description": "Fuel surcharge (9.40%)",
+    "quantity": "1",
+    "unit_price": "294.74",
+    "amount": "294.74"
+   }
+  ],
+  "subtotal": "3430.24",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "171.51"
+   }
+  ],
+  "total": "3601.75",
+  "remit_to": {
+   "institution": "002",
+   "transit": "32084",
+   "account": "589822230"
+  },
+  "requester_hint": {
+   "user_id": "U016",
+   "name": "Wyatt Mitchell",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Vendor bank account changed 2026-10-28 by email request, not verified by callback (BC-009). The invoice's remit-to matches the NEW account already in the vendor master.",
+  "expected": "Payment hold + bank-change fraud alert (star case). Scanned PNG."
+ },
+ {
+  "file": "Invoice CN-BA26-1412.pdf",
+  "email_id": "EM-034",
+  "email_subject": "Credit note CN-BA26-1412",
+  "received_at": "2026-10-29T12:42:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "credit_note",
+  "vendor_id": "V002",
+  "vendor": {
+   "name": "Bayshore Transport Inc.",
+   "address": "455 Courtneypark Dr E, Mississauga ON L5T 2S5",
+   "gst": "908755383RT0001",
+   "qst": "",
+   "email": "ar@bayshoretransport.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5"
+  },
+  "ship_to": {
+   "name": "Harborline Logistique - Bureau de Montreal",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5",
+   "province": "QC"
+  },
+  "invoice_number": "CN-BA26-1412",
+  "invoice_date": "2026-10-28",
+  "due_date": "2026-11-27",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Credit - damaged freight claim, shipment Toronto-Montreal",
+    "quantity": "-1",
+    "unit_price": "412.50",
+    "amount": "-412.50"
+   }
+  ],
+  "subtotal": "-412.50",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "-20.63"
+   },
+   {
+    "code": "QST9975",
+    "label": "QST 9.975%",
+    "amount": "-41.15"
+   }
+  ],
+  "total": "-474.28",
+  "remit_to": {
+   "institution": "004",
+   "transit": "72122",
+   "account": "489883422"
+  },
+  "requester_hint": {
+   "user_id": "U018",
+   "name": "Amara Walker",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Credit note (negative total) for a damaged-freight claim.",
+  "expected": "Credit handling, net against vendor balance."
+ },
+ {
+  "file": "steeltoeworkwear-inv-032.pdf",
+  "email_id": "EM-035",
+  "email_subject": "Invoice 2216 from Steeltoe Workwear Ltd.",
+  "received_at": "2026-10-29T12:55:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V014",
+  "vendor": {
+   "name": "Steeltoe Workwear Ltd.",
+   "address": "6880 Columbus Rd, Mississauga ON L5T 2G1",
+   "gst": "333032551RT0001",
+   "qst": "",
+   "email": "ar@steeltoeworkwear.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "2216",
+  "invoice_date": "2026-10-28",
+  "due_date": "2026-11-27",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": "PO-2026-0034",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Hard hats",
+    "quantity": "24",
+    "unit_price": "29.00",
+    "amount": "696.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Safety glasses (box of 12)",
+    "quantity": "10",
+    "unit_price": "61.00",
+    "amount": "610.00"
+   }
+  ],
+  "subtotal": "1306.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "169.78"
+   }
+  ],
+  "total": "1475.78",
+  "remit_to": {
+   "institution": "001",
+   "transit": "09056",
+   "account": "482264598"
+  },
+  "requester_hint": {
+   "user_id": "U014",
+   "name": "Farid Fraser",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "References a PO that is already closed (fully invoiced).",
+  "expected": "Closed PO flag."
+ },
+ {
+  "file": "Invoice BE26-2806.pdf",
+  "email_id": "EM-037",
+  "email_subject": "Beacon Mobile Business - Invoice BE26-2806 attached",
+  "received_at": "2026-10-29T13:40:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V022",
+  "vendor": {
+   "name": "Beacon Mobile Business",
+   "address": "25 York St, Toronto ON M5J 2V5",
+   "gst": "702809397RT0001",
+   "qst": "",
+   "email": "ar@beaconmobile.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "BE26-2806",
+  "invoice_date": "2026-10-28",
+  "due_date": "2026-11-18",
+  "terms": "Net 21",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Business mobile plans (38 lines)",
+    "quantity": "1",
+    "unit_price": "2380.00",
+    "amount": "2380.00"
+   }
+  ],
+  "subtotal": "2380.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "309.40"
+   }
+  ],
+  "total": "2689.40",
+  "remit_to": {
+   "institution": "001",
+   "transit": "09349",
+   "account": "877413825"
+  },
+  "requester_hint": {
+   "user_id": "U032",
+   "name": "Noah Singh",
+   "department_id": "D05"
+  },
+  "notes": "",
+  "planted_issue": "Clean contract bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "Invoice INV-00702.pdf",
+  "email_id": "EM-039",
+  "email_subject": "Invoice INV-00702",
+  "received_at": "2026-10-30T11:51:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V024",
+  "vendor": {
+   "name": "Inkwell Office Supply",
+   "address": "1450 Castlefield Ave, Toronto ON M6B 4L9",
+   "gst": "371369380RT0001",
+   "qst": "",
+   "email": "ar@inkwelloffice.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "INV-00702",
+  "invoice_date": "2026-10-13",
+  "due_date": "2026-11-12",
+  "terms": "Net 30 (2/10 net 30)",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Toner cartridges",
+    "quantity": "8",
+    "unit_price": "128.00",
+    "amount": "1024.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Printer paper cartons",
+    "quantity": "12",
+    "unit_price": "47.50",
+    "amount": "570.00"
+   }
+  ],
+  "subtotal": "1594.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "79.70"
+   },
+   {
+    "code": "PST7_BC",
+    "label": "PST 7%",
+    "amount": "111.58"
+   }
+  ],
+  "total": "1785.28",
+  "remit_to": {
+   "institution": "001",
+   "transit": "10642",
+   "account": "35051565"
+  },
+  "requester_hint": {
+   "user_id": "U036",
+   "name": "Olivia Singh",
+   "department_id": "D06"
+  },
+  "notes": "",
+  "planted_issue": "Olivia Singh already paid this exact amount on her Brim card on 2026-10-15 (INKWELL OFFICE SUPPLY).",
+  "expected": "Already paid by card (duplicate payment risk)."
+ },
+ {
+  "file": "Invoice 386.pdf",
+  "email_id": "EM-040",
+  "email_subject": "Invoice 386 from Trillium Safety Consulting",
+  "received_at": "2026-10-30T14:09:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V055",
+  "vendor": {
+   "name": "Trillium Safety Consulting",
+   "address": "33 City Centre Dr, Mississauga ON L5B 2N5",
+   "gst": "591695441RT0001",
+   "qst": "",
+   "email": "ar@trilliumsafety.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "386",
+  "invoice_date": "2026-10-29",
+  "due_date": "2026-11-28",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Warehouse safety audit - Calgary",
+    "quantity": "1",
+    "unit_price": "3450.00",
+    "amount": "3450.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Audit report and recommendations",
+    "quantity": "1",
+    "unit_price": "850.00",
+    "amount": "850.00"
+   }
+  ],
+  "subtotal": "4300.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "215.00"
+   }
+  ],
+  "total": "4515.00",
+  "remit_to": {
+   "institution": "003",
+   "transit": "52776",
+   "account": "135443923"
+  },
+  "requester_hint": {
+   "user_id": "U016",
+   "name": "Wyatt Mitchell",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Vendor status pending_review.",
+  "expected": "New-vendor approval step (P05); held until approved."
+ },
+ {
+  "file": "quantumridgedata-inv-008.pdf",
+  "email_id": "EM-041",
+  "email_subject": "Invoice QR-20419",
+  "received_at": "2026-10-30T14:56:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": null,
+  "vendor": {
+   "name": "Quantum Ridge Data Services Inc.",
+   "address": "1090 Homer St, Vancouver BC V6B 2W9",
+   "gst": "129201623RT0001",
+   "qst": "",
+   "email": "ar@quantumridge.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "QR-20419",
+  "invoice_date": "2026-10-29",
+  "due_date": "2026-11-28",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Data migration services",
+    "quantity": "1",
+    "unit_price": "3850.00",
+    "amount": "3850.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Database support retainer - November",
+    "quantity": "1",
+    "unit_price": "1200.00",
+    "amount": "1200.00"
+   }
+  ],
+  "subtotal": "5050.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "252.50"
+   }
+  ],
+  "total": "5302.50",
+  "remit_to": {
+   "institution": "010",
+   "transit": "08812",
+   "account": "448120733"
+  },
+  "requester_hint": {
+   "user_id": "U031",
+   "name": "Elena Bouchard",
+   "department_id": "D05"
+  },
+  "notes": "",
+  "planted_issue": "Vendor not in the vendor master.",
+  "expected": "Unknown vendor: hold + onboarding."
+ },
+ {
+  "file": "westbrookconsult-inv-050.pdf",
+  "email_id": "EM-042",
+  "email_subject": "Invoice WE26-1621 from Westbrook Consulting Partners",
+  "received_at": "2026-10-30T15:12:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V030",
+  "vendor": {
+   "name": "Westbrook Consulting Partners",
+   "address": "10180 101 St NW, Edmonton AB T5J 3S4",
+   "gst": "482887894RT0001",
+   "qst": "",
+   "email": "ar@westbrookconsulting.example",
+   "province": "AB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "WE26-1621",
+  "invoice_date": "2026-10-28",
+  "due_date": "2026-11-27",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Consulting hours - Pricing analysis",
+    "quantity": "22",
+    "unit_price": "240.00",
+    "amount": "5280.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Workshop facilitation",
+    "quantity": "1",
+    "unit_price": "1350.00",
+    "amount": "1350.00"
+   }
+  ],
+  "subtotal": "6630.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "861.90"
+   }
+  ],
+  "total": "7491.90",
+  "remit_to": {
+   "institution": "010",
+   "transit": "38886",
+   "account": "930159789"
+  },
+  "requester_hint": {
+   "user_id": "U025",
+   "name": "Stefan Reyes",
+   "department_id": "D02"
+  },
+  "notes": "",
+  "planted_issue": "Clean consulting bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "coastlinecartage-inv-002.pdf",
+  "email_id": "EM-043",
+  "email_subject": "Payment due: invoice 912",
+  "received_at": "2026-10-31T07:02:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V004",
+  "vendor": {
+   "name": "Coastline Cartage Ltd.",
+   "address": "12120 Horseshoe Way, Richmond BC V7A 4V5",
+   "gst": "605157729RT0001",
+   "qst": "",
+   "email": "ar@coastlinecartage.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "912",
+  "invoice_date": "2026-10-30",
+  "due_date": "2026-11-29",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "LTL shipment Vancouver-Toronto",
+    "quantity": "1",
+    "unit_price": "3120.00",
+    "amount": "3120.00"
+   },
+   {
+    "line_no": 2,
+    "description": "LTL shipment Richmond-Winnipeg",
+    "quantity": "1",
+    "unit_price": "1488.25",
+    "amount": "1488.25"
+   },
+   {
+    "line_no": 3,
+    "description": "LTL shipment Vancouver-Saskatoon",
+    "quantity": "1",
+    "unit_price": "960.00",
+    "amount": "960.00"
+   },
+   {
+    "line_no": 4,
+    "description": "Fuel surcharge (10.20%)",
+    "quantity": "1",
+    "unit_price": "567.96",
+    "amount": "567.96"
+   }
+  ],
+  "subtotal": "6136.21",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "797.71"
+   }
+  ],
+  "total": "6933.92",
+  "remit_to": {
+   "institution": "002",
+   "transit": "32084",
+   "account": "589822230"
+  },
+  "requester_hint": {
+   "user_id": "U013",
+   "name": "Aiden Grant",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Second Coastline bill after the unverified bank change.",
+  "expected": "Payment hold + bank-change fraud alert."
+ },
+ {
+  "file": "compasscomplianc-inv-056.pdf",
+  "email_id": "EM-045",
+  "email_subject": "Facture 555",
+  "received_at": "2026-10-31T08:19:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V050",
+  "vendor": {
+   "name": "Compass Compliance Training Inc.",
+   "address": "1801 California St, Denver CO 80202",
+   "gst": "",
+   "qst": "",
+   "email": "ar@compasscompliance.example",
+   "province": "CO",
+   "country": "US"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "555",
+  "invoice_date": "2026-10-30",
+  "due_date": "2026-11-29",
+  "terms": "Net 30",
+  "currency": "USD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Compliance training licences",
+    "quantity": "32",
+    "unit_price": "54.00",
+    "amount": "1728.00"
+   }
+  ],
+  "subtotal": "1728.00",
+  "taxes": [],
+  "total": "1728.00",
+  "remit_to": null,
+  "requester_hint": {
+   "user_id": "U035",
+   "name": "Wyatt Bhatt",
+   "department_id": "D06"
+  },
+  "notes": "",
+  "planted_issue": "US vendor, USD.",
+  "expected": "FX conversion, FOREIGN.",
+  "fx_rate_to_cad_on_invoice_date": "1.3292"
+ },
+ {
+  "file": "Invoice 405.pdf",
+  "email_id": "EM-046",
+  "email_subject": "Invoice 405",
+  "received_at": "2026-10-31T12:45:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V025",
+  "vendor": {
+   "name": "Workform Furniture Ltd.",
+   "address": "1680 Cliveden Ave, Delta BC V3M 6V5",
+   "gst": "471755643RT0001",
+   "qst": "",
+   "email": "ar@workformfurniture.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "405",
+  "invoice_date": "2026-10-30",
+  "due_date": "2026-11-29",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": "PO-2026-0038",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Workstations - Calgary fit-out",
+    "quantity": "96",
+    "unit_price": "1480.00",
+    "amount": "142080.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Ergonomic task chairs",
+    "quantity": "96",
+    "unit_price": "640.00",
+    "amount": "61440.00"
+   },
+   {
+    "line_no": 3,
+    "description": "Meeting room furniture packages",
+    "quantity": "6",
+    "unit_price": "4150.00",
+    "amount": "24900.00"
+   },
+   {
+    "line_no": 4,
+    "description": "Delivery and installation",
+    "quantity": "1",
+    "unit_price": "13920.00",
+    "amount": "13920.00"
+   }
+  ],
+  "subtotal": "242340.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "12117.00"
+   }
+  ],
+  "total": "254457.00",
+  "remit_to": {
+   "institution": "003",
+   "transit": "41256",
+   "account": "126129415"
+  },
+  "requester_hint": {
+   "user_id": "U038",
+   "name": "Olivia Kowalski",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Over $250k CAD; Facilities manager on leave.",
+  "expected": "Approval adds Finance Manager, Controller and CFO (P04); delegate for Liam."
+ },
+ {
+  "file": "Invoice FA-000831.pdf",
+  "email_id": "EM-047",
+  "email_subject": "Chinook Industrial Parks - Invoice FA-000831 attached",
+  "received_at": "2026-11-01T07:05:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V038",
+  "vendor": {
+   "name": "Chinook Industrial Parks",
+   "address": "5940 Macleod Trail SW, Calgary AB T2H 2G4",
+   "gst": "772951951RT0001",
+   "qst": "",
+   "email": "ar@chinookparks.example",
+   "province": "AB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "FA-000831",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-11-01",
+  "terms": "Due on receipt",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Base rent - Calgary warehouse",
+    "quantity": "1",
+    "unit_price": "9400.00",
+    "amount": "9400.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Operating costs (CAM) - Calgary",
+    "quantity": "1",
+    "unit_price": "1250.00",
+    "amount": "1250.00"
+   }
+  ],
+  "subtotal": "10650.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "532.50"
+   }
+  ],
+  "total": "11182.50",
+  "remit_to": {
+   "institution": "003",
+   "transit": "22243",
+   "account": "504085636"
+  },
+  "requester_hint": {
+   "user_id": "U039",
+   "name": "Yara Bouchard",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Clean November rent.",
+  "expected": "Routine; Facilities approval goes to the delegate (Liam on leave). Over $10k adds the Finance Manager."
+ },
+ {
+  "file": "frontstreetprope_000608.pdf",
+  "email_id": "EM-048",
+  "email_subject": "Invoice 000608",
+  "received_at": "2026-11-01T07:07:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V036",
+  "vendor": {
+   "name": "Front Street Properties Inc.",
+   "address": "181 Bay St, Toronto ON M5J 2T3",
+   "gst": "487437211RT0001",
+   "qst": "",
+   "email": "ar@frontstreetproperties.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "000608",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-11-01",
+  "terms": "Due on receipt",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Base rent - Toronto HQ",
+    "quantity": "1",
+    "unit_price": "13800.00",
+    "amount": "13800.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Operating costs (CAM) - Toronto HQ",
+    "quantity": "1",
+    "unit_price": "2350.00",
+    "amount": "2350.00"
+   }
+  ],
+  "subtotal": "16150.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "2099.50"
+   }
+  ],
+  "total": "18249.50",
+  "remit_to": {
+   "institution": "016",
+   "transit": "59943",
+   "account": "412163163"
+  },
+  "requester_hint": {
+   "user_id": "U037",
+   "name": "Kavya Morrison",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Clean November rent.",
+  "expected": "Routine; Facilities approval goes to the delegate (Liam on leave). Over $10k adds the Finance Manager."
+ },
+ {
+  "file": "corvidanalyticsi_000447.pdf",
+  "email_id": "EM-049",
+  "email_subject": "Payment due: invoice 000447",
+  "received_at": "2026-11-01T11:33:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V016",
+  "vendor": {
+   "name": "Corvid Analytics Inc.",
+   "address": "1201 Western Ave, Seattle WA 98101",
+   "gst": "",
+   "qst": "",
+   "email": "ar@corvidanalytics.example",
+   "province": "WA",
+   "country": "US"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "000447",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-12-01",
+  "terms": "Net 30",
+  "currency": "USD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Corvid Analytics Business - 10 seats",
+    "quantity": "1",
+    "unit_price": "3250.00",
+    "amount": "3250.00"
+   }
+  ],
+  "subtotal": "3250.00",
+  "taxes": [],
+  "total": "3250.00",
+  "remit_to": null,
+  "requester_hint": {
+   "user_id": "U032",
+   "name": "Noah Singh",
+   "department_id": "D05"
+  },
+  "notes": "",
+  "planted_issue": "US vendor, USD, no Canadian tax.",
+  "expected": "FX conversion + FOREIGN tax code.",
+  "fx_rate_to_cad_on_invoice_date": "1.3249"
+ },
+ {
+  "file": "burrardcommercia-inv-041.pdf",
+  "email_id": "EM-051",
+  "email_subject": "Invoice BU26-2920",
+  "received_at": "2026-11-01T12:34:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V037",
+  "vendor": {
+   "name": "Burrard Commercial Realty",
+   "address": "1075 W Georgia St, Vancouver BC V6E 3C9",
+   "gst": "967009749RT0001",
+   "qst": "",
+   "email": "ar@burrardrealty.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Vancouver Office",
+   "address": "1188 W Pender St, Suite 600, Vancouver BC V6E 0A2",
+   "province": "BC"
+  },
+  "invoice_number": "BU26-2920",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-11-01",
+  "terms": "Due on receipt",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Base rent - Vancouver office",
+    "quantity": "1",
+    "unit_price": "7200.00",
+    "amount": "7200.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Operating costs (CAM) - Vancouver",
+    "quantity": "1",
+    "unit_price": "1050.00",
+    "amount": "1050.00"
+   }
+  ],
+  "subtotal": "8250.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "412.50"
+   }
+  ],
+  "total": "8662.50",
+  "remit_to": {
+   "institution": "002",
+   "transit": "24284",
+   "account": "482116631"
+  },
+  "requester_hint": {
+   "user_id": "U038",
+   "name": "Olivia Kowalski",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "Clean November rent.",
+  "expected": "Routine; Facilities approval goes to the delegate (Liam on leave)."
+ },
+ {
+  "file": "wellcrestbenefit_2460.pdf",
+  "email_id": "EM-050",
+  "email_subject": "Facture 2460",
+  "received_at": "2026-11-01T13:45:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V049",
+  "vendor": {
+   "name": "Wellcrest Benefits Administration",
+   "address": "5935 Airport Rd, Mississauga ON L4V 1W5",
+   "gst": "244176451RT0001",
+   "qst": "",
+   "email": "ar@wellcrestbenefits.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "2460",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-11-16",
+  "terms": "Net 15",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Group benefits administration fee",
+    "quantity": "1",
+    "unit_price": "2310.00",
+    "amount": "2310.00"
+   }
+  ],
+  "subtotal": "2310.00",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "300.30"
+   }
+  ],
+  "total": "2610.30",
+  "remit_to": {
+   "institution": "002",
+   "transit": "62160",
+   "account": "789675406"
+  },
+  "requester_hint": {
+   "user_id": "U035",
+   "name": "Wyatt Bhatt",
+   "department_id": "D06"
+  },
+  "notes": "",
+  "planted_issue": "Clean contract bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "immeublessaintla_FA001041.pdf",
+  "email_id": "EM-052",
+  "email_subject": "Facture FA-001041",
+  "received_at": "2026-11-01T15:20:00",
+  "format": "PDF",
+  "language": "fr",
+  "document_type": "invoice",
+  "vendor_id": "V039",
+  "vendor": {
+   "name": "Immeubles Saint-Laurent",
+   "address": "1250 boul. Rene-Levesque O, Montreal QC H3B 4W8",
+   "gst": "818443459RT0001",
+   "qst": "6266190227TQ0001",
+   "email": "ar@immeublessaintlaurent.example",
+   "province": "QC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5"
+  },
+  "ship_to": {
+   "name": "Harborline Logistique - Bureau de Montreal",
+   "address": "2020 rue University, bureau 1100, Montreal QC H3A 2A5",
+   "province": "QC"
+  },
+  "invoice_number": "FA-001041",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-11-01",
+  "terms": "Due on receipt",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Loyer de base - Montreal (novembre)",
+    "quantity": "1",
+    "unit_price": "5500.00",
+    "amount": "5500.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Frais d'exploitation - Montreal (novembre)",
+    "quantity": "1",
+    "unit_price": "900.00",
+    "amount": "900.00"
+   }
+  ],
+  "subtotal": "6400.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "TPS 5 %",
+    "amount": "320.00"
+   },
+   {
+    "code": "QST9975",
+    "label": "TVQ 9,975 %",
+    "amount": "638.40"
+   }
+  ],
+  "total": "7358.40",
+  "remit_to": {
+   "institution": "004",
+   "transit": "43697",
+   "account": "514047136"
+  },
+  "requester_hint": {
+   "user_id": "U039",
+   "name": "Yara Bouchard",
+   "department_id": "D07"
+  },
+  "notes": "",
+  "planted_issue": "French rent invoice, '1 234,56 $' format, TPS/TVQ; Facilities manager on leave.",
+  "expected": "Normalisation; approval goes to the delegate (Elise Tremblay) on behalf of Liam O'Connor."
+ },
+ {
+  "file": "bluewaterfleetca_FA000718.pdf",
+  "email_id": "EM-053",
+  "email_subject": "Invoice FA-000718",
+  "received_at": "2026-11-01T17:14:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V008",
+  "vendor": {
+   "name": "Bluewater Fleet Cards Inc.",
+   "address": "10120 178 St NW, Edmonton AB T5S 1R1",
+   "gst": "611587129RT0001",
+   "qst": "",
+   "email": "ar@bluewaterfleet.example",
+   "province": "AB",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "FA-000718",
+  "invoice_date": "2026-10-31",
+  "due_date": "2026-11-15",
+  "terms": "Net 15",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Fleet fuel card charges - October",
+    "quantity": "1",
+    "unit_price": "11420.55",
+    "amount": "11420.55"
+   }
+  ],
+  "subtotal": "11420.55",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "571.03"
+   }
+  ],
+  "total": "11991.58",
+  "remit_to": {
+   "institution": "001",
+   "transit": "23802",
+   "account": "20187437"
+  },
+  "requester_hint": {
+   "user_id": "U016",
+   "name": "Wyatt Mitchell",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "$11,420.55 vs the $9,500 not-to-exceed monthly cap (fleet fuel card program).",
+  "expected": "Contract spend limit exceeded; also over $10k so Finance Manager is added."
+ },
+ {
+  "file": "fernleafcollabor_FE261622.pdf",
+  "email_id": "EM-054",
+  "email_subject": "Invoice FE26-1622 from Fernleaf Collaboration Ltd.",
+  "received_at": "2026-11-02T08:33:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V017",
+  "vendor": {
+   "name": "Fernleaf Collaboration Ltd.",
+   "address": "980 Howe St, Vancouver BC V6Z 0C8",
+   "gst": "701079132RT0001",
+   "qst": "",
+   "email": "ar@fernleaf.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "FE26-1622",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-12-01",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Fernleaf Team plan (45 users)",
+    "quantity": "1",
+    "unit_price": "845.00",
+    "amount": "845.00"
+   }
+  ],
+  "subtotal": "845.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "42.25"
+   }
+  ],
+  "total": "887.25",
+  "remit_to": null,
+  "requester_hint": {
+   "user_id": "U033",
+   "name": "Wyatt Lavoie",
+   "department_id": "D05"
+  },
+  "notes": "",
+  "planted_issue": "Clean contract bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "signetdocumentsl-inv-044.pdf",
+  "email_id": "EM-056",
+  "email_subject": "Facture FA-000723",
+  "received_at": "2026-11-02T12:29:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V020",
+  "vendor": {
+   "name": "Signet Documents Ltee",
+   "address": "1100 rue Peel, Montreal QC H3B 4P5",
+   "gst": "886475276RT0001",
+   "qst": "6452992152TQ0001",
+   "email": "ar@signetdocuments.example",
+   "province": "QC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "FA-000723",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-12-01",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Signet e-signature business plan",
+    "quantity": "1",
+    "unit_price": "515.00",
+    "amount": "515.00"
+   }
+  ],
+  "subtotal": "515.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "25.75"
+   }
+  ],
+  "total": "540.75",
+  "remit_to": {
+   "institution": "002",
+   "transit": "95630",
+   "account": "919551159"
+  },
+  "requester_hint": {
+   "user_id": "U030",
+   "name": "Camille Campbell",
+   "department_id": "D04"
+  },
+  "notes": "",
+  "planted_issue": "Clean contract bill.",
+  "expected": "Routine."
+ },
+ {
+  "file": "crestlinepackagi_000873.pdf",
+  "email_id": "EM-058",
+  "email_subject": "Invoice 000873 from Crestline Packaging Supply",
+  "received_at": "2026-11-02T12:35:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V011",
+  "vendor": {
+   "name": "Crestline Packaging Supply",
+   "address": "8160 North Fraser Way, Burnaby BC V5J 5M8",
+   "gst": "258340021RT0001",
+   "qst": "",
+   "email": "ar@crestlinepackaging.example",
+   "province": "BC",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "000873",
+  "invoice_date": "2026-11-18",
+  "due_date": "2026-12-18",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": "PO-2026-0048",
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Stretch wrap cases",
+    "quantity": "40",
+    "unit_price": "61.50",
+    "amount": "2460.00"
+   },
+   {
+    "line_no": 2,
+    "description": "Corner boards (bundle)",
+    "quantity": "30",
+    "unit_price": "29.75",
+    "amount": "892.50"
+   }
+  ],
+  "subtotal": "3352.50",
+  "taxes": [
+   {
+    "code": "HST13",
+    "label": "HST 13%",
+    "amount": "435.83"
+   }
+  ],
+  "total": "3788.33",
+  "remit_to": {
+   "institution": "002",
+   "transit": "79719",
+   "account": "152603745"
+  },
+  "requester_hint": {
+   "user_id": "U020",
+   "name": "Mei Walker",
+   "department_id": "D01"
+  },
+  "notes": "",
+  "planted_issue": "Invoice dated 2026-11-18, after it was received (2026-11-02).",
+  "expected": "Future-dated invoice flag."
+ },
+ {
+  "file": "Invoice 2385.pdf",
+  "email_id": "EM-057",
+  "email_subject": "Facture 2385",
+  "received_at": "2026-11-02T14:52:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V019",
+  "vendor": {
+   "name": "Abacus Ledger Systems",
+   "address": "5770 Hurontario St, Mississauga ON L5R 3G5",
+   "gst": "664634371RT0001",
+   "qst": "",
+   "email": "ar@abacusledger.example",
+   "province": "ON",
+   "country": "CA"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Calgary Warehouse",
+   "address": "7220 54 St SE, Calgary AB T2C 4X3",
+   "province": "AB"
+  },
+  "invoice_number": "2385",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-12-01",
+  "terms": "Net 30",
+  "currency": "CAD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Abacus Ledger accounting platform - 2 entities",
+    "quantity": "2",
+    "unit_price": "1320.00",
+    "amount": "2640.00"
+   }
+  ],
+  "subtotal": "2640.00",
+  "taxes": [
+   {
+    "code": "GST5",
+    "label": "GST 5%",
+    "amount": "132.00"
+   }
+  ],
+  "total": "2772.00",
+  "remit_to": {
+   "institution": "002",
+   "transit": "77112",
+   "account": "473231742"
+  },
+  "requester_hint": {
+   "user_id": "U030",
+   "name": "Camille Campbell",
+   "department_id": "D04"
+  },
+  "notes": "",
+  "planted_issue": "Billed $2,640.00 vs the $1,320.00 fixed monthly fee in the contract.",
+  "expected": "Contract fixed-fee mismatch."
+ },
+ {
+  "file": "hightidecrminc-inv-017.pdf",
+  "email_id": "EM-059",
+  "email_subject": "Hightide CRM Inc. - Invoice FA-000865 attached",
+  "received_at": "2026-11-02T17:00:00",
+  "format": "PDF",
+  "language": "en",
+  "document_type": "invoice",
+  "vendor_id": "V018",
+  "vendor": {
+   "name": "Hightide CRM Inc.",
+   "address": "600 Congress Ave, Austin TX 78701",
+   "gst": "",
+   "qst": "",
+   "email": "ar@hightidecrm.example",
+   "province": "TX",
+   "country": "US"
+  },
+  "bill_to": {
+   "name": "Harborline Logistics Inc.",
+   "gst": "100000001RT0001",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3"
+  },
+  "ship_to": {
+   "name": "Harborline Logistics - Toronto HQ",
+   "address": "410 Queens Quay W, Suite 900, Toronto ON M5V 2Z3",
+   "province": "ON"
+  },
+  "invoice_number": "FA-000865",
+  "invoice_date": "2026-11-01",
+  "due_date": "2026-12-01",
+  "terms": "Net 30",
+  "currency": "USD",
+  "po_number": null,
+  "lines": [
+   {
+    "line_no": 1,
+    "description": "Hightide CRM Professional (18 seats)",
+    "quantity": "1",
+    "unit_price": "2100.00",
+    "amount": "2100.00"
+   }
+  ],
+  "subtotal": "2100.00",
+  "taxes": [],
+  "total": "2100.00",
+  "remit_to": null,
+  "requester_hint": {
+   "user_id": "U025",
+   "name": "Stefan Reyes",
+   "department_id": "D02"
+  },
+  "notes": "",
+  "planted_issue": "US vendor, USD, no Canadian tax.",
+  "expected": "FX conversion + FOREIGN tax code.",
+  "fx_rate_to_cad_on_invoice_date": "1.3249"
+ }
+]
