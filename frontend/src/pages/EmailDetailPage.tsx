@@ -13,7 +13,7 @@ import { KIND } from './InboxPage'
 
 interface AttachmentInfo { name: string; available: boolean; contentType: string | null; sizeBytes: number | null }
 interface LinkedInvoice { id: string; status: string; vendorId: string | null; vendorInvoiceNumber: string | null; total: string | null; currency: string | null }
-interface HistoryItem { ts: string; actor: string; action: string; detail: string | null }
+interface HistoryItem { ts: string; actor: string; action: string; detail: string | null; after?: string | null }
 // messageId is set for mail fetched over IMAP (not yet in the generated schema.d.ts)
 interface EmailView { email: EmailMessage & { messageId?: string | null }; processed: boolean; attachments: AttachmentInfo[]; linkedInvoices: LinkedInvoice[]; history: HistoryItem[] }
 
@@ -70,7 +70,7 @@ export default function EmailDetailPage() {
           {is('CLK', 'ADM') && <Button variant="default" onClick={() => setReplying(true)}>Reply</Button>}
         </Group>
       </Group>
-      {replying && <ReplyModal email={e} onClose={() => setReplying(false)} onSaved={() => qc.invalidateQueries({ queryKey: ['inbox', id] })} />}
+      {replying && <ReplyModal email={e} draft={latestDraft(d.history)} onClose={() => setReplying(false)} onSaved={() => qc.invalidateQueries({ queryKey: ['inbox', id] })} />}
 
       <Grid>
         <Grid.Col span={{ base: 12, md: shown ? 6 : 12 }}>
@@ -190,10 +190,26 @@ const HISTORY_LABEL: Record<string, string> = {
  * D-102: reply to the sender. Outbound email is out of scope for this build, so Send does not leave the system: the
  * reply (or draft) is recorded against the email and shows in its History.
  */
-function ReplyModal({ email, onClose, onSaved }: { email: EmailMessage; onClose: () => void; onSaved: () => void }) {
-  const [to, setTo] = useState(email.fromAddress ?? '')
-  const [subject, setSubject] = useState(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject ?? ''}`)
-  const [body, setBody] = useState(`Hello ${email.fromName ?? ''},\n\n\n\nThank you,\nHarborline Logistics Accounts Payable`)
+interface Draft { to: string; subject: string; body: string; ts: string; actor: string }
+
+/** The saved draft to reopen: the last reply event, if it is a draft (a later Send means there is none). */
+function latestDraft(history: HistoryItem[]): Draft | null {
+  const last = [...history].reverse().find((h) => h.action === 'EMAIL_REPLY_DRAFTED' || h.action === 'EMAIL_REPLY_SENT')
+  if (!last || last.action !== 'EMAIL_REPLY_DRAFTED') return null
+  let meta: { to?: string; subject?: string } = {}
+  try { meta = last.after ? JSON.parse(last.after) : {} } catch { /* the body alone is still worth restoring */ }
+  const clean = (v?: string) => (v && v !== 'null' ? v : '')
+  return { to: clean(meta.to), subject: clean(meta.subject), body: last.detail ?? '', ts: last.ts, actor: last.actor }
+}
+
+function ReplyModal({ email, draft, onClose, onSaved }: { email: EmailMessage; draft: Draft | null; onClose: () => void; onSaved: () => void }) {
+  const { me } = useAuth()
+  const n = useNames()
+  // Signature: the person replying, their title, and the company.
+  const signature = ['Thank you,', me?.fullName, me?.title, 'Harborline Logistics'].filter(Boolean).join('\n')
+  const [to, setTo] = useState(draft?.to || email.fromAddress || '')
+  const [subject, setSubject] = useState(draft?.subject || (email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject ?? ''}`))
+  const [body, setBody] = useState(draft?.body || `Hello ${email.fromName ?? ''},\n\n\n\n${signature}`)
   const [busy, setBusy] = useState<'send' | 'draft' | null>(null)
   const save = async (draft: boolean) => {
     setBusy(draft ? 'draft' : 'send')
@@ -214,6 +230,7 @@ function ReplyModal({ email, onClose, onSaved }: { email: EmailMessage; onClose:
         <TextInput label="To" value={to} onChange={(e) => setTo(e.currentTarget.value)} />
         <TextInput label="Subject" value={subject} onChange={(e) => setSubject(e.currentTarget.value)} />
         <Textarea label="Message" value={body} onChange={(e) => setBody(e.currentTarget.value)} autosize minRows={8} />
+        {draft && <Text size="xs" c="blue">Opened the draft saved by {n.person(draft.actor)} on {dateTime(draft.ts)}</Text>}
         <Text size="xs" c="dimmed">Outgoing email is simulated in this demo: the reply is saved to this email's history.</Text>
         <Group justify="flex-end">
           <Button variant="subtle" color="gray" onClick={onClose}>Cancel</Button>

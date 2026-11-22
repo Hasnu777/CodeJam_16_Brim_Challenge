@@ -282,7 +282,7 @@ function EmployeeUpload() {
 }
 
 
-/** Admin-only demo tool: wipe everything (audit log included), reload the dataset and re-process the inbox. Demo mode only. */
+/** Admin-only demo tool: wipe everything (audit log included) and reload the dataset. The inbox is left unprocessed. Demo mode only. */
 function DemoReset() {
   const [busy, setBusy] = useState(false)
   const qc = useQueryClient()
@@ -291,8 +291,7 @@ function DemoReset() {
     setBusy(true)
     try {
       await api.post('/admin/reset')
-      await api.post('/inbox/process')
-      notifyOk('Demo data reset; the inbox is being processed (about a minute)')
+      notifyOk('Demo data reset. The inbox is unprocessed: an AP Clerk can process it from the Inbox page.')
       qc.invalidateQueries()
     } catch (e) {
       notifyError(e)
@@ -305,7 +304,7 @@ function DemoReset() {
         <Group justify="space-between" wrap="nowrap">
           <div>
             <Text fw={700}>Demo Tools</Text>
-            <Text size="sm" c="dimmed">Wipes all data (audit log included), reloads the dataset and processes the inbox. Only works in demo mode.</Text>
+            <Text size="sm" c="dimmed">Wipes all data (audit log included) and reloads the dataset. The inbox is left unprocessed. Only works in demo mode.</Text>
           </div>
           <Button color="red" variant="light" loading={busy} onClick={reset} style={{ flexShrink: 0 }}>Reset Demo Data</Button>
         </Group>

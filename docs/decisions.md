@@ -572,3 +572,17 @@ for people, departments, vendors and emails are never shown; AP and payment ids 
 are GL account numbers and tax codes. Flags read as "issues". The user switcher shows the job title (with the app
 role when the title does not say it). The Brim card panel is three numbers, with its assumptions in a tooltip. Spend
 Analytics rows open exactly the bills behind them (the API now returns each row's invoice ids).
+
+**D-105 Reconciliation matches each rent cheque to the right month.** Statement cheque lines carry a cheque number our
+payment references don't have, so they are matched by amount. Harborline's rent is the same $6,990.48 every month, and
+the old rule took the first same-amount payment within 45 days in database order. That order changes when a payment
+is updated, so settling 19 payments re-shuffled the matches: a second "Settle 1" appeared and two rent payments were
+settled against one October cheque. Now a cheque can only clear on or after the day it was written (paid date, else
+scheduled date), the shortest wait wins (ties by id), and payments are sorted by id first. On the dataset all 9
+rent cheques match their own month, one settle run clears everything, and September's cheque (written Sep 5, never
+cashed) is reported as an outstanding cheque to chase with the vendor, not "in transit".
+
+**D-106 Small UI fixes after review.** Reset Demo Data only resets; processing the inbox is left to the AP Clerk
+(the reset is for demos and testing from a clean slate). Reopening Reply on an email restores the latest saved draft
+(To, Subject, Message, taken from the draft's audit row) unless a reply was sent after it. The signature is the
+sender's name, job title and "Harborline Logistics". PO suggestions show department names, not ids.

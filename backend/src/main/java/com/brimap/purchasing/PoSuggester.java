@@ -95,7 +95,7 @@ public final class PoSuggester {
         }
 
         boolean sameDept = inv.getDepartmentId() != null && Objects.equals(inv.getDepartmentId(), po.getDepartmentId());
-        if (sameDept) reasons.add("Same department (" + po.getDepartmentId() + ")");
+        if (sameDept) reasons.add("Same department: " + po.getDepartmentId()); // the UI shows the name
 
         return new Scored(po, billed, remaining, sameDept, daysBefore, reasons, warnings);
     }

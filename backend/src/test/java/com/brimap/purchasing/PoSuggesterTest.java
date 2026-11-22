@@ -67,7 +67,7 @@ class PoSuggesterTest {
                 po("PO-SAME-DEPT-RECENT", "V011", "D07", "2026-10-01", "5000.00", "open")), Map.of());
         assertThat(out).extracting(PoSuggester.Suggestion::poId)
                 .containsExactly("PO-SAME-DEPT-RECENT", "PO-SAME-DEPT-OLD", "PO-OTHER-DEPT-RECENT");
-        assertThat(out.get(0).reasons()).contains("Same department (D07)");
+        assertThat(out.get(0).reasons()).contains("Same department: D07");
     }
 
     @Test

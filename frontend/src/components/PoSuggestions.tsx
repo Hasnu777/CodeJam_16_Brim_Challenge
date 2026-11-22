@@ -2,6 +2,7 @@ import { Accordion, Badge, Button, Group, Stack, Text } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { date, money } from '../lib/format'
+import { useNames } from '../lib/names'
 
 export interface PoSuggestion {
   poId: string
@@ -29,6 +30,7 @@ export function PoSuggestions({ invoiceId, canLink, onLink, busy }: {
   onLink: (poId: string) => void
   busy: boolean
 }) {
+  const n = useNames()
   const q = useQuery({
     queryKey: ['po-suggestions', invoiceId],
     queryFn: () => api.get<PoSuggestion[]>(`/invoices/${invoiceId}/po-suggestions`),
@@ -72,11 +74,11 @@ export function PoSuggestions({ invoiceId, canLink, onLink, busy }: {
                 <Stack gap={4}>
                   {s.description && <Text size="xs" c="dimmed">{s.description}</Text>}
                   <Text size="xs">
-                    Issued {date(s.issueDate)} · {s.departmentId ?? '—'} · total {money(s.total, cur)} · billed {money(s.billed, cur)} ·{' '}
+                    Issued {date(s.issueDate)} · {n.dept(s.departmentId)} · total {money(s.total, cur)} · billed {money(s.billed, cur)} ·{' '}
                     <b>remaining {money(s.remaining, cur)}</b>
                   </Text>
-                  {s.reasons.map((r) => <Text key={r} size="xs" c="teal">+ {r}</Text>)}
-                  {s.warnings.map((w) => <Text key={w} size="xs" c="orange">! {w}</Text>)}
+                  {s.reasons.map((r) => <Text key={r} size="xs" c="teal">+ {n.text(r)}</Text>)}
+                  {s.warnings.map((w) => <Text key={w} size="xs" c="orange">! {n.text(w)}</Text>)}
                 </Stack>
               </Accordion.Panel>
             </Accordion.Item>

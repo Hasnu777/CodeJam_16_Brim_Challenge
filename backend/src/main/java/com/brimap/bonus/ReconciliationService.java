@@ -47,7 +47,9 @@ public class ReconciliationService {
     @PreAuthorize("hasAnyRole('FM','ADM','AUD')")
     @Transactional(readOnly = true)
     public Map<String, Object> reconcile() {
-        List<Payment> pays = payments.findAll().stream().filter(p -> !"CARD".equals(p.getMethod())).toList();
+        // Sorted: findAll() returns rows in storage order, which changes when a payment is updated (D-105).
+        List<Payment> pays = payments.findAll().stream().filter(p -> !"CARD".equals(p.getMethod()))
+                .sorted(Comparator.comparing(Payment::getId)).toList();
         Map<String, String> names = vendors.findAll().stream().collect(Collectors.toMap(Vendor::getId, Vendor::getLegalName));
         Set<String> used = new HashSet<>();
         List<Match> matched = new ArrayList<>(), unmatchedLines = new ArrayList<>();
@@ -63,11 +65,7 @@ public class ReconciliationService {
                 String no = c.group(1);
                 hit = pays.stream().filter(p -> "CHEQUE".equals(p.getMethod()) && p.getReference() != null && p.getReference().endsWith(no)
                         && !used.contains(p.getId())).findFirst().orElse(null);
-                if (hit == null) { // cheque numbers aren't in the dataset references: match by amount within 45 days of the scheduled date
-                    hit = pays.stream().filter(p -> "CHEQUE".equals(p.getMethod()) && !used.contains(p.getId()) && p.getAmount() != null
-                            && p.getAmount().compareTo(amt) == 0 && p.getScheduledDate() != null
-                            && Math.abs(ChronoUnit.DAYS.between(p.getScheduledDate(), l.getPostedDate())) <= 45).findFirst().orElse(null);
-                }
+                if (hit == null) hit = nearestCheque(pays, amt, l.getPostedDate(), used).orElse(null);
             }
             if (hit != null) {
                 used.add(hit.getId());
@@ -81,10 +79,15 @@ public class ReconciliationService {
             unmatchedLines.add(new Match(l.getId(), l.getPostedDate().toString(), d, amt, null, null, null, "UNMATCHED", explain(l, amt, pays, used)));
         }
         List<Match> unmatchedPayments = new ArrayList<>();
+        java.time.LocalDate statementEnd = statement.findAll().stream().map(BankStatementLine::getPostedDate).max(Comparator.naturalOrder()).orElse(null);
         for (Payment p : pays) {
             if (used.contains(p.getId()) || !("SETTLED".equals(p.getStatus()) || "SENT".equals(p.getStatus()))) continue;
-            String why = "SENT".equals(p.getStatus()) ? "In transit: sent " + (p.getPaidDate() == null ? "" : "") + "but not on the statement yet (statement ends "
-                    + statement.findAll().stream().map(BankStatementLine::getPostedDate).max(Comparator.naturalOrder()).map(Object::toString).orElse("?") + ")"
+            java.time.LocalDate wrote = written(p);
+            long waiting = wrote == null || statementEnd == null ? 0 : ChronoUnit.DAYS.between(wrote, statementEnd);
+            String why = "SENT".equals(p.getStatus())
+                    ? ("CHEQUE".equals(p.getMethod()) && waiting > 30
+                        ? "Outstanding cheque: written " + wrote + ", still not cashed " + waiting + " days later. Confirm with the vendor it arrived; reissue if lost"
+                        : "In transit: sent but not on the statement yet (statement ends " + (statementEnd == null ? "?" : statementEnd) + ")")
                     : p.isHistorical() ? "Marked settled but no statement debit found: check the bank portal" : "Settled in this app (simulated EFT) after the statement period";
             unmatchedPayments.add(new Match(null, p.getPaidDate() == null ? null : p.getPaidDate().toString(), p.getReference(), p.getAmount(), p.getId(),
                     p.getInvoiceId(), names.get(p.getVendorId()), p.getStatus(), why));
@@ -116,6 +119,21 @@ public class ReconciliationService {
         }
         return Map.of("settled", settled, "by", Auth.actorId());
     }
+
+    /**
+     * Cheque numbers aren't in the dataset's payment references, so a "CHEQUE n CLEARED" line is matched by amount. A
+     * cheque clears on or after the day it was written (paid date, else scheduled date) and within 45 days. Recurring
+     * bills (the $6,990.48 monthly rent) give several candidates: take the shortest wait, ties by id, never the first in
+     * database order (D-105).
+     */
+    static Optional<Payment> nearestCheque(List<Payment> pays, BigDecimal amt, java.time.LocalDate posted, Set<String> used) {
+        return pays.stream().filter(p -> "CHEQUE".equals(p.getMethod()) && !used.contains(p.getId()) && p.getAmount() != null
+                        && p.getAmount().compareTo(amt) == 0 && written(p) != null)
+                .filter(p -> { long wait = ChronoUnit.DAYS.between(written(p), posted); return wait >= 0 && wait <= 45; })
+                .min(Comparator.<Payment>comparingLong(p -> ChronoUnit.DAYS.between(written(p), posted)).thenComparing(Payment::getId));
+    }
+
+    private static java.time.LocalDate written(Payment p) { return p.getPaidDate() != null ? p.getPaidDate() : p.getScheduledDate(); }
 
     private static String explain(BankStatementLine l, BigDecimal amt, List<Payment> pays, Set<String> used) {
         String d = l.getDescription() == null ? "" : l.getDescription().toUpperCase(Locale.ROOT);

@@ -39,7 +39,8 @@ public class InboxViewController {
 
     public record LinkedInvoice(String id, String status, String vendorId, String vendorInvoiceNumber, String total, String currency) {}
 
-    public record HistoryItem(String ts, String actor, String action, String detail) {}
+    /** after: the audit row's after-snapshot (JSON), e.g. a reply's to/subject so a saved draft can be reopened. */
+    public record HistoryItem(String ts, String actor, String action, String detail, String after) {}
 
     public record EmailView(EmailMessage email, boolean processed, List<AttachmentInfo> attachments,
                             List<LinkedInvoice> linkedInvoices, List<HistoryItem> history) {}
@@ -59,7 +60,7 @@ public class InboxViewController {
             invoices.findById(invId).ifPresent(i -> linked.add(linked(i)));
         }
         List<HistoryItem> history = auditEvents.findByEntityAndEntityIdOrderByIdAsc("email", id).stream()
-                .map(a -> new HistoryItem(String.valueOf(a.getTs()), a.getActor(), a.getAction(), a.getDetail())).toList();
+                .map(a -> new HistoryItem(String.valueOf(a.getTs()), a.getActor(), a.getAction(), a.getDetail(), a.getAfterJson())).toList();
         return new EmailView(e, e.getProcessedAt() != null, att, linked, history);
     }
 
