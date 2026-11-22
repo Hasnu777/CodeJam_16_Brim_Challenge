@@ -608,3 +608,16 @@ note "Rule switched off in Policies"; a severity change updates open issues in p
 on and Blocking (unknown or lookalike vendor, invoice bank account differs, unverified bank change, duplicate number,
 same document, already paid by card): nobody, including the Admin, can quietly turn off fraud or duplicate protection.
 Email intake codes are not listed (they sort emails, they do not check bills).
+
+**D-109 Reconciliation leftovers are explained, not just listed.** Matching pairs statement lines with payments; the
+leftovers are the work. The Finance Manager or Controller records a resolution and note per leftover
+(`recon_resolutions`, one row per item; every decision and reopen is an audit event, so an item's story stays in the
+log). Statement lines: Bank charge, Bill found (a supplier's pre-authorized debit: upload the bill), Disputed with the
+bank, Under investigation (stays on the list, marked). Payments not on the statement: Expected next statement, Vendor
+confirmed receipt, Stop and reissue, Under investigation. Options whose real work happens outside AP (posting a GL
+journal, filing a bank dispute, a stop-payment and new cheque) are labelled "Recorded only": the dataset has no bank
+connection, general ledger or cheque stock, so the app records the decision and says what happens next rather than
+pretend to do it. Closing or locking the month is not modelled. A second matching pass now catches a cheque that
+cleared for a slightly different amount (within $1.00): the dataset's September rent cheque was written for
+$6,990.48 and cleared as CHEQUE 5018 for $6,990.53. It shows as one "Amount Differs" line naming the cheque (bank
+encoding error or altered cheque; claim the difference), instead of an unknown debit plus an "uncashed" cheque.

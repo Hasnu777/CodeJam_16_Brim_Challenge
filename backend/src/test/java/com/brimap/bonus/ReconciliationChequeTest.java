@@ -51,6 +51,18 @@ class ReconciliationChequeTest {
     }
 
     @Test
+    void chequeClearedForADifferentAmount_isFoundWithinTolerance_only() {
+        // Dataset: CHEQUE 5018 cleared Sep 13 for 6990.53; September's rent cheque was written Sep 5 for 6990.48.
+        List<Payment> pays = List.of(cheque("PAY-00347", "2026-09-01", "2026-09-05"));
+        BigDecimal cleared = new BigDecimal("6990.53");
+        LocalDate sep13 = LocalDate.parse("2026-09-13");
+        assertThat(ReconciliationService.nearestCheque(pays, cleared, sep13, Set.of())).isEmpty(); // exact pass misses it
+        assertThat(ReconciliationService.nearestCheque(pays, cleared, sep13, Set.of(), ReconciliationService.CHEQUE_TOLERANCE))
+                .map(Payment::getId).contains("PAY-00347");
+        assertThat(ReconciliationService.nearestCheque(pays, new BigDecimal("6992.00"), sep13, Set.of(), ReconciliationService.CHEQUE_TOLERANCE)).isEmpty();
+    }
+
+    @Test
     void tieOnWait_takesLowestId() {
         List<Payment> pays = List.of(cheque("PAY-00020", "2026-10-01", null), cheque("PAY-00010", "2026-10-01", null));
         assertThat(match(pays, "2026-10-16", Set.of())).contains("PAY-00010");

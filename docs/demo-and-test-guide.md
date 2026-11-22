@@ -104,7 +104,13 @@ make sense.
   - [ ] Request a bank change. Payments are held until a second person verifies it by callback.
 - [ ] Spend Analytics: the chart fits on screen. Click a vendor or category row: Invoices opens with exactly those
       bills and a blue banner.
-- [ ] Reconciliation: matched and unmatched statement lines, each with a likely explanation.
+- [ ] Reconciliation (as Elise or Marcus):
+  - [ ] **Settle N From Statement** clears every payment the statement proves, in one click.
+  - [ ] **Mark 16 Bank Fees as Bank Charges** moves the fees to Explained, labelled "Recorded only: needs bank or ledger".
+  - [ ] Mark a PREAUTH debit Under Investigation (it stays on the list, marked), then Disputed. Both appear in the
+        Audit Log under reconciliation.
+  - [ ] CHEQUE 5018 shows **Amount Differs**: September's rent cheque cleared for $0.05 more than it was written for.
+  - [ ] Reopen an explained item, and it goes back to the list.
 
 ### 6. Hannah Lindqvist (Auditor), feature 8
 

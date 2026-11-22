@@ -8,6 +8,9 @@ import com.brimap.model.Vendor;
 import com.brimap.payment.PaymentService;
 import com.brimap.repository.BankStatementLineRepository;
 import com.brimap.repository.PaymentRepository;
+import com.brimap.repository.ReconResolutionRepository;
+import com.brimap.model.ReconResolution;
+import com.brimap.config.AppClock;
 import com.brimap.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +42,8 @@ public class ReconciliationService {
     private final VendorRepository vendors;
     private final PaymentService paymentService;
     private final AuditService audit;
+    private final ReconResolutionRepository resolutions;
+    private final AppClock clock;
 
     public record Match(String bankTxnId, String postedDate, String description, BigDecimal amount, String paymentId, String invoiceId,
                         String vendorName, String status, String explanation) {}
@@ -53,6 +58,7 @@ public class ReconciliationService {
         Map<String, String> names = vendors.findAll().stream().collect(Collectors.toMap(Vendor::getId, Vendor::getLegalName));
         Set<String> used = new HashSet<>();
         List<Match> matched = new ArrayList<>(), unmatchedLines = new ArrayList<>();
+        List<BankStatementLine> leftovers = new ArrayList<>();
         for (BankStatementLine l : statement.findAll().stream().sorted(Comparator.comparing(BankStatementLine::getPostedDate)).toList()) {
             BigDecimal amt = l.getDebit() != null ? l.getDebit() : l.getCredit() == null ? BigDecimal.ZERO : l.getCredit().negate();
             String d = l.getDescription() == null ? "" : l.getDescription().trim();
@@ -76,6 +82,24 @@ public class ReconciliationService {
                                 : "Reference matches " + hit.getId() + " but the bank debited " + amt.toPlainString() + " vs " + hit.getAmount().toPlainString()));
                 continue;
             }
+            leftovers.add(l);
+        }
+        // Second pass, after every exact match: a cheque that cleared for a few cents more or less than it was written for
+        // (the dataset's September rent: written $6,990.48, cleared $6,990.53). It is not "unknown money": it is that
+        // cheque with the wrong amount, a bank encoding error or an altered cheque, and the bank owes us the difference.
+        for (BankStatementLine l : leftovers) {
+            BigDecimal amt = l.getDebit() != null ? l.getDebit() : l.getCredit() == null ? BigDecimal.ZERO : l.getCredit().negate();
+            String d = l.getDescription() == null ? "" : l.getDescription().trim();
+            Payment near = CHEQUE.matcher(d).find() ? nearestCheque(pays, amt, l.getPostedDate(), used, CHEQUE_TOLERANCE).orElse(null) : null;
+            if (near != null) {
+                used.add(near.getId());
+                BigDecimal diff = amt.subtract(near.getAmount());
+                unmatchedLines.add(new Match(l.getId(), l.getPostedDate().toString(), d, amt, near.getId(), near.getInvoiceId(), names.get(near.getVendorId()),
+                        "AMOUNT_DIFFERS", "Likely " + near.getId() + ", the cheque written " + written(near) + " for " + near.getAmount().toPlainString()
+                        + ", but it cleared for " + amt.toPlainString() + " (" + (diff.signum() > 0 ? "$" + diff.toPlainString() + " more" : "$" + diff.negate().toPlainString() + " less")
+                        + "). Bank encoding error or altered cheque: ask the bank for the cheque image and claim the difference"));
+                continue;
+            }
             unmatchedLines.add(new Match(l.getId(), l.getPostedDate().toString(), d, amt, null, null, null, "UNMATCHED", explain(l, amt, pays, used)));
         }
         List<Match> unmatchedPayments = new ArrayList<>();
@@ -96,6 +120,11 @@ public class ReconciliationService {
         m.put("matched", matched);
         m.put("unmatchedStatementLines", unmatchedLines);
         m.put("unmatchedPayments", unmatchedPayments);
+        // D-109: how each leftover was explained, keyed "LINE:<bank txn>" / "PAYMENT:<payment id>", and the choices.
+        Map<String, ReconResolution> res = new LinkedHashMap<>();
+        resolutions.findAll().forEach(r -> res.put(r.getItemKey(), r));
+        m.put("resolutions", res);
+        m.put("options", ReconOptions.ALL);
         m.put("summary", Map.of("statementLines", matched.size() + unmatchedLines.size(), "matched", matched.size(),
                 "unmatchedLines", unmatchedLines.size(), "unmatchedPayments", unmatchedPayments.size(),
                 "canSettle", matched.stream().filter(x -> x.explanation().contains("can be settled")).count()));
@@ -127,13 +156,70 @@ public class ReconciliationService {
      * database order (D-105).
      */
     static Optional<Payment> nearestCheque(List<Payment> pays, BigDecimal amt, java.time.LocalDate posted, Set<String> used) {
+        return nearestCheque(pays, amt, posted, used, BigDecimal.ZERO);
+    }
+
+    /** A cleared amount this close to the written amount is the same cheque with an amount error (D-109). */
+    static final BigDecimal CHEQUE_TOLERANCE = new BigDecimal("1.00");
+
+    /** As above, allowing the cleared amount to differ by up to {@code tolerance}; the closest amount wins, then the shortest wait. */
+    static Optional<Payment> nearestCheque(List<Payment> pays, BigDecimal amt, java.time.LocalDate posted, Set<String> used, BigDecimal tolerance) {
         return pays.stream().filter(p -> "CHEQUE".equals(p.getMethod()) && !used.contains(p.getId()) && p.getAmount() != null
-                        && p.getAmount().compareTo(amt) == 0 && written(p) != null)
+                        && p.getAmount().subtract(amt).abs().compareTo(tolerance) <= 0 && written(p) != null)
                 .filter(p -> { long wait = ChronoUnit.DAYS.between(written(p), posted); return wait >= 0 && wait <= 45; })
-                .min(Comparator.<Payment>comparingLong(p -> ChronoUnit.DAYS.between(written(p), posted)).thenComparing(Payment::getId));
+                .min(Comparator.<Payment, BigDecimal>comparing(p -> p.getAmount().subtract(amt).abs())
+                        .thenComparingLong(p -> ChronoUnit.DAYS.between(written(p), posted)).thenComparing(Payment::getId));
     }
 
     private static java.time.LocalDate written(Payment p) { return p.getPaidDate() != null ? p.getPaidDate() : p.getScheduledDate(); }
+
+    public record ResolveRequest(String kind, List<String> itemIds, String resolution, String note) {}
+
+    /**
+     * Record how leftovers were explained (D-109). Only current leftovers can be resolved; resolution null reopens them.
+     * Each item gets its own audit row, so an item's story (investigating, then disputed) is in the audit log.
+     */
+    @PostMapping("/resolve")
+    @PreAuthorize("hasAnyRole('FM','ADM')")
+    @Transactional
+    public Map<String, Object> resolve(@RequestBody ResolveRequest r) {
+        ReconOptions.Kind kind;
+        try { kind = ReconOptions.Kind.valueOf(String.valueOf(r.kind())); }
+        catch (IllegalArgumentException e) { throw new IllegalArgumentException("kind must be LINE or PAYMENT"); }
+        if (r.itemIds() == null || r.itemIds().isEmpty()) throw new IllegalArgumentException("Pick at least one item");
+        ReconOptions.Option opt = r.resolution() == null ? null : ReconOptions.find(kind, r.resolution())
+                .orElseThrow(() -> new IllegalArgumentException("Unknown resolution " + r.resolution() + " for " + kind));
+        String note = r.note() == null ? null : r.note().trim();
+        if (opt != null && opt.noteRequired() && (note == null || note.isEmpty())) throw new IllegalArgumentException("Add a note: " + opt.label());
+        @SuppressWarnings("unchecked")
+        List<Match> open = (List<Match>) reconcile().get(kind == ReconOptions.Kind.LINE ? "unmatchedStatementLines" : "unmatchedPayments");
+        Map<String, Match> byId = new HashMap<>();
+        open.forEach(x -> byId.put(kind == ReconOptions.Kind.LINE ? x.bankTxnId() : x.paymentId(), x));
+        String actor = Auth.actorId();
+        List<String> done = new ArrayList<>();
+        for (String id : r.itemIds()) {
+            Match item = byId.get(id);
+            if (item == null) throw new IllegalArgumentException(id + " is not an open reconciliation item");
+            String key = kind + ":" + id;
+            ReconResolution prior = resolutions.findById(key).orElse(null);
+            Map<String, Object> before = prior == null ? null : Map.of("resolution", prior.getResolution(), "note", String.valueOf(prior.getNote()));
+            if (opt == null) {
+                if (prior == null) continue;
+                resolutions.delete(prior);
+                audit.record("RECON_ITEM_REOPENED", "reconciliation", key, before, null, item.description() + " " + item.amount() + ": reopened");
+            } else {
+                ReconResolution x = prior == null ? new ReconResolution() : prior;
+                x.setItemKey(key); x.setKind(kind.name()); x.setItemId(id); x.setResolution(opt.code()); x.setNote(note);
+                x.setResolvedBy(actor); x.setResolvedAt(clock.now());
+                resolutions.save(x);
+                audit.record("RECON_ITEM_RESOLVED", "reconciliation", key, before, Map.of("resolution", opt.code(), "note", String.valueOf(note)),
+                        item.description() + " " + item.amount() + ": " + opt.label() + (note == null || note.isEmpty() ? "" : " (" + note + ")")
+                                + ("external".equals(opt.scope()) ? ". Recorded only: " + opt.outOfScope() : ""));
+            }
+            done.add(id);
+        }
+        return Map.of("resolved", done, "by", actor);
+    }
 
     private static String explain(BankStatementLine l, BigDecimal amt, List<Payment> pays, Set<String> used) {
         String d = l.getDescription() == null ? "" : l.getDescription().toUpperCase(Locale.ROOT);
