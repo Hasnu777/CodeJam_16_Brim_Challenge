@@ -78,10 +78,7 @@ export default function AnalyticsPage() {
           <Divider my="xs" />
 
           <Group justify="space-between" align="flex-end">
-            <div>
-              <Title order={4}>Breakdown</Title>
-              <Text size="sm" c="dimmed">Everything below changes with this selection</Text>
-            </div>
+            <Title order={4}>Breakdown</Title>
             <SegmentedControl value={groupBy} onChange={setGroupBy} data={GROUPS.map(({ value, label }) => ({ value, label }))} />
           </Group>
           <Hint>{g.basis}</Hint>
