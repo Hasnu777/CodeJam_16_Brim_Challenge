@@ -1,10 +1,10 @@
 import {
-  Anchor, Badge, Button, Card, Code, Grid, Group, Modal, Paper, ScrollArea, Select, Stack, Table, Tabs, Text, TextInput, Textarea,
+  Alert, Anchor, Badge, Button, Card, Code, Grid, Group, Modal, Paper, ScrollArea, Select, Stack, Table, Tabs, Text, TextInput, Textarea,
   Timeline, Title, Tooltip,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { IconAlertTriangle, IconCheck, IconClock, IconX } from '@tabler/icons-react'
+import { IconAlertTriangle, IconCheck, IconClock, IconSparkles, IconX } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -259,6 +259,7 @@ function DocumentViewer({ id }: { id: string }) {
 
 function HeaderFields({ d, editable, low, depts, onSaved }: { d: InvoiceDetail; editable: boolean; low: Set<string>; depts: Department[]; onSaved: () => void }) {
   const inv = d.invoice
+  const extracted = d.extractions.some((x) => x.rawJson)
   const [f, setF] = useState({
     vendorInvoiceNumber: inv.vendorInvoiceNumber ?? '', invoiceDate: inv.invoiceDate ?? '', dueDate: inv.dueDate ?? '',
     total: inv.total != null ? String(inv.total) : '', subtotal: inv.subtotal != null ? String(inv.subtotal) : '',
@@ -290,6 +291,11 @@ function HeaderFields({ d, editable, low, depts, onSaved }: { d: InvoiceDetail; 
     <Card withBorder padding="sm">
       <Group justify="space-between" mb="xs"><Text fw={600}>Invoice fields</Text>
         {low.size > 0 && <Badge color="yellow" variant="light">highlighted = read with low confidence</Badge>}</Group>
+      {extracted && editable && (
+        <Alert color="blue" variant="light" mb="xs" icon={<IconSparkles size={16} />} title="Suggested entries">
+          These fields were read from the document automatically. Check them against the invoice on the left, correct anything wrong, then save.
+        </Alert>
+      )}
       <Grid gutter="xs">
         <Grid.Col span={4}>{field('Invoice #', 'vendorInvoiceNumber', 'invoiceNumber')}</Grid.Col>
         <Grid.Col span={4}>{field('Invoice date', 'invoiceDate')}</Grid.Col>
