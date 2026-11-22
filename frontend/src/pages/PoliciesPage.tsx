@@ -92,7 +92,7 @@ function ApprovalRules() {
         </Group>}
       </Group>
       {!edit && <Alert color="gray">Read-only. Only the Controller / Admin can change rules.</Alert>}
-      <Table striped>
+      <div className="ap-table-scroll"><Table striped>
         <Table.Thead><Table.Tr><Table.Th>Rule</Table.Th><Table.Th>Kind</Table.Th><Table.Th>Order</Table.Th><Table.Th>When</Table.Th><Table.Th>Adds / allows</Table.Th><Table.Th>On</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>
           {rows.map((p, i) => (
@@ -112,7 +112,7 @@ function ApprovalRules() {
             </Table.Tr>
           ))}
         </Table.Tbody>
-      </Table>
+      </Table></div>
       {edit && <Button variant="subtle" w="fit-content" onClick={() => { setRows((r) => [...r, { id: `P${String(r.length + 1).padStart(2, '0')}x`, kind: 'approval', priority: 200, conditionJson: '{"field":"amountCad","op":"gt","value":100000}', addsRoles: 'finance_manager', enabled: true, notes: 'New rule' } as ApprovalPolicy]); setDirty(true) }}>+ Add rule</Button>}
 
       {is('ADM', 'FM') && (

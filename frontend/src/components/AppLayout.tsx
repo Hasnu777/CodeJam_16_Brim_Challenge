@@ -77,11 +77,11 @@ export default function AppLayout() {
     <AppShell className="ap-workspace" header={{ height: 76 }} navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !opened } }} padding="lg">
       <AppShell.Header>
         <Group h="100%" px="lg" justify="space-between" wrap="nowrap">
-          <Group gap="sm" wrap="nowrap">
+          <Group gap="sm" wrap="nowrap" style={{ flexShrink: 0 }}>
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" aria-label="Toggle navigation" />
             <Title order={3} className="ap-brand"><span>Harborline</span> AP</Title>
           </Group>
-          <Group gap="md" wrap="nowrap">
+          <Group gap="md" wrap="nowrap" className="ap-header-right">
             <Text size="xs" c="dimmed" visibleFrom="lg">Business Date <b>{me.businessDate}</b></Text>
             {me.actingFor.length > 0 && (
               <Tooltip label={`You are delegate for ${me.actingFor.map((a) => a.fullName).join(', ')}`}>
@@ -98,6 +98,11 @@ export default function AppLayout() {
             <NavLink key={n.to} component={Link} to={n.to} label={n.label} leftSection={n.icon} className="ap-nav-link"
               active={n.to === '/' ? loc.pathname === '/' : loc.pathname.startsWith(n.to)} onClick={close} />
           ))}
+          {/* Below the header breakpoints, the business date and delegate status move here so they stay reachable. */}
+          <Text size="xs" c="dimmed" hiddenFrom="lg" mt="md" px="sm">Business Date <b>{me.businessDate}</b></Text>
+          {me.actingFor.length > 0 && (
+            <Text size="xs" c="grape" hiddenFrom="md" mt={4} px="sm">Delegate For {me.actingFor.map((a) => a.fullName).join(', ')}</Text>
+          )}
         </ScrollArea>
       </AppShell.Navbar>
       <AppShell.Main>

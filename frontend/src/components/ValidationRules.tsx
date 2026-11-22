@@ -73,7 +73,7 @@ export function ValidationRules() {
         </Group>}
       </Group>
       {!canEdit && <Alert color="gray">Read-only. Only the Controller / Admin can change rules.</Alert>}
-      <Table striped>
+      <div className="ap-table-scroll"><Table striped>
         <Table.Thead><Table.Tr><Table.Th>Check</Table.Th><Table.Th w={170}>Severity</Table.Th><Table.Th w={80}>On</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>
           {categories.map((cat) => [
@@ -103,7 +103,7 @@ export function ValidationRules() {
             }),
           ])}
         </Table.Tbody>
-      </Table>
+      </Table></div>
       <Modal opened={asking} onClose={() => setAsking(false)} title="Save Rule Changes">
         <Stack>
           <Text size="sm">

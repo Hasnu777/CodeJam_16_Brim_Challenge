@@ -70,7 +70,7 @@ export function FlagCard({ flag, canResolve, onResolve, users, children, showDet
       </Group>
       {showDetails && rows.length > 0 && (
         <Collapse in={open}>
-          <Table mt="xs" withRowBorders={false} verticalSpacing={2} fz="xs">
+          <div className="ap-table-scroll"><Table mt="xs" withRowBorders={false} verticalSpacing={2} fz="xs">
             <Table.Tbody>
               {rows.map(([label, value]) => (
                 <Table.Tr key={label}>
@@ -79,7 +79,7 @@ export function FlagCard({ flag, canResolve, onResolve, users, children, showDet
                 </Table.Tr>
               ))}
             </Table.Tbody>
-          </Table>
+          </Table></div>
         </Collapse>
       )}
       {!resolved && canResolve && onResolve && (

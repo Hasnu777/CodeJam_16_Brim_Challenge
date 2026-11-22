@@ -1,4 +1,4 @@
-import { Alert, Anchor, Badge, Button, Checkbox, Group, MultiSelect, Select, Stack, Switch, Table, Text, TextInput, Title } from '@mantine/core'
+import { Alert, Anchor, Button, Checkbox, Group, MultiSelect, Select, Stack, Switch, Table, Text, TextInput, Title } from '@mantine/core'
 import { SortTh } from '../components/SortTh'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { api, qs } from '../api/client'
 import type { Department, InvoiceSummary } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
-import { Empty, ErrorBox, FlagCounts, Loading, MoneyCell, StatusBadge } from '../components/bits'
+import { Empty, ErrorBox, FlagCounts, FlagLegend, Loading, MoneyCell, StatusBadge } from '../components/bits'
 import { notifyError, notifyOk } from '../components/notify'
 import { date, noCode, statusLabel } from '../lib/format'
 import { useNames } from '../lib/names'
@@ -92,14 +92,12 @@ export default function InvoiceListPage() {
       </Group>
       <Group gap="xs">
         <Text size="xs" c="dimmed">{rows.length} {rows.length === 1 ? 'invoice' : 'invoices'} · Issues:</Text>
-        <Badge color="red" size="xs">Blocks payment</Badge>
-        <Badge color="yellow" size="xs" variant="light">Needs review</Badge>
-        <Badge color="gray" size="xs" variant="light">Info</Badge>
+        <FlagLegend />
       </Group>
       {list.isLoading ? <Loading /> : list.error ? <ErrorBox error={list.error} /> : rows.length === 0 ? (
         <Empty>{me!.role === 'EMP' ? 'You have not submitted any invoices.' : 'No invoices match. Process the inbox to begin, or include history.'}</Empty>
       ) : (
-        <Table striped highlightOnHover stickyHeader>
+        <div className="ap-table-scroll ap-table-scroll-sticky"><Table striped highlightOnHover stickyHeader>
           <Table.Thead>
             <Table.Tr>
               {is('CLK') && <Table.Th>Select</Table.Th>}
@@ -128,7 +126,7 @@ export default function InvoiceListPage() {
               </Table.Tr>
             ))}
           </Table.Tbody>
-        </Table>
+        </Table></div>
       )}
     </Stack>
   )

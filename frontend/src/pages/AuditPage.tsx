@@ -70,7 +70,7 @@ export default function AuditPage() {
           <Button variant="subtle" onClick={() => { const e = { entity: '', entityId: '', actor: '', action: '', from: '', to: '' }; setF(e); setApplied(e) }}>Clear</Button>
         </Group>
         {list.isLoading ? <Loading /> : (
-            <Table striped highlightOnHover>
+            <div className="ap-table-scroll"><Table striped highlightOnHover>
               <Table.Thead><Table.Tr><Table.Th>#</Table.Th><Table.Th>When</Table.Th><Table.Th>Actor</Table.Th><Table.Th>Action</Table.Th><Table.Th>Entity</Table.Th><Table.Th>Detail</Table.Th></Table.Tr></Table.Thead>
               <Table.Tbody>
                 {(list.data ?? []).map((e) => (
@@ -85,7 +85,7 @@ export default function AuditPage() {
                     </Table.Tr>
                 ))}
               </Table.Tbody>
-            </Table>
+            </Table></div>
         )}
         <Modal opened={!!sel} onClose={() => setSel(null)} size="xl" title={sel ? `Event #${sel.id} · ${statusLabel(sel.action ?? '')}` : ''}>
           {sel && (

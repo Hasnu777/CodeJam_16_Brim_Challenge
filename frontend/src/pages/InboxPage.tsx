@@ -136,7 +136,7 @@ export default function InboxPage() {
       {rows.length === 0 ? (
         <Empty>{filter === 'attention' ? 'Nothing needs attention.' : 'No emails here.'}</Empty>
       ) : (
-        <Table striped highlightOnHover>
+        <div className="ap-table-scroll"><Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr><Table.Th>Received</Table.Th><Table.Th>From</Table.Th><Table.Th>Subject</Table.Th><Table.Th>Classification</Table.Th><Table.Th>Summary</Table.Th>{canAct && <Table.Th />}</Table.Tr>
           </Table.Thead>
@@ -145,13 +145,14 @@ export default function InboxPage() {
               <Table.Tr key={e.id} style={{ cursor: 'pointer' }} onClick={() => nav(`/inbox/${e.id}`)}>
                 <Table.Td><Text size="xs">{dateTime(e.receivedAt)}</Text></Table.Td>
                 <Table.Td><Text size="sm">{e.fromName}</Text><Text size="xs" c="dimmed">{e.fromAddress}</Text></Table.Td>
-                <Table.Td><Text size="sm">{e.subject}</Text>
+                <Table.Td><Anchor component={Link} to={`/inbox/${e.id}`} size="sm" c="inherit" onClick={(ev) => ev.stopPropagation()}>{e.subject || '(no subject)'}</Anchor>
                   {e.attachments && <Text size="xs" c="dimmed">📎 {e.attachments.split(',').join(', ')}</Text>}</Table.Td>
                 <Table.Td>
                   {e.classification ? (
-                    <Tooltip label={`Decided by ${e.classifiedBy === 'LLM' ? 'the LLM (tiebreaker)' : 'keyword rules'}`}>
+                    <>
                       <Badge color={KIND[e.classification]?.color} variant="light">{KIND[e.classification]?.label ?? e.classification}</Badge>
-                    </Tooltip>
+                      <Text size="xs" c="dimmed">{e.classifiedBy === 'LLM' ? 'By the LLM (tiebreaker)' : 'By keyword rules'}</Text>
+                    </>
                   ) : <Badge color="gray" variant="outline">Not Processed</Badge>}
                 </Table.Td>
                 <Table.Td maw={380}>
@@ -171,7 +172,7 @@ export default function InboxPage() {
               </Table.Tr>
             ))}
           </Table.Tbody>
-        </Table>
+        </Table></div>
       )}
     </Stack>
   )

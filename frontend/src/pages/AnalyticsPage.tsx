@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
                 <Stat label={`${g.noun === 'Category' ? 'Categories' : g.noun + 's'}`} value={String(d.rows.length)} />
                 <Stat label={`Top ${g.noun}`} value={top ? `${top.share}%` : '-'} sub={top ? `${rowLabel(top)} · ${money(top.amountCad)}` : undefined} />
               </SimpleGrid>
-              <Table striped>
+              <div className="ap-table-scroll"><Table striped>
                 <Table.Thead><Table.Tr><Table.Th>{g.noun}</Table.Th>
                   <Table.Th ta="right">Spend</Table.Th><Table.Th>Share</Table.Th><Table.Th ta="right">Bills</Table.Th></Table.Tr></Table.Thead>
                 <Table.Tbody>
@@ -101,7 +101,7 @@ export default function AnalyticsPage() {
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
-              </Table>
+              </Table></div>
             </>
           )}
         </>

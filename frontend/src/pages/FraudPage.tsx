@@ -29,7 +29,7 @@ export default function FraudPage() {
           <Group gap={6} mt={4}>{Object.entries(bySignal).map(([k, v]) => <Badge key={k} variant="light" tt="none">{k} × {v}</Badge>)}</Group></Card>
       </SimpleGrid>
       {alerts.length === 0 ? <Empty>No open fraud signals.</Empty> : (
-        <Table striped>
+        <div className="ap-table-scroll"><Table striped>
           <Table.Thead><Table.Tr><Table.Th /><Table.Th>Signal</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Bill</Table.Th><Table.Th ta="right">At Stake</Table.Th></Table.Tr></Table.Thead>
           <Table.Tbody>
             {alerts.map((a, i) => (
@@ -42,7 +42,7 @@ export default function FraudPage() {
               </Table.Tr>
             ))}
           </Table.Tbody>
-        </Table>
+        </Table></div>
       )}
     </Stack>
   )

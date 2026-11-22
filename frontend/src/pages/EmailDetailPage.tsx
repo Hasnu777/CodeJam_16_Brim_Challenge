@@ -77,7 +77,7 @@ export default function EmailDetailPage() {
           <Stack>
             <Card withBorder>
               <Text fw={600} mb="xs">Message</Text>
-              <Table withRowBorders={false} verticalSpacing={2}>
+              <div className="ap-table-scroll"><Table withRowBorders={false} verticalSpacing={2}>
                 <Table.Tbody>
                   <Table.Tr><Table.Td w={90}><Text size="sm" c="dimmed">From</Text></Table.Td>
                     <Table.Td><Text size="sm">{e.fromName} {e.fromAddress && <Text span c="dimmed">&lt;{e.fromAddress}&gt;</Text>}</Text></Table.Td></Table.Tr>
@@ -86,7 +86,7 @@ export default function EmailDetailPage() {
                   <Table.Tr><Table.Td><Text size="sm" c="dimmed">Source</Text></Table.Td>
                     <Table.Td><Text size="sm">{e.messageId ? 'AP mailbox (IMAP)' : 'Dataset inbox (emails.json)'}</Text></Table.Td></Table.Tr>
                 </Table.Tbody>
-              </Table>
+              </Table></div>
               <Paper withBorder p="sm" mt="sm" bg="var(--mantine-color-gray-0)">
                 <Text size="sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{e.body || '(empty body)'}</Text>
               </Paper>
@@ -125,7 +125,7 @@ export default function EmailDetailPage() {
                   {e.reason && <Text size="sm">{e.reason}</Text>}
                   {e.needsAttention && <Badge color="orange" variant="light" w="fit-content">Needs Attention</Badge>}
                   {d.linkedInvoices.length > 0 && (
-                    <Table striped>
+                    <div className="ap-table-scroll"><Table striped>
                       <Table.Thead><Table.Tr><Table.Th>Bill</Table.Th><Table.Th>Vendor Invoice #</Table.Th><Table.Th>Total</Table.Th><Table.Th>Status</Table.Th></Table.Tr></Table.Thead>
                       <Table.Tbody>
                         {d.linkedInvoices.map((i) => (
@@ -137,7 +137,7 @@ export default function EmailDetailPage() {
                           </Table.Tr>
                         ))}
                       </Table.Tbody>
-                    </Table>
+                    </Table></div>
                   )}
                 </Stack>
               )}

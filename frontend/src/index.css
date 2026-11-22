@@ -48,12 +48,19 @@ body {
 .ap-workspace .mantine-AppShell-header, .ap-workspace .mantine-AppShell-navbar { background: var(--card); }
 .ap-brand { white-space: nowrap; font-size: 22px; }
 .ap-brand span { color: var(--primary); }
-.ap-user-switch { width: 400px; }
+.ap-user-switch { width: 400px; max-width: 100%; min-width: 0; }
+.ap-header-right { min-width: 0; flex: 0 1 auto; justify-content: flex-end; }
 .ap-nav-link { border-radius: 6px; margin: 3px 0; font-weight: 600; }
 .ap-nav-link[data-active] { background: var(--primary); color: var(--primary-foreground); }
 .ap-page-content { max-width: 1560px; margin: 8px auto; }
-.ap-page-content .mantine-Table { display: block; width: 100%; overflow-x: auto; background: var(--card); border-radius: 6px; }
-.ap-page-content .mantine-Table-thead, .ap-page-content .mantine-Table-tbody { width: 100%; }
+/* Wide tables scroll inside their own .ap-table-scroll wrapper, so the page never scrolls sideways and nothing is clipped.
+   The sticky-header table keeps page scrolling on wide screens (overflow would stop the header sticking). */
+.ap-table-scroll { overflow-x: auto; max-width: 100%; }
+@media (min-width: 75em) { .ap-table-scroll-sticky { overflow-x: visible; } }
+/* Ids and badges never wrap or truncate inside a table: the wrapper scrolls instead. */
+.ap-table-scroll .mantine-Table-td > a, .ap-table-scroll .mantine-Table-td > .mantine-Anchor-root { white-space: nowrap; }
+.ap-table-scroll .mantine-Table-td .mantine-Badge-root { min-width: max-content; }
+.ap-page-content .mantine-Table-table { background: var(--card); border-radius: 6px; }
 .ap-page-content .mantine-Table-th { white-space: nowrap; }
 .ap-page-content .mantine-Card-root { background: var(--card); }
 .ap-page-content a:not(.mantine-Button-root) { color: var(--primary); }
@@ -69,7 +76,8 @@ body {
 .ap-page-content section { min-width: 0; }
 @media (max-width: 48em) {
   .ap-brand { font-size: 17px; }
-  .ap-user-switch { width: 150px; }
+  .ap-user-switch { width: 100%; }
+  .ap-header-right { flex: 1 1 0; }
   .ap-workspace .mantine-AppShell-header .mantine-Group-root { gap: 8px; }
   .ap-page-content h1 { font-size: 26px; }
   .ap-page-content .mantine-InputWrapper-root { max-width: 100%; }

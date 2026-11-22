@@ -33,7 +33,7 @@ export default function VendorsPage() {
         <TextInput placeholder="Search name, id, category" value={q} onChange={(e) => setQ(e.currentTarget.value)} w={280} />
         <Switch label="Needs Attention (pending, on hold, bank change)" checked={onlyAttention} onChange={(e) => setOnlyAttention(e.currentTarget.checked)} />
       </Group>
-      <Table striped highlightOnHover>
+      <div className="ap-table-scroll"><Table striped highlightOnHover>
         <Table.Thead><Table.Tr><Table.Th>Vendor</Table.Th><Table.Th>Category</Table.Th><Table.Th>Status</Table.Th><Table.Th>Bank</Table.Th>
           <Table.Th ta="right">Spend YTD</Table.Th><Table.Th>Invoices</Table.Th><Table.Th>Open Flags</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>
@@ -53,7 +53,7 @@ export default function VendorsPage() {
             )
           })}
         </Table.Tbody>
-      </Table>
+      </Table></div>
       {sp.get('onboard') && <OnboardModal fromInvoiceId={sp.get('onboard') === 'new' ? null : sp.get('onboard')} onClose={() => setSp({})} />}
     </Stack>
   )

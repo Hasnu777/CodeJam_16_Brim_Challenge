@@ -165,7 +165,7 @@ export default function HomePage() {
           {is('APR', 'FM', 'ADM') && (<>
             <Title order={3} mb="md">Waiting For Your Approval</Title>
             {queue.length ? (
-              <Table>
+              <div className="ap-table-scroll"><Table>
                 <Table.Thead><Table.Tr><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th /></Table.Tr></Table.Thead>
                 <Table.Tbody>
                   {queue.slice(0, 6).map((q) => (
@@ -177,7 +177,7 @@ export default function HomePage() {
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
-              </Table>
+              </Table></div>
             ) : <Text c="dimmed" py="xl">You’re all caught up.</Text>}
           </>)}
 
@@ -212,7 +212,7 @@ export default function HomePage() {
 function InvoiceTable({ rows, empty }: { rows: InvoiceSummary[]; empty: string }) {
   if (!rows.length) return <Text c="dimmed" py="xl">{empty}</Text>
   return (
-    <Table>
+    <div className="ap-table-scroll"><Table>
       <Table.Thead><Table.Tr><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>Status</Table.Th></Table.Tr></Table.Thead>
       <Table.Tbody>
         {rows.map((i) => (
@@ -224,7 +224,7 @@ function InvoiceTable({ rows, empty }: { rows: InvoiceSummary[]; empty: string }
           </Table.Tr>
         ))}
       </Table.Tbody>
-    </Table>
+    </Table></div>
   )
 }
 
@@ -232,7 +232,7 @@ function AuditTable({ events }: { events: AuditEvent[] }) {
   const n = useNames()
   if (!events.length) return <Text c="dimmed" py="xl">No activity yet.</Text>
   return (
-    <Table>
+    <div className="ap-table-scroll"><Table>
       <Table.Tbody>
         {events.map((e) => (
           <Table.Tr key={e.id}>
@@ -243,7 +243,7 @@ function AuditTable({ events }: { events: AuditEvent[] }) {
           </Table.Tr>
         ))}
       </Table.Tbody>
-    </Table>
+    </Table></div>
   )
 }
 

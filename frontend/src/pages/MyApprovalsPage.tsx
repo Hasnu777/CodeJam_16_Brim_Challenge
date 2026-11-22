@@ -25,7 +25,7 @@ export default function MyApprovalsPage() {
         </Text>
       </div>
       {rows.length === 0 ? <Empty>No invoices are waiting for you.</Empty> : (
-        <Table striped highlightOnHover>
+        <div className="ap-table-scroll"><Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Amount</Table.Th><Table.Th>Step</Table.Th>
               <Table.Th>For</Table.Th><Table.Th>Top Flag</Table.Th><Table.Th>Waiting</Table.Th></Table.Tr>
@@ -47,7 +47,7 @@ export default function MyApprovalsPage() {
               </Table.Tr>
             ))}
           </Table.Tbody>
-        </Table>
+        </Table></div>
       )}
     </Stack>
   )

@@ -1,6 +1,6 @@
 import {
   Alert, Anchor, Badge, Button, Card, Code, Grid, Group, Modal, Paper, ScrollArea, Select, Stack, Table, Tabs, Text, TextInput, Textarea,
-  Timeline, Title, Tooltip,
+  Timeline, Title, Tooltip, UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -217,7 +217,7 @@ function InvoiceDetailView() {
             <Card withBorder padding="sm">
               <Group justify="space-between" mb={4}><Text fw={600}>Taxes</Text>
                 <Text size="sm" c="dimmed">Ship-to {inv.shipToProvince ?? '?'}</Text></Group>
-              <Table>
+              <div className="ap-table-scroll"><Table>
                 <Table.Tbody>
                   <Table.Tr><Table.Td>Subtotal</Table.Td><Table.Td /><Table.Td ta="right" ff="monospace">{money(inv.subtotal, inv.currency)}</Table.Td></Table.Tr>
                   {d.taxes.map((t) => (
@@ -235,7 +235,7 @@ function InvoiceDetailView() {
                     </Text></Table.Td></Table.Tr>
                   )}
                 </Table.Tbody>
-              </Table>
+              </Table></div>
             </Card>
           </Stack>
         </Grid.Col>
@@ -438,7 +438,7 @@ function LinesTable({ id, lines, editable, gl, depts, onSaved }: { id: string; l
             <Button size="xs" variant="light" disabled={toAccept === 0} onClick={() => coding('accept-all')}>Accept All Suggestions</Button>
           </Group>
         )}</Group>
-      <Table>
+      <div className="ap-table-scroll"><Table>
         <Table.Thead><Table.Tr><Table.Th>Description</Table.Th><Table.Th>Qty × Price</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>GL Account</Table.Th><Table.Th>Department</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>
           {lines.map((l) => (
@@ -453,10 +453,11 @@ function LinesTable({ id, lines, editable, gl, depts, onSaved }: { id: string; l
                     <Select size="xs" w={170} searchable value={l.glAccount ?? null} data={gl.map((g) => ({ value: g.accountNumber!, label: `${g.accountNumber} · ${g.name}` }))}
                       onChange={(v) => v && setLine(l, { glAccount: v })} />
                   ) : <Text size="sm">{n.gl(l.glAccount)}</Text>}
-                  <Tooltip multiline w={300} withArrow
+                  <Tooltip multiline w={300} withArrow events={{ hover: true, focus: true, touch: true }}
                     label={l.suggestionOverridden && l.glAccount ? `Changed by the clerk (suggested ${n.gl(l.suggestedGlAccount)}). ${n.text(l.suggestionReason)}` : n.text(l.suggestionReason) || 'No suggestion'}>
-                    <Text size="xs" c={l.suggestionOverridden && l.glAccount ? 'orange' : 'dimmed'} td="underline" style={{ cursor: 'help', whiteSpace: 'nowrap' }}>
-                      {l.suggestionOverridden && l.glAccount ? 'Changed' : 'Why?'}</Text>
+                    <UnstyledButton fz="xs" c={l.suggestionOverridden && l.glAccount ? 'orange.9' : 'dimmed'} td="underline" style={{ cursor: 'help', whiteSpace: 'nowrap' }}
+                      aria-label={`${l.suggestionOverridden && l.glAccount ? 'Changed' : 'Why?'}: ${l.suggestionOverridden && l.glAccount ? `changed by the clerk (suggested ${n.gl(l.suggestedGlAccount)}). ` : ''}${n.text(l.suggestionReason) || 'No suggestion'}`}>
+                      {l.suggestionOverridden && l.glAccount ? 'Changed' : 'Why?'}</UnstyledButton>
                   </Tooltip>
                 </Group>
               </Table.Td>
@@ -469,7 +470,7 @@ function LinesTable({ id, lines, editable, gl, depts, onSaved }: { id: string; l
           ))}
           {lines.length === 0 && <Table.Tr><Table.Td colSpan={5}><Text c="dimmed" size="sm">No lines read. Enter the totals above (manual-entry draft).</Text></Table.Td></Table.Tr>}
         </Table.Tbody>
-      </Table>
+      </Table></div>
     </Card>
   )
 }
@@ -549,11 +550,11 @@ function HoldButton({ id, onDone }: { id: string; onDone: () => void }) {
   const [reason, setReason] = useState('')
   return (
     <>
-      <Button variant="subtle" color="red" onClick={open}>Hold</Button>
+      <Button variant="subtle" color="orange" onClick={open}>Hold</Button>
       <Modal opened={opened} onClose={close} title="Place a Manual Hold">
         <Stack>
           <TextInput label="Reason" value={reason} onChange={(e) => setReason(e.currentTarget.value)} />
-          <Button color="red" disabled={!reason.trim()} onClick={() => api.post(`/invoices/${id}/hold`, { reason }).then(() => { close(); onDone() }).catch(notifyError)}>Hold</Button>
+          <Button color="orange" disabled={!reason.trim()} onClick={() => api.post(`/invoices/${id}/hold`, { reason }).then(() => { close(); onDone() }).catch(notifyError)}>Hold</Button>
         </Stack>
       </Modal>
     </>

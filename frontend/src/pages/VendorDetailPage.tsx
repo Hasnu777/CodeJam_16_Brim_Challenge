@@ -65,19 +65,19 @@ export default function VendorDetailPage() {
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Card withBorder>
             <Text fw={600} mb="xs">Master data</Text>
-            <Table><Table.Tbody>
+            <div className="ap-table-scroll"><Table><Table.Tbody>
               {[['GST/HST #', v.gstHstNumber], ['QST #', v.qstNumber], ['Country', v.country], ['Terms', `${v.paymentTermsDays} days${v.earlyPayDiscount ? ` · ${v.earlyPayDiscount}` : ''}`],
                 ['Payment method', v.preferredPaymentMethod], ['AP contact', v.apContactEmail], ['Default GL', v.defaultGlAccount], ['PO required', v.requiresPo ? 'yes' : 'no'],
                 ['Onboarded', date(v.onboardedAt)], ['Approved by', v.approvedBy], ['Created by', v.createdBy]].map(([k, val]) => (
                 <Table.Tr key={k}><Table.Td c="dimmed">{k}</Table.Td><Table.Td>{val ?? '—'}</Table.Td></Table.Tr>
               ))}
-            </Table.Tbody></Table>
+            </Table.Tbody></Table></div>
           </Card>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 7 }}>
           <Card withBorder>
             <Text fw={600} mb="xs">Bank account versions (never edited in place)</Text>
-            <Table>
+            <div className="ap-table-scroll"><Table>
               <Table.Thead><Table.Tr><Table.Th>v</Table.Th><Table.Th>Account</Table.Th><Table.Th>Status</Table.Th><Table.Th>Verified</Table.Th><Table.Th>Change</Table.Th></Table.Tr></Table.Thead>
               <Table.Tbody>
                 {bankAccounts.map((a) => (
@@ -90,7 +90,7 @@ export default function VendorDetailPage() {
                   </Table.Tr>
                 ))}
               </Table.Tbody>
-            </Table>
+            </Table></div>
             <Text fw={600} mt="md" mb="xs">Bank change requests</Text>
             {bankChangeRequests.length === 0 ? <Text size="sm" c="dimmed">None.</Text> : bankChangeRequests.map((c) => (
               <Card key={c.id} withBorder padding="xs" mb="xs" style={{ borderLeft: `4px solid var(--mantine-color-${c.status === 'PENDING' ? 'red' : 'gray'}-5)` }}>
@@ -123,29 +123,29 @@ export default function VendorDetailPage() {
           <Tabs.Tab value="cards">Card Transactions ({cardTransactions.length})</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="invoices" pt="sm">
-          <Table striped><Table.Tbody>
+          <div className="ap-table-scroll"><Table striped><Table.Tbody>
             {invoices.slice(0, 60).map((i) => (
               <Table.Tr key={i.id}><Table.Td><Anchor component={Link} to={`/invoices/${i.id}`}>{i.id}</Anchor></Table.Td><Table.Td>#{i.vendorInvoiceNumber}</Table.Td>
                 <Table.Td>{date(i.invoiceDate)}</Table.Td><Table.Td ff="monospace">{money(i.totalCad)}</Table.Td><Table.Td><StatusBadge status={i.status} /></Table.Td></Table.Tr>
             ))}
-          </Table.Tbody></Table>
+          </Table.Tbody></Table></div>
         </Tabs.Panel>
         <Tabs.Panel value="contracts" pt="sm">
-          <Table><Table.Tbody>
+          <div className="ap-table-scroll"><Table><Table.Tbody>
             {contracts.map((c) => (
               <Table.Tr key={c.id}><Table.Td>{c.id}</Table.Td><Table.Td>{c.description}</Table.Td>
                 <Table.Td>{c.monthlyFee ? `${money(c.monthlyFee)}/mo` : ''}{c.hourlyRateCap ? ` cap ${money(c.hourlyRateCap)}/h` : ''}{c.fuelSurchargeCapPct ? ` fuel ≤ ${c.fuelSurchargeCapPct}%` : ''}{c.notToExceedMonthly ? ` NTE ${money(c.notToExceedMonthly)}/mo` : ''}</Table.Td>
                 <Table.Td>{date(c.startDate)} – {date(c.endDate)}</Table.Td><Table.Td><Badge variant="light" color={c.status === 'active' ? 'green' : 'red'}>{c.status}</Badge></Table.Td></Table.Tr>
             ))}
-          </Table.Tbody></Table>
+          </Table.Tbody></Table></div>
         </Tabs.Panel>
         <Tabs.Panel value="cards" pt="sm">
-          <Table><Table.Tbody>
+          <div className="ap-table-scroll"><Table><Table.Tbody>
             {cardTransactions.slice(0, 40).map((t) => (
               <Table.Tr key={t.id}><Table.Td>{t.id}</Table.Td><Table.Td>{date(t.postedDate)}</Table.Td><Table.Td>{t.merchantDescriptor}</Table.Td>
                 <Table.Td ff="monospace">{money(t.amountCad)}</Table.Td><Table.Td>{t.source.replace(/_/g, ' ')}</Table.Td><Table.Td><Text size="xs">{t.memo}</Text></Table.Td></Table.Tr>
             ))}
-          </Table.Tbody></Table>
+          </Table.Tbody></Table></div>
         </Tabs.Panel>
       </Tabs>
     </Stack>

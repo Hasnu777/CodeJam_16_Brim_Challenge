@@ -1,5 +1,5 @@
-import { Alert, Badge, Center, Group, Loader, Paper, Stack, Text, Tooltip } from '@mantine/core'
-import { IconInfoCircle } from '@tabler/icons-react'
+import { Alert, Badge, Center, Group, Loader, Paper, Stack, Text, Tooltip, VisuallyHidden } from '@mantine/core'
+import { IconAlertOctagon, IconAlertTriangle, IconInfoCircle } from '@tabler/icons-react'
 import type { ReactNode } from 'react'
 import { ApiError } from '../api/client'
 import { money, SEVERITY_COLOR, SEVERITY_LABEL, STATUS_COLOR, statusLabel } from '../lib/format'
@@ -18,11 +18,22 @@ export function SeverityBadge({ severity }: { severity?: string | null }) {
 export function FlagCounts({ block, warn, info }: { block?: number; warn?: number; info?: number }) {
   return (
     <Group gap={4} wrap="nowrap">
-      {!!block && <Badge color="red" size="sm">{block}</Badge>}
-      {!!warn && <Badge color="yellow" size="sm" variant="light">{warn}</Badge>}
-      {!!info && <Badge color="gray" size="sm" variant="light">{info}</Badge>}
+      {!!block && <Badge color="red" size="sm" leftSection={<IconAlertOctagon size={12} aria-hidden />}>{block}<VisuallyHidden> blocking</VisuallyHidden></Badge>}
+      {!!warn && <Badge color="yellow" size="sm" variant="light" leftSection={<IconAlertTriangle size={12} aria-hidden />}>{warn}<VisuallyHidden> to review</VisuallyHidden></Badge>}
+      {!!info && <Badge color="gray" size="sm" variant="light" leftSection={<IconInfoCircle size={12} aria-hidden />}>{info}<VisuallyHidden> info</VisuallyHidden></Badge>}
       {!block && !warn && !info && <Text size="xs" c="dimmed">None</Text>}
     </Group>
+  )
+}
+
+/** Key for FlagCounts: the same icons and colours, with the words. */
+export function FlagLegend() {
+  return (
+    <>
+      <Badge color="red" size="sm" leftSection={<IconAlertOctagon size={12} aria-hidden />}>Blocks payment</Badge>
+      <Badge color="yellow" size="sm" variant="light" leftSection={<IconAlertTriangle size={12} aria-hidden />}>Needs review</Badge>
+      <Badge color="gray" size="sm" variant="light" leftSection={<IconInfoCircle size={12} aria-hidden />}>Info</Badge>
+    </>
   )
 }
 
@@ -58,9 +69,12 @@ export function Empty({ children }: { children: ReactNode }) {
 /** Explain why an action is unavailable (finance roles see disabled buttons with a reason, per the PRD). */
 export function Why({ reasons, children }: { reasons: string[]; children: ReactNode }) {
   if (!reasons.length) return <>{children}</>
+  const text = reasons.map(humanize).join(' · ')
+  // A disabled button cannot take focus, so the wrapper does: keyboard and touch users get the tooltip too,
+  // and screen readers read the reason from the hidden text.
   return (
-    <Tooltip multiline w={320} label={reasons.map(humanize).join(' · ')} withArrow>
-      <span style={{ display: 'inline-block' }}>{children}</span>
+    <Tooltip multiline w={320} label={text} withArrow events={{ hover: true, focus: true, touch: true }}>
+      <span tabIndex={0} style={{ display: 'inline-block' }}>{children}<VisuallyHidden>Unavailable: {text}</VisuallyHidden></span>
     </Tooltip>
   )
 }

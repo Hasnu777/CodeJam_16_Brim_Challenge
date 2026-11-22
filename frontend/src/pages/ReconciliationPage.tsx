@@ -70,7 +70,7 @@ export default function ReconciliationPage() {
           </Group>
         )}
         {rows.length === 0 ? <Text c="dimmed" size="sm">Nothing left to explain here.</Text> : (
-          <Table striped>
+          <div className="ap-table-scroll"><Table striped>
             <Table.Thead><Table.Tr>
               {canAct && <Table.Th w={70}>Select</Table.Th>}
               <Table.Th>Date</Table.Th><Table.Th>{kind === 'LINE' ? 'Statement Line' : 'Payment'}</Table.Th><Table.Th ta="right">Amount</Table.Th>
@@ -100,7 +100,7 @@ export default function ReconciliationPage() {
                 )
               })}
             </Table.Tbody>
-          </Table>
+          </Table></div>
         )}
       </Stack>
     )
@@ -142,7 +142,7 @@ export default function ReconciliationPage() {
         <Tabs.Panel value="payments" pt="sm">{openTable('PAYMENT', open.PAYMENT)}</Tabs.Panel>
         <Tabs.Panel value="explained" pt="sm">
           {explained.length === 0 ? <Text c="dimmed" size="sm">Nothing explained yet.</Text> : (
-            <Table striped>
+            <div className="ap-table-scroll"><Table striped>
               <Table.Thead><Table.Tr><Table.Th>Date</Table.Th><Table.Th>Item</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>Resolution</Table.Th><Table.Th>By</Table.Th>{canAct && <Table.Th />}</Table.Tr></Table.Thead>
               <Table.Tbody>
                 {explained.map(({ kind, m }) => {
@@ -162,11 +162,11 @@ export default function ReconciliationPage() {
                   )
                 })}
               </Table.Tbody>
-            </Table>
+            </Table></div>
           )}
         </Tabs.Panel>
         <Tabs.Panel value="matched" pt="sm">
-          <Table striped>
+          <div className="ap-table-scroll"><Table striped>
             <Table.Thead><Table.Tr><Table.Th>Date</Table.Th><Table.Th>Statement Line</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>Payment</Table.Th><Table.Th>How</Table.Th></Table.Tr></Table.Thead>
             <Table.Tbody>
               {matched.slice(0, 300).map((r) => (
@@ -179,7 +179,7 @@ export default function ReconciliationPage() {
                 </Table.Tr>
               ))}
             </Table.Tbody>
-          </Table>
+          </Table></div>
         </Tabs.Panel>
       </Tabs>
       {resolving && (

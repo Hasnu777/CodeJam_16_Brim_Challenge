@@ -91,7 +91,7 @@ export default function PaymentsPage() {
             <Stack>
               {is('CLK') && <Group><Tooltip label="Scheduled from the vendor's terms; early-pay discounts and credit notes are applied automatically."><Button disabled={!picked.length} onClick={() => run(() => api.post('/payments/prepare', { invoiceIds: picked }), `${picked.length} payment(s) scheduled`)}>
                 Prepare {picked.length || ''} Payment{picked.length === 1 ? '' : 's'}</Button></Tooltip></Group>}
-              <Table striped>
+              <div className="ap-table-scroll"><Table striped>
                 <Table.Thead><Table.Tr>{is('CLK') && <Table.Th>Select</Table.Th>}<Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Amount</Table.Th><SortTh label="Due" asc={asc} onClick={() => setAsc((v) => !v)} /></Table.Tr></Table.Thead>
                 <Table.Tbody>
                   {readySorted.map((i) => (
@@ -104,14 +104,14 @@ export default function PaymentsPage() {
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
-              </Table>
+              </Table></div>
             </Stack>
           )}
         </Tabs.Panel>
         {TABS.filter((t) => t !== 'READY').map((t) => (
           <Tabs.Panel key={t} value={t} pt="md">
             {byStatus(t).length === 0 ? <Empty>No {t.toLowerCase()} payments.</Empty> : (
-              <Table striped>
+              <div className="ap-table-scroll"><Table striped>
                 <Table.Thead><Table.Tr><Table.Th>Payment</Table.Th><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Amount</Table.Th>
                   <SortTh label={t === 'SETTLED' ? 'Paid' : 'Scheduled'} asc={asc} onClick={() => setAsc((v) => !v)} /><Table.Th>Method / Account</Table.Th><Table.Th /></Table.Tr></Table.Thead>
                 <Table.Tbody>
@@ -162,7 +162,7 @@ export default function PaymentsPage() {
                     )
                   })}
                 </Table.Tbody>
-              </Table>
+              </Table></div>
             )}
           </Tabs.Panel>
         ))}
