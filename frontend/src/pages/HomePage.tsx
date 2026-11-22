@@ -12,7 +12,8 @@ import { useAuth } from '../auth/AuthContext'
 import { Empty, MoneyCell, StatusBadge } from '../components/bits'
 import { MonthlySpendChart } from '../components/MonthlySpendChart'
 import { notifyError, notifyOk } from '../components/notify'
-import { dateTime, money, num } from '../lib/format'
+import { dateTime, money, num, statusLabel } from '../lib/format'
+import { useNames } from '../lib/names'
 
 type StatColor = 'violet' | 'orange' | 'red' | 'blue' | 'teal'
 interface StatDef { label: string; value: number | string; icon: ComponentType<{ size?: number }>; color: StatColor; to: string }
@@ -58,6 +59,7 @@ export default function HomePage() {
   const year = me!.businessDate.slice(0, 4)
   const from = `${year}-01-01`
   const to = me!.businessDate
+  const n = useNames()
   const invoices = useQuery({ queryKey: ['invoices', 'home'], queryFn: () => api.get<InvoiceSummary[]>('/invoices') })
   const history = useQuery({ queryKey: ['invoices', 'home', 'history'], queryFn: () => api.get<InvoiceSummary[]>('/invoices' + qs({ includeHistory: true })), enabled: r === 'CLK' })
   const spend = useQuery({ queryKey: ['home-spend', from, to], queryFn: () => api.get<{ monthly: Record<string, string> }>('/analytics/spend' + qs({ from, to })), enabled: canAnalytics })
@@ -91,7 +93,7 @@ export default function HomePage() {
       { label: 'Approved, to schedule', value: count((i) => i.status === 'APPROVED'), icon: IconSend, color: 'teal', to: '/payments' },
     ] : r === 'APR' ? [
       { label: 'Waiting for me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
-      { label: `${me!.departmentId} spend ${month}`, value: money(deptSpend), icon: IconChartLine, color: 'blue', to: '/invoices' },
+      { label: `${n.dept(me!.departmentId)} spend ${month}`, value: money(deptSpend), icon: IconChartLine, color: 'blue', to: '/invoices' },
     ] : r === 'AUD' ? [
       { label: 'Invoices this batch', value: inv.length, icon: IconFileInvoice, color: 'blue', to: '/invoices' },
       { label: 'Flagged', value: count((i) => (i.blockFlags ?? 0) + (i.warnFlags ?? 0) > 0), icon: IconAlertOctagon, color: 'orange', to: '/invoices?flagged=true' },
@@ -109,7 +111,7 @@ export default function HomePage() {
   const blocked = inv.filter((i) => (i.blockFlags ?? 0) > 0 && !['REJECTED', 'DUPLICATE', 'PAID'].includes(String(i.status)))
   const firstBlocked = blocked.find((i) => i.status === 'IN_REVIEW') ?? blocked[0]
   const attention = is('APR', 'FM', 'ADM') && firstQueued
-    ? { id: firstQueued.invoiceId!, line: `${firstQueued.vendorName} · ${firstQueued.topFlag ?? `step ${firstQueued.stepSeq} of ${firstQueued.stepCount}`}`, title: 'Invoice waiting for your decision' }
+    ? { id: firstQueued.invoiceId!, line: `${firstQueued.vendorName} · ${firstQueued.topFlag ? n.text(firstQueued.topFlag) : `step ${firstQueued.stepSeq} of ${firstQueued.stepCount}`}`, title: 'Invoice waiting for your decision' }
     : r !== 'EMP' && firstBlocked
       ? { id: firstBlocked.id!, line: `${firstBlocked.vendorName} · ${firstBlocked.blockFlags} blocking ${firstBlocked.blockFlags === 1 ? 'flag' : 'flags'}${blocked.length > 1 ? ` · ${blocked.length - 1} more blocked` : ''}`, title: 'Invoice needs your attention' }
       : null
@@ -170,9 +172,9 @@ export default function HomePage() {
                   {queue.slice(0, 6).map((q) => (
                     <Table.Tr key={q.invoiceId}>
                       <Table.Td><Link to={`/invoices/${q.invoiceId}`}>{q.invoiceId}</Link></Table.Td>
-                      <Table.Td>{q.vendorName}{q.topFlag && <Text size="xs" c="dimmed">{q.topFlag}</Text>}</Table.Td>
+                      <Table.Td>{q.vendorName}{q.topFlag && <Text size="xs" c="dimmed">{n.text(q.topFlag)}</Text>}</Table.Td>
                       <Table.Td ta="right"><MoneyCell cad={q.totalCad} amount={q.total} currency={q.currency} /></Table.Td>
-                      <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">as delegate</Badge> : null}</Table.Td>
+                      <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">for {n.person(q.onBehalfOfUserId ?? q.assignedUserId)}</Badge> : null}</Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
@@ -228,6 +230,7 @@ function InvoiceTable({ rows, empty }: { rows: InvoiceSummary[]; empty: string }
 }
 
 function AuditTable({ events }: { events: AuditEvent[] }) {
+  const n = useNames()
   if (!events.length) return <Text c="dimmed" py="xl">No activity yet.</Text>
   return (
     <Table>
@@ -235,9 +238,9 @@ function AuditTable({ events }: { events: AuditEvent[] }) {
         {events.map((e) => (
           <Table.Tr key={e.id}>
             <Table.Td><Text size="xs" c="dimmed">{dateTime(e.ts)}</Text></Table.Td>
-            <Table.Td><Text size="sm">{e.actor}{e.onBehalfOf ? ` for ${e.onBehalfOf}` : ''}</Text></Table.Td>
-            <Table.Td><Badge variant="light" size="sm">{e.action}</Badge></Table.Td>
-            <Table.Td><Text size="xs">{e.entity} {e.entityId}</Text></Table.Td>
+            <Table.Td><Text size="sm">{n.person(e.actor)}{e.onBehalfOf ? ` for ${n.person(e.onBehalfOf)}` : ''}</Text></Table.Td>
+            <Table.Td><Badge variant="light" size="sm">{statusLabel(e.action ?? '')}</Badge></Table.Td>
+            <Table.Td><Text size="xs">{e.entity === 'vendor' ? n.vendor(e.entityId) : e.entity === 'user' ? n.person(e.entityId) : `${statusLabel(e.entity ?? '')} ${e.entityId ?? ''}`}</Text></Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>

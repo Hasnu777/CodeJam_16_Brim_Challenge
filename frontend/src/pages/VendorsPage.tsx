@@ -41,7 +41,7 @@ export default function VendorsPage() {
             const v = r.vendor!
             return (
               <Table.Tr key={v.id}>
-                <Table.Td><Anchor component={Link} to={`/vendors/${v.id}`}>{v.legalName}</Anchor><Text size="xs" c="dimmed">{v.id} · {v.provinceOrState} {v.country}</Text></Table.Td>
+                <Table.Td><Anchor component={Link} to={`/vendors/${v.id}`}>{v.legalName}</Anchor><Text size="xs" c="dimmed">{v.provinceOrState} {v.country}</Text></Table.Td>
                 <Table.Td><Text size="sm">{v.category}</Text>{v.requiresPo && <Badge size="xs" variant="outline">PO required</Badge>}</Table.Td>
                 <Table.Td><Badge color={STATUS_COLOR[v.status!] ?? 'gray'} variant="light">{v.status?.replace('_', ' ')}</Badge></Table.Td>
                 <Table.Td><Text size="sm">{r.bankAccount ?? v.preferredPaymentMethod}</Text>
@@ -75,7 +75,7 @@ function OnboardModal({ fromInvoiceId, onClose }: { fromInvoiceId: string | null
   const save = async () => {
     try {
       const v = await api.post<Vendor>('/vendors', { ...f, fromInvoiceId })
-      notifyOk(`${v.id} created as pending review; a Finance Manager must approve it`)
+      notifyOk(`${v.legalName} created as pending review; a Finance Manager must approve it`)
       await qc.invalidateQueries()
       onClose()
       nav(fromInvoiceId ? `/invoices/${fromInvoiceId}` : `/vendors/${v.id}`)

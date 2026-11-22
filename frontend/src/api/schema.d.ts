@@ -116,6 +116,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reconciliation/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["apply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/policies/preview": {
         parameters: {
             query?: never;
@@ -142,6 +158,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["settle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/payments/{id}/reprepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reprepare"];
         delete?: never;
         options?: never;
         head?: never;
@@ -222,6 +254,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invoices/{id}/reroute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reroute"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invoices/{id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reopen"];
         delete?: never;
         options?: never;
         head?: never;
@@ -564,6 +628,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reconciliation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["reconcile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/payments": {
         parameters: {
             query?: never;
@@ -676,6 +756,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/fraud/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["alerts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/users": {
         parameters: {
             query?: never;
@@ -764,6 +860,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["mine"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/analytics/spend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["spend"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1013,6 +1125,8 @@ export interface components {
         };
         Payment: {
             id?: string;
+            /** Format: int64 */
+            version?: number;
             invoiceId?: string;
             vendorId?: string;
             method?: string;
@@ -1057,13 +1171,13 @@ export interface components {
             totalCad?: number;
             fileContent?: string;
         };
-        ReasonBody: {
-            reason?: string;
-            note?: string;
-        };
         Decision: {
             comment?: string;
             reason?: string;
+        };
+        ReasonBody: {
+            reason?: string;
+            note?: string;
         };
         FlagResolution: {
             resolution?: string;
@@ -1522,6 +1636,28 @@ export interface operations {
             };
         };
     };
+    apply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     preview: {
         parameters: {
             query?: never;
@@ -1562,6 +1698,28 @@ export interface operations {
                 "application/json": components["schemas"]["SettleRequest"];
             };
         };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
+    reprepare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -1676,6 +1834,58 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    reroute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Decision"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    reopen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Decision"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -2197,6 +2407,28 @@ export interface operations {
             };
         };
     };
+    reconcile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     list_3: {
         parameters: {
             query?: {
@@ -2354,6 +2586,28 @@ export interface operations {
             };
         };
     };
+    alerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     switcherUsers: {
         parameters: {
             query?: never;
@@ -2489,6 +2743,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["QueueItem"][];
+                };
+            };
+        };
+    };
+    spend: {
+        parameters: {
+            query?: {
+                groupBy?: string;
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

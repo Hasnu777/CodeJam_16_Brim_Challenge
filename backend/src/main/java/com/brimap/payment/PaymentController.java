@@ -37,6 +37,11 @@ public class PaymentController {
     @PreAuthorize("hasAnyRole('FM','ADM')")
     public Payment release(@PathVariable String id) { return payments.release(id); }
 
+    /** After a verified bank change: point a scheduled payment at the vendor's current account (it still needs a release). */
+    @PostMapping("/{id}/reprepare")
+    @PreAuthorize("hasRole('CLK')")
+    public Payment reprepare(@PathVariable String id) { return payments.reprepare(id); }
+
     @PostMapping("/batch")
     @PreAuthorize("hasAnyRole('FM','ADM')")
     public PaymentBatch batch() { return payments.batch(); }

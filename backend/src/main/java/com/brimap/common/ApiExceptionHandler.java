@@ -47,8 +47,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(BusinessRuleException.class)
     ResponseEntity<Map<String, Object>> rule(BusinessRuleException e) { return body(HttpStatus.CONFLICT, e.getMessage()); }
 
-    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    ResponseEntity<Map<String, Object>> conflict(ObjectOptimisticLockingFailureException e) {
+    // Spring's wrapper (repository calls) and the raw JPA/Hibernate exceptions (flush inside a service method): two people
+    // acting on the same payment or approval step at once -> the second gets 409, never a 500.
+    @ExceptionHandler({ObjectOptimisticLockingFailureException.class, jakarta.persistence.OptimisticLockException.class,
+            org.hibernate.StaleStateException.class})
+    ResponseEntity<Map<String, Object>> conflict(Exception e) {
         return body(HttpStatus.CONFLICT, "Someone else changed this record; reload and try again");
     }
 

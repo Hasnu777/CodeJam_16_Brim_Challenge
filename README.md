@@ -25,6 +25,7 @@ scripts/reset-and-seed.sh                      # wipe + reload in ~6 s, prints r
 # Windows: powershell -ExecutionPolicy Bypass -File .\scripts\reset-and-seed.ps1
 #   (Windows blocks unsigned scripts by default; -ExecutionPolicy Bypass applies to this one run only)
 python scripts/verify_mess_table.py --process  # reset, process the inbox, check every "mess" case (24 checks)
+python scripts/verify_approvals_payments.py    # approval + payment edge cases live (23 checks: reopen, re-route, double release, $300k CFO, tier boundaries, USD, delegation, double approve, policy edit mid-chain, bank change, failed payment retry, concurrent batches)
 python scripts/eval_extraction.py              # extraction field accuracy on all 56 incoming files
 python scripts/flag_report.py                  # every open flag on every bill
 cd backend && ./gradlew test                   # 93 unit tests: every rule, routing, release rules, security, normalizer, audit chain

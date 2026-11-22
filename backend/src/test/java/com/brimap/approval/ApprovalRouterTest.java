@@ -114,6 +114,107 @@ class ApprovalRouterTest {
     }
 
     @Test
+    void requesterOnLeave_isNotApprovedByTheirOwnDelegate_escalatesToManager() {
+        // Liam (D07 manager, on leave, delegate Elise) requested a Facilities bill himself. Elise acting "on behalf of
+        // Liam" would be Liam approving his own spending by proxy (P07): it must go to Liam's manager instead.
+        var r = ApprovalRouter.route(POLICIES, facts("900", "active", "Rent & Property"), "D07", "U012", dir());
+        var s1 = r.steps().get(0);
+        assertThat(s1.assigneeId()).isEqualTo("U001");
+        assertThat(s1.onBehalfOfId()).isNull();
+        assertThat(s1.notes()).anyMatch(n -> n.contains("P07"));
+    }
+
+    @Test
+    void reroute_peopleWhoAlreadyActedAreNotReused() {
+        // Worked example, step 1 already approved by Elise on behalf of Liam. Re-routing the remaining FM step must not
+        // land on Elise or Liam again.
+        var r = ApprovalRouter.route(POLICIES, facts("12000", "active", "Rent & Property"), "D07", "U037", dir(), Set.of("U003", "U012"), Set.of("finance_manager"));
+        assertThat(r.steps()).filteredOn(s -> s.role().equals("finance_manager")).extracting(ApprovalRouter.Step::assigneeId).containsExactly("U002");
+    }
+
+    @Test
+    void reroute_afterAnApproverIsTerminated_goesToTheirManager() {
+        var d = dir();
+        d.users().get("U002").setStatus(UserStatus.terminated);   // Marcus left after the chain was snapshotted
+        var r = ApprovalRouter.route(POLICIES, facts("12000", "active", "Rent & Property"), "D07", "U037", d, Set.of("U003", "U012"), Set.of("finance_manager"));
+        assertThat(r.steps()).filteredOn(s -> s.role().equals("finance_manager")).extracting(ApprovalRouter.Step::assigneeId).containsExactly("U001");
+    }
+
+    // ---------- exact tier boundaries: "up to" includes the amount, "over" starts one cent above ----------
+
+    static List<String> roles(String amount) {
+        return ApprovalRouter.route(POLICIES, facts(amount, "active", "Freight & Carriers"), "D01", "U019", dir())
+                .steps().stream().map(ApprovalRouter.Step::role).toList();
+    }
+
+    @Test
+    void boundary_10k() {
+        assertThat(roles("10000.00")).containsExactly("dept_manager");
+        assertThat(roles("10000.01")).containsExactly("dept_manager", "finance_manager");
+    }
+
+    @Test
+    void boundary_50k() {
+        assertThat(roles("50000.00")).containsExactly("dept_manager", "finance_manager");
+        assertThat(roles("50000.01")).containsExactly("dept_manager", "finance_manager", "controller_admin");
+    }
+
+    @Test
+    void boundary_250k() {
+        assertThat(roles("250000.00")).containsExactly("dept_manager", "finance_manager", "controller_admin");
+        assertThat(roles("250000.01")).containsExactly("dept_manager", "finance_manager", "controller_admin", "cfo");
+    }
+
+    @Test
+    void boundary_finalApproverExactlyAtTheirLimitIsEnough() {
+        // Elise's limit is 50,000: a 50,000.00 bill ends with her; Marcus (250,000) ends a 250,000.00 bill. No escalation.
+        var at50 = ApprovalRouter.route(POLICIES, facts("50000.00", "active", "Freight & Carriers"), "D01", "U019", dir());
+        assertThat(at50.steps()).extracting(ApprovalRouter.Step::assigneeId).containsExactly("U007", "U003");
+        var at250 = ApprovalRouter.route(POLICIES, facts("250000.00", "active", "Freight & Carriers"), "D01", "U019", dir());
+        assertThat(at250.steps()).extracting(ApprovalRouter.Step::assigneeId).containsExactly("U007", "U003", "U002");
+    }
+
+    // ---------- delegation is data, not a status ----------
+
+    static ApprovalRouter.Directory withDelegation(String from, String to, LocalDate start, LocalDate end) {
+        var d = dir();
+        Delegation x = new Delegation();
+        x.setFromUserId(from); x.setToUserId(to); x.setStartDate(start); x.setEndDate(end);
+        List<Delegation> all = new ArrayList<>(d.delegations());
+        all.add(x);
+        return new ApprovalRouter.Directory(d.users(), d.departments(), all, d.today());
+    }
+
+    @Test
+    void activeApproverWhoDelegatedForThisWeek_routesToTheDelegateOnTheirBehalf() {
+        // T7's "done when": Dev (status active) delegates to Elise for this week -> a new Operations bill goes to Elise for Dev.
+        var d = withDelegation("U007", "U003", LocalDate.of(2026, 10, 30), LocalDate.of(2026, 11, 6));
+        var r = ApprovalRouter.route(POLICIES, facts("900", "active", "Fuel & Fleet"), "D01", "U019", d);
+        assertThat(r.steps().get(0).assigneeId()).isEqualTo("U003");
+        assertThat(r.steps().get(0).onBehalfOfId()).isEqualTo("U007");
+        assertThat(r.steps().get(0).notes()).anyMatch(n -> n.contains("has delegated") && n.contains("P08"));
+    }
+
+    @Test
+    void expiredOrFutureDelegationIsIgnored() {
+        var past = withDelegation("U007", "U003", LocalDate.of(2026, 10, 1), LocalDate.of(2026, 11, 1));   // ended yesterday
+        assertThat(ApprovalRouter.route(POLICIES, facts("900", "active", "Fuel & Fleet"), "D01", "U019", past).steps().get(0).assigneeId()).isEqualTo("U007");
+        var future = withDelegation("U007", "U003", LocalDate.of(2026, 11, 3), null);                      // starts tomorrow
+        assertThat(ApprovalRouter.route(POLICIES, facts("900", "active", "Fuel & Fleet"), "D01", "U019", future).steps().get(0).assigneeId()).isEqualTo("U007");
+        var lastDay = withDelegation("U007", "U003", LocalDate.of(2026, 10, 1), LocalDate.of(2026, 11, 2)); // end date is inclusive
+        assertThat(ApprovalRouter.route(POLICIES, facts("900", "active", "Fuel & Fleet"), "D01", "U019", lastDay).steps().get(0).assigneeId()).isEqualTo("U003");
+    }
+
+    @Test
+    void delegateWhoIsAlsoTheRequester_escalatesInsteadOfApprovingTheirOwnBill() {
+        // Dev delegated to Elise, and Elise requested the bill: she cannot approve it, even on Dev's behalf.
+        var d = withDelegation("U007", "U003", LocalDate.of(2026, 10, 30), null);
+        var r = ApprovalRouter.route(POLICIES, facts("900", "active", "Fuel & Fleet"), "D01", "U003", d);
+        assertThat(r.steps().get(0).assigneeId()).isNotEqualTo("U003");
+        assertThat(r.steps().get(0).notes()).anyMatch(n -> n.contains("P07"));
+    }
+
+    @Test
     void terminatedAssigneeIsSkippedToManager() {
         var r = ApprovalRouter.route(POLICIES, facts("500", "active", "Freight & Carriers"), "D99", "U019", dir());
         assertThat(r.steps().get(0).assigneeId()).isEqualTo("U007");

@@ -56,6 +56,8 @@ export interface ApprovalStepRow {
   actedAt: string | null
   comment: string | null
   historical: boolean
+  /** From an earlier approval round (rejected, reopened, resubmitted). */
+  superseded: boolean
 }
 
 export interface InvoiceTaxRow {

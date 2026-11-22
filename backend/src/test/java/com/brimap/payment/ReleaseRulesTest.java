@@ -70,6 +70,68 @@ class ReleaseRulesTest {
         assertThat(blockers(user("U002", Role.ADM), "150000", List.of(), vendor("active"), account(true), List.of())).isEmpty();
     }
 
+    // ---- D-091: over $250k the CFO approves last (P04) and may still release, as a logged SoD exception ----
+
+    static AppUser cfo() { return user("U001", Role.ADM); }                                     // ADM with no manager
+    static AppUser controller() { AppUser u = user("U002", Role.ADM); u.setManagerId("U001"); return u; }
+
+    static ApprovalStep step(String actedBy, String onBehalfOf, String role) {
+        ApprovalStep s = step(actedBy, onBehalfOf);
+        s.setRequiredRole(role);
+        return s;
+    }
+
+    static ReleaseRules.Input input(AppUser who, String cad, List<ApprovalStep> steps) {
+        Invoice inv = new Invoice();
+        inv.setId("AP-00600"); inv.setRequesterUserId("U013");
+        return new ReleaseRules.Input(payment(cad), inv, who, steps, vendor("active"), account(true), List.of(), POLICIES, List.of());
+    }
+
+    final List<ApprovalStep> over250k = List.of(step("U007", null, "dept_manager"), step("U003", null, "finance_manager"),
+            step("U002", null, "controller_admin"), step("U001", null, "cfo"));
+
+    @Test
+    void over250k_cfoReleasesWhatSheApprovedAsCfo_asALoggedException() {
+        var in = input(cfo(), "300000", over250k);
+        assertThat(ReleaseRules.blockers(in)).isEmpty();
+        assertThat(ReleaseRules.sodException(in)).hasValueSatisfying(why -> assertThat(why).contains("separation-of-duties exception"));
+    }
+
+    @Test
+    void over250k_everyoneElseWhoApprovedIsStillRefused() {
+        assertThat(ReleaseRules.blockers(input(controller(), "300000", over250k))).anyMatch(b -> b.startsWith("You approved this invoice"));
+        assertThat(ReleaseRules.blockers(input(user("U003", Role.FM), "300000", over250k)))
+                .anyMatch(b -> b.startsWith("You approved this invoice")).anyMatch(b -> b.startsWith("Over your release limit"));
+        assertThat(ReleaseRules.sodException(input(controller(), "300000", over250k))).isEmpty();
+    }
+
+    @Test
+    void exceptionOnlyCoversTheCfoStep_notOtherStepsTheCfoApproved() {
+        // Priya reached as an escalated department manager (e.g. Dev requested an Operations bill): no exception.
+        var chain = List.of(step("U001", null, "dept_manager"), step("U003", null, "finance_manager"));
+        var in = input(cfo(), "20000", chain);
+        assertThat(ReleaseRules.blockers(in)).anyMatch(b -> b.startsWith("You approved this invoice"));
+        assertThat(ReleaseRules.sodException(in)).isEmpty();
+        // Priya acted on the CFO step AND an earlier step: still refused.
+        var both = List.of(step("U001", null, "dept_manager"), step("U003", null, "finance_manager"),
+                step("U002", null, "controller_admin"), step("U001", null, "cfo"));
+        assertThat(ReleaseRules.blockers(input(cfo(), "300000", both))).anyMatch(b -> b.startsWith("You approved this invoice"));
+    }
+
+    @Test
+    void exceptionNeedsTheRealCfo_notAnAdminWithAManager() {
+        var chain = List.of(step("U007", null, "dept_manager"), step("U002", null, "cfo"));
+        assertThat(ReleaseRules.blockers(input(controller(), "300000", chain))).anyMatch(b -> b.startsWith("You approved this invoice"));
+    }
+
+    @Test
+    void exceptionNeverCoversTheRequester() {
+        Invoice inv = new Invoice();
+        inv.setId("AP-00601"); inv.setRequesterUserId("U001");
+        var in = new ReleaseRules.Input(payment("300000"), inv, cfo(), over250k, vendor("active"), account(true), List.of(), POLICIES, List.of());
+        assertThat(ReleaseRules.blockers(in)).anyMatch(b -> b.contains("You requested this invoice"));
+    }
+
     @Test
     void clerkPreparesButNeverReleases() {
         assertThat(blockers(user("U004", Role.CLK), "500", List.of(), vendor("active"), account(true), List.of()))

@@ -543,7 +543,7 @@ The full reasoning and the alternatives considered are in `docs/decisions.md` (D
 | Approvals and payments | D-051–D-059, D-065 | Pure router over the policy table; role holders from data; routing amount includes splits; holds vs blocks; action-time approver checks; one `ReleaseRules` for server and UI; pinned bank version, discounts, credit netting; two-person bank changes and vendor approvals; missing department surfaced, not guessed |
 | Frontend | D-060–D-063, D-076 | One shared invoice screen; generated types; three-colour severity; SAMEORIGIN framing for PDFs; 4 accepted lint warnings |
 | Verification and bonuses | D-064, D-066–D-069, D-074 | Mess table as an executable check; fraud view plus V06; deterministic reconciliation; recommendation; analytics; pinned, least-privilege CI |
-| Team review | D-077–D-080 | FM or Controller releases up to $100k (PRD over the dataset's P09); invoices over $250k have no eligible releaser, by design; B01/B02 hold payment, not approval; Windows reset bypasses script policy for one run |
+| Team review | D-077–D-080 | FM or Controller releases up to $100k (PRD over the dataset's P09); invoices over $250k have no eligible releaser (superseded by D-091: CFO exception); B01/B02 hold payment, not approval; Windows reset bypasses script policy for one run |
 
 **The few decisions that shape everything:**
 

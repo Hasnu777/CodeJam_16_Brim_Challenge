@@ -123,7 +123,7 @@ public class PaymentService {
 
     // ---------- release ----------
 
-    public List<String> releaseBlockers(Payment p, AppUser releaser) {
+    private ReleaseRules.Input releaseInput(Payment p, AppUser releaser) {
         Invoice inv = p.getInvoiceId() == null ? null : invoices.findById(p.getInvoiceId()).orElse(null);
         Vendor v = p.getVendorId() == null ? null : vendors.findById(p.getVendorId()).orElse(null);
         VendorBankAccount acct = v == null ? null : accounts.findFirstByVendorIdAndStatus(v.getId(), "ACTIVE").orElse(null);
@@ -134,8 +134,15 @@ public class PaymentService {
                 .filter(f -> f.getSeverity() == Severity.BLOCK).toList();
         List<BankChangeRequest> pending = v == null ? List.of() : bankChanges.findByVendorIdOrderByChangedAtDesc(v.getId()).stream()
                 .filter(b -> "PENDING".equals(b.getStatus())).toList();
-        List<String> out = new ArrayList<>(ReleaseRules.blockers(new ReleaseRules.Input(p, inv, releaser, inv == null ? List.of() : steps.findByInvoiceIdOrderBySeq(inv.getId()),
-                v, acct, blocks, policies.findAllByOrderByPriorityAsc(), pending)));
+        return new ReleaseRules.Input(p, inv, releaser, inv == null ? List.of() : steps.findByInvoiceIdOrderBySeq(inv.getId()),
+                v, acct, blocks, policies.findAllByOrderByPriorityAsc(), pending);
+    }
+
+    public List<String> releaseBlockers(Payment p, AppUser releaser) {
+        ReleaseRules.Input in = releaseInput(p, releaser);
+        Vendor v = in.vendor();
+        VendorBankAccount acct = in.account();
+        List<String> out = new ArrayList<>(ReleaseRules.blockers(in));
         if (acct != null && p.getBankAccountId() != null) {
             VendorBankAccount active = accounts.findFirstByVendorIdAndStatus(v.getId(), "ACTIVE").orElse(null);
             if (active != null && !active.getId().equals(p.getBankAccountId())) {
@@ -165,9 +172,33 @@ public class PaymentService {
             accounts.findFirstByVendorIdAndStatus(p.getVendorId(), "ACTIVE").ifPresent(a -> p.setBankAccountId(a.getId()));
         }
         payments.save(p);
-        audit.record("PAYMENT_RELEASED", "payment", id, before, snapshot(p), "Released by " + me.getFullName() + " (" + me.getRole() + ")");
+        Optional<String> exception = ReleaseRules.sodException(releaseInput(p, me));
+        audit.record("PAYMENT_RELEASED", "payment", id, before, snapshot(p), "Released by " + me.getFullName() + " (" + me.getRole() + ")"
+                + exception.map(e -> "; " + e).orElse(""));
+        exception.ifPresent(e -> audit.record("SOD_EXCEPTION", "payment", id, null, Map.of("releasedBy", u.id(), "invoiceId", p.getInvoiceId()), e));
         Invoice inv = workflow.load(p.getInvoiceId());
         if (inv.getStatus() == InvoiceStatus.SCHEDULED) workflow.transition(inv, InvoiceStatus.RELEASED, "PAYMENT_RELEASED", id + " released by " + u.id());
+        return p;
+    }
+
+    /**
+     * Bank details changed (and were verified) after this payment was prepared, so release refuses it. The clerk points it
+     * at the vendor's current verified account; it still needs a release, and the releaser sees the new account.
+     */
+    @Transactional
+    public Payment reprepare(String id) {
+        CurrentUser u = Auth.require();
+        InvoiceWorkflowService.requireRole(u, "re-prepare payments", Role.CLK);
+        Payment p = payments.findById(id).orElseThrow(() -> new NotFoundException("Payment " + id));
+        if (!"SCHEDULED".equals(p.getStatus())) throw new BusinessRuleException(id + " is " + p.getStatus() + "; only scheduled payments can be re-prepared");
+        VendorBankAccount active = accounts.findFirstByVendorIdAndStatus(p.getVendorId() == null ? "-" : p.getVendorId(), "ACTIVE")
+                .orElseThrow(() -> new BusinessRuleException("The vendor has no active, verified bank account"));
+        if (active.getId().equals(p.getBankAccountId())) throw new BusinessRuleException(id + " already pays the current account " + active.masked());
+        Map<String, Object> before = snapshot(p);
+        p.setBankAccountId(active.getId());
+        p.setPreparedBy(u.id());
+        payments.save(p);
+        audit.record("PAYMENT_REPREPARED", "payment", id, before, snapshot(p), "Bank details changed since it was prepared; now pays " + active.masked());
         return p;
     }
 
@@ -248,7 +279,11 @@ public class PaymentService {
             retry.setInvoiceId(p.getInvoiceId()); retry.setVendorId(p.getVendorId()); retry.setMethod(p.getMethod());
             retry.setCurrency(p.getCurrency()); retry.setAmount(p.getAmount()); retry.setFxRateToCad(p.getFxRateToCad()); retry.setAmountCad(p.getAmountCad());
             retry.setDiscountTaken(p.getDiscountTaken()); retry.setScheduledDate(clock.today()); retry.setStatus("SCHEDULED");
-            retry.setPreparedBy(u.id()); retry.setBankAccountId(p.getBankAccountId());
+            // Pay the vendor's current verified account: a failure is often a closed account, and if bank details were
+            // changed and verified since, retrying the old version would fail again (or pay a superseded account).
+            retry.setPreparedBy(u.id());
+            retry.setBankAccountId(accounts.findFirstByVendorIdAndStatus(p.getVendorId() == null ? "-" : p.getVendorId(), "ACTIVE")
+                    .map(VendorBankAccount::getId).orElse(p.getBankAccountId()));
             payments.save(retry);
             audit.record("PAYMENT_PREPARED", "payment", retry.getId(), null, snapshot(retry), "Retry of failed " + id);
         }

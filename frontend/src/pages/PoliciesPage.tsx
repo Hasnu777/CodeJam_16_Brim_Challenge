@@ -7,6 +7,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Loading } from '../components/bits'
 import { notifyError, notifyOk } from '../components/notify'
 import { money } from '../lib/format'
+import { useNames } from '../lib/names'
 
 const ROLES = ['dept_manager', 'finance_manager', 'controller_admin', 'cfo']
 const KINDS = ['approval', 'match', 'payment_release', 'assignment']
@@ -30,6 +31,7 @@ function render(n: Record<string, unknown>): string {
 
 export default function PoliciesPage() {
   const { is } = useAuth()
+  const n = useNames()
   const qc = useQueryClient()
   const q = useQuery({ queryKey: ['policies'], queryFn: () => api.get<ApprovalPolicy[]>('/policies') })
   const invoices = useQuery({ queryKey: ['invoices', 'policy-preview'], queryFn: () => api.get<InvoiceSummary[]>('/invoices'), enabled: is('ADM', 'FM') })
@@ -87,8 +89,8 @@ export default function PoliciesPage() {
                   onChange={(v) => update(i, { conditionJson: v })} />}
                 {p.notes && <Text size="xs" c="dimmed">{p.notes}</Text>}
               </Table.Td>
-              <Table.Td>{edit ? <MultiSelect size="xs" w={240} data={ROLES} value={(p.addsRoles ?? '').split(',').filter(Boolean)} onChange={(v) => update(i, { addsRoles: v.join(',') })} />
-                : (p.addsRoles ?? '').split(',').filter(Boolean).map((r) => <Badge key={r} size="sm" variant="outline" mr={4}>{r}</Badge>)}</Table.Td>
+              <Table.Td>{edit ? <MultiSelect size="xs" w={240} data={ROLES.map((r) => ({ value: r, label: n.role(r) }))} value={(p.addsRoles ?? '').split(',').filter(Boolean)} onChange={(v) => update(i, { addsRoles: v.join(',') })} />
+                : (p.addsRoles ?? '').split(',').filter(Boolean).map((r) => <Badge key={r} size="sm" variant="outline" mr={4}>{n.role(r)}</Badge>)}</Table.Td>
               <Table.Td><Switch checked={p.enabled} disabled={!edit} onChange={(e) => update(i, { enabled: e.currentTarget.checked })} /></Table.Td>
             </Table.Tr>
           ))}
@@ -102,7 +104,7 @@ export default function PoliciesPage() {
           <Text size="sm" c="dimmed" mb="sm">Who would approve an invoice under the rules above (including unsaved edits)?</Text>
           <Group align="flex-end">
             <Select searchable w={420} label="Invoice" value={previewId} onChange={setPreviewId}
-              data={(invoices.data ?? []).map((i) => ({ value: i.id!, label: `${i.id} · ${i.vendorName ?? '?'} · ${money(i.totalCad)} · ${i.departmentId ?? 'no dept'}` }))} />
+              data={(invoices.data ?? []).map((i) => ({ value: i.id!, label: `${i.id} · ${i.vendorName ?? '?'} · ${money(i.totalCad)} · ${i.departmentId ? n.dept(i.departmentId) : 'no department'}` }))} />
             <Button onClick={runPreview} disabled={!previewId}>Preview</Button>
           </Group>
           {preview && (
@@ -112,10 +114,10 @@ export default function PoliciesPage() {
                   <Text fw={600}>{k === 'current' ? 'Saved rules' : 'With your edits'}</Text>
                   <Text size="xs" c="dimmed">Routed at {money(preview[k].amountCad)} · matched {preview[k].matchedPolicies.join(', ') || 'none'}</Text>
                   {preview[k].steps.map((s) => (
-                    <Text key={s.seq} size="sm">{s.seq}. {s.role.replace('_', ' ')} → <b>{s.assigneeId}</b>{s.onBehalfOfId ? ` (for ${s.onBehalfOfId})` : ''}
-                      {s.notes.map((n) => <Text key={n} size="xs" c="dimmed">↳ {n}</Text>)}</Text>
+                    <Text key={s.seq} size="sm">{s.seq}. {n.role(s.role)} → <b>{n.person(s.assigneeId)}</b>{s.onBehalfOfId ? ` (on behalf of ${n.person(s.onBehalfOfId)})` : ''}
+                      {s.notes.map((note) => <Text key={note} size="xs" c="dimmed">↳ {n.text(note)}</Text>)}</Text>
                   ))}
-                  {preview[k].problems.map((p) => <Text key={p} size="xs" c="red">{p}</Text>)}
+                  {preview[k].problems.map((p) => <Text key={p} size="xs" c="red">{n.text(p)}</Text>)}
                 </Grid.Col>
               ))}
             </Grid>

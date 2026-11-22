@@ -36,6 +36,16 @@ public class RevalidationService {
         invoices.findByVendorId(changed.getVendorId()).stream()
                 .filter(i -> !i.isHistorical() && !Objects.equals(i.getId(), changed.getId()) && reviewable(i))
                 .forEach(this::safeValidate);
+        // Approved / scheduled bills: only their payment holds follow the vendor (D-097).
+        invoices.findByVendorId(changed.getVendorId()).stream()
+                .filter(i -> !i.isHistorical() && (i.getStatus() == InvoiceStatus.APPROVED || i.getStatus() == InvoiceStatus.SCHEDULED))
+                .forEach(i -> {
+                    try {
+                        validation.clearStaleHolds(i);
+                    } catch (RuntimeException e) {
+                        log.error("Clearing payment holds on {} failed", i.getId(), e);
+                    }
+                });
     }
 
     private void safeValidate(Invoice i) {

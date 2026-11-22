@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { Empty, Loading, SeverityBadge } from '../components/bits'
 import { money } from '../lib/format'
+import { humanize } from '../lib/names'
 
 interface Alert { kind: string; severity: string; title: string; message: string; invoiceId: string | null; vendorId: string | null; vendorName: string | null; amountCad: string | null; ref: string }
 interface Resp { alerts: Alert[]; blockedAmountCad: string; countsByCode: Record<string, number> }
@@ -32,7 +33,7 @@ export default function FraudPage() {
             {alerts.map((a, i) => (
               <Table.Tr key={i}>
                 <Table.Td><SeverityBadge severity={a.severity} /></Table.Td>
-                <Table.Td maw={560}><Text size="sm" fw={600}>{a.title}</Text><Text size="sm">{a.message}</Text></Table.Td>
+                <Table.Td maw={560}><Text size="sm" fw={600}>{a.title}</Text><Text size="sm">{humanize(a.message)}</Text></Table.Td>
                 <Table.Td>{a.vendorId ? <Anchor component={Link} to={`/vendors/${a.vendorId}`}>{a.vendorName}</Anchor> : a.vendorName}</Table.Td>
                 <Table.Td>{a.invoiceId && <Anchor component={Link} to={`/invoices/${a.invoiceId}`}>{a.invoiceId}</Anchor>}</Table.Td>
                 <Table.Td ta="right" ff="monospace">{money(a.amountCad)}</Table.Td>

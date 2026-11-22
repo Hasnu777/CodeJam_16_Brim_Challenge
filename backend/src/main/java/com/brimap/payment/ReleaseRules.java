@@ -10,7 +10,8 @@ import java.util.*;
  * Who may release a payment, as a pure function. Returns every reason the release is not allowed (empty = allowed),
  * so the same code enforces the rule on the server and explains a disabled button in the UI.
  *  P09/P10 (from the policy table): the releaser's role must be allowed for the amount (FM up to 100k, ADM any).
- *  P11: nobody who acted on any approval step of the invoice (including as a delegate, or the person delegated for).
+ *  P11: nobody who acted on any approval step of the invoice (including as a delegate, or the person delegated for),
+ *       except the CFO for the step she approved as CFO (over $250k), logged as an exception: see sodException.
  *  Clerks prepare, never release. Vendor must be active, its bank account verified, no open BLOCK flag.
  */
 public final class ReleaseRules {
@@ -45,7 +46,9 @@ public final class ReleaseRules {
             out.add("Over your release limit: CAD " + amount.toPlainString() + " needs the Controller (" + String.join(", ", matched) + ")");
         }
 
+        boolean cfoException = sodException(in).isPresent();
         for (ApprovalStep s : in.steps()) {
+            if (cfoException) break;
             if (!"APPROVED".equals(s.getDecision()) && !"REJECTED".equals(s.getDecision())) continue;
             if (u.getId().equals(s.getActedBy())) {
                 out.add("You approved this invoice" + (s.getActedOnBehalfOf() == null ? "" : " (as delegate for " + s.getActedOnBehalfOf() + ")")
@@ -74,5 +77,25 @@ public final class ReleaseRules {
             out.add("Open BLOCK flags: " + String.join(", ", in.openBlockFlags().stream().map(Flag::getRuleCode).distinct().toList()));
         }
         return out;
+    }
+
+    /**
+     * D-091: over $250k the CFO approves the last step (P04), and P04 + P10 + P11 together would leave nobody able to
+     * release. The team chose a narrow separation-of-duties exception: the CFO (the Controller/Admin with no manager)
+     * may release a payment whose approval she gave ONLY as the "cfo" step. Approving any other step (e.g. as an
+     * escalated department manager), or acting as/for a delegate, still bars her. Requesting the invoice always bars.
+     * Returns the explanation to write to the audit log, or empty when the exception does not apply.
+     */
+    public static Optional<String> sodException(Input in) {
+        AppUser u = in.releaser();
+        if (u == null || u.getRole() != Role.ADM || u.getManagerId() != null) return Optional.empty();
+        List<ApprovalStep> mine = in.steps().stream()
+                .filter(s -> "APPROVED".equals(s.getDecision()) || "REJECTED".equals(s.getDecision()))
+                .filter(s -> u.getId().equals(s.getActedBy()) || u.getId().equals(s.getActedOnBehalfOf())).toList();
+        if (mine.isEmpty()) return Optional.empty();
+        boolean onlyCfoStep = mine.stream().allMatch(s -> "cfo".equals(s.getRequiredRole())
+                && u.getId().equals(s.getActedBy()) && s.getActedOnBehalfOf() == null);
+        if (!onlyCfoStep) return Optional.empty();
+        return Optional.of("CFO " + u.getFullName() + " approved the final (cfo) step and releases it: separation-of-duties exception (D-091)");
     }
 }

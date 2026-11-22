@@ -115,5 +115,34 @@ public class ValidationService implements InvoiceProcessingStep {
         return open;
     }
 
+    /**
+     * Approved and scheduled bills are not re-validated (their review is over), but their payment holds (V01, V02, B01,
+     * B02) follow the vendor's live state: a hold raised during approval must clear once the vendor is approved or the
+     * bank change is verified, or the payment stays stuck. Clears hold flags whose rule no longer fires at all (D-097).
+     * Never adds flags: release checks the vendor, its bank account and pending bank changes directly (ReleaseRules).
+     */
+    @Transactional
+    public List<String> clearStaleHolds(Invoice invoice) {
+        Invoice inv = invoices.findById(invoice.getId()).orElseThrow();
+        Set<String> stillFiring = evaluate(contexts.build(inv)).stream().map(FlagDraft::code)
+                .filter(com.brimap.approval.ApprovalService.PAYMENT_HOLD_CODES::contains).collect(Collectors.toSet());
+        List<String> cleared = new ArrayList<>();
+        for (Flag f : flags.findByInvoiceId(inv.getId())) {
+            if (!f.isOpen() || !com.brimap.approval.ApprovalService.PAYMENT_HOLD_CODES.contains(f.getRuleCode()) || stillFiring.contains(f.getRuleCode())) continue;
+            f.setStatus("RESOLVED");
+            f.setResolution("AUTO_CLEARED");
+            f.setResolvedBy("system");
+            f.setResolvedAt(clock.now());
+            f.setNote("Vendor details changed; this payment hold no longer applies");
+            flags.save(f);
+            cleared.add(f.getRuleCode());
+        }
+        if (!cleared.isEmpty()) {
+            audit.record("PAYMENT_HOLD_CLEARED", "invoice", inv.getId(), null, Map.of("autoCleared", cleared),
+                    "Payment hold " + String.join(", ", cleared) + " cleared: the vendor's details no longer trigger it");
+        }
+        return cleared;
+    }
+
     private static String key(String code, String message) { return code + "|" + message; }
 }

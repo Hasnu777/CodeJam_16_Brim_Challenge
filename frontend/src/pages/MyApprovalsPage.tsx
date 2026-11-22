@@ -6,9 +6,11 @@ import type { QueueItem } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { Empty, ErrorBox, Loading, MoneyCell } from '../components/bits'
 import { money, num } from '../lib/format'
+import { useNames } from '../lib/names'
 
 export default function MyApprovalsPage() {
   const { me } = useAuth()
+  const n = useNames()
   const q = useQuery({ queryKey: ['approvals'], queryFn: () => api.get<QueueItem[]>('/approvals/mine') })
   if (q.isLoading) return <Loading />
   if (q.error) return <ErrorBox error={q.error} />
@@ -37,10 +39,10 @@ export default function MyApprovalsPage() {
                   <MoneyCell cad={r.totalCad} amount={r.total} currency={r.currency} />
                   {r.routedAmountCad && num(r.routedAmountCad) !== num(r.totalCad) && <Text size="xs" c="orange">routed at {money(r.routedAmountCad)} (split)</Text>}
                 </Table.Td>
-                <Table.Td><Text size="sm">{r.stepSeq} of {r.stepCount} · {r.role?.replace('_', ' ')}</Text></Table.Td>
-                <Table.Td>{r.onBehalfOfUserId ? <Badge color="grape" variant="light">on behalf of {r.onBehalfOfUserId}</Badge>
-                  : r.asDelegate ? <Badge color="grape" variant="light">delegate for {r.assignedUserId}</Badge> : <Text size="sm">you</Text>}</Table.Td>
-                <Table.Td><Text size="xs">{r.topFlag ?? '—'}</Text></Table.Td>
+                <Table.Td><Text size="sm">{r.stepSeq} of {r.stepCount} · {n.role(r.role)}</Text></Table.Td>
+                <Table.Td>{r.onBehalfOfUserId ? <Badge color="grape" variant="light">on behalf of {n.person(r.onBehalfOfUserId)}</Badge>
+                  : r.asDelegate ? <Badge color="grape" variant="light">delegate for {n.person(r.assignedUserId)}</Badge> : <Text size="sm">you</Text>}</Table.Td>
+                <Table.Td><Text size="xs">{n.text(r.topFlag) || '—'}</Text></Table.Td>
                 <Table.Td><Text size="sm">{r.daysWaiting} d</Text></Table.Td>
               </Table.Tr>
             ))}

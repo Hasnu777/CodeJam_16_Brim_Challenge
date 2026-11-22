@@ -29,7 +29,7 @@ export default function LoginPage() {
                 <Stack gap={4}>
                   <Badge color={ROLE_COLOR[u.role!]} variant="light" w="fit-content">{ROLE_LABEL[u.role!]}</Badge>
                   <Text fw={600}>{u.fullName}</Text>
-                  <Text size="xs" c="dimmed">{u.title} · {u.id}{u.status !== 'active' ? ` · ${u.status?.replace('_', ' ')}` : ''}</Text>
+                  <Text size="xs" c="dimmed">{u.title}{u.status !== 'active' ? ` · ${u.status?.replace('_', ' ')}` : ''}</Text>
                 </Stack>
               </Card>
             </UnstyledButton>

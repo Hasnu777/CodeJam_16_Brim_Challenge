@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import type { Flag } from '../api/types'
 import { dateTime, money } from '../lib/format'
 import { SeverityBadge } from './bits'
+import { useNames } from '../lib/names'
 
 const BORDER: Record<string, string> = { BLOCK: 'var(--mantine-color-red-6)', WARN: 'var(--mantine-color-yellow-6)', INFO: 'var(--mantine-color-gray-5)' }
 
@@ -19,6 +20,7 @@ export function FlagCard({ flag, canResolve, onResolve, users, children, showDet
   /** The facts the rule recorded, as a labelled list. For reviewers (FM, approver, admin, auditor), not the clerk. */
   showDetails?: boolean
 }) {
+  const n = useNames()
   const [open, { toggle }] = useDisclosure(false)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
@@ -44,22 +46,23 @@ export function FlagCard({ flag, canResolve, onResolve, users, children, showDet
         <Stack gap={4} style={{ flex: 1 }}>
           <Group gap="xs">
             <SeverityBadge severity={flag.severity} />
-            <Text fw={600} size="sm">{flag.ruleCode} · {flag.title}</Text>
+            <Text fw={600} size="sm">{flag.title}</Text>
+            <Text size="xs" c="dimmed">{flag.ruleCode}</Text>
             {resolved && <Badge color="green" variant="light" size="sm">{flag.resolution === 'AUTO_CLEARED' ? 'cleared' : flag.status?.toLowerCase()}</Badge>}
           </Group>
-          <Text size="sm">{flag.message}</Text>
+          <Text size="sm">{n.text(flag.message)}</Text>
           {!resolved && children}
           {links.length > 0 && (
             <Group gap="xs">
               <Text size="xs" c="dimmed">Related:</Text>
               {links.map((id) => (
-                <Anchor key={id} component={Link} size="xs" to={id.startsWith('V') ? `/vendors/${id}` : `/invoices/${id}`}>{id}</Anchor>
+                <Anchor key={id} component={Link} size="xs" to={id.startsWith('V') ? `/vendors/${id}` : `/invoices/${id}`}>{id.startsWith('V') ? n.vendor(id) : id}</Anchor>
               ))}
             </Group>
           )}
           {resolved && flag.resolvedBy && (
             <Text size="xs" c="dimmed">
-              {flag.resolution === 'AUTO_CLEARED' ? 'Cleared automatically' : `${flag.status} by ${users?.[flag.resolvedBy] ?? flag.resolvedBy}`}
+              {flag.resolution === 'AUTO_CLEARED' ? 'Cleared automatically' : `${flag.status?.toLowerCase()} by ${users?.[flag.resolvedBy] ?? n.person(flag.resolvedBy)}`}
               {' '}{dateTime(flag.resolvedAt)}{flag.note ? ` — "${flag.note}"` : ''}
             </Text>
           )}

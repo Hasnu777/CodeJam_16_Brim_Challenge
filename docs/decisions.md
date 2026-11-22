@@ -358,7 +358,7 @@ names only `finance_manager` for this band; the PRD's release table (and its `/p
 less, and it leaves a releaser when the FM approved the invoice (the worked example). `ReleaseRules` encodes it; the
 policy rows keep the dataset's original sentences.
 
-**D-078 Invoices over $250,000 cannot be released by anyone, by design.** P04 puts the FM, the Controller and the
+**D-078 (superseded by D-091) Invoices over $250,000 cannot be released by anyone, by design.** P04 puts the FM, the Controller and the
 CFO on the chain; P10 requires a Controller/Admin to release over $100k; P11 bars anyone who approved. Both
 Controller/Admins (U001, U002) have approved, the FM can't release over $100k, so every release attempt is refused
 with its reason. We keep the refusal rather than exempting the CFO from P11 (the one rule the PRD applies to every
@@ -443,3 +443,73 @@ AP-00480 and "Jan – Oct 2026"). Monthly spend is a chronological SVG line (`Mo
 **D-088 Secrets only in `.env`; `.gitignore` blocks variants.** `.env.example` stays the committed template with an
 empty `LLM_API_KEY`. `.gitignore` ignores `.env` and `.env.*` (except `.env.example`), because a key saved as
 `.env.txt` (Windows hides the extension) was neither read by Docker Compose nor ignored by git.
+
+## Features 6 and 7 (approvals and payments)
+
+**D-090 Team confirmations for approvals and payments.** (1) The Controller and the CFO may also release payments
+under $100,000, not only the Finance Manager (confirms D-077). (2) The CFO approves only invoices over $250,000
+(dataset P04), not every invoice. (3) BLOCK flags may be overridden by the Finance Manager *or* a Controller/Admin,
+as the PRD's `/flags/{id}/resolve` row says; AP clerks can't override blocks.
+
+**D-091 CFO separation-of-duties exception over $250,000 (supersedes D-078).** The team chose to let the CFO pay
+what she approved rather than leave $250k+ invoices unpayable. The exception is narrow (`ReleaseRules.sodException`):
+the releaser must be the CFO (the Controller/Admin with no manager), and every approval step she acted on must be the
+`cfo` step, acted on herself (not as or for a delegate). If she approved any other step, e.g. as an escalated
+department manager, P11 still bars her; the requester is always barred. Each such release writes a `SOD_EXCEPTION`
+audit row next to `PAYMENT_RELEASED`, so the Auditor can list every exception. Everyone else who approved
+(Controller, FM, department manager) is still refused. Unit-tested in `ReleaseRulesTest`.
+
+**D-092 A rejected invoice can be reopened and resubmitted, as a fresh approval round.** `POST /invoices/{id}/reopen`
+(AP clerk or Admin, reason required) moves REJECTED -> IN_REVIEW; before this the state machine allowed it but nothing
+did it, so a rejected bill was a dead end. On resubmit, the earlier round's steps are kept but marked `superseded`:
+they no longer count for "who is next", "final step" or "already acted on an earlier step", so the same manager can
+approve round 2. They still count for P11 (nobody pays what they approved, in any round). The invoice screen shows
+the earlier round under the current chain.
+
+**D-093 Self-approval comes before delegation in routing.** If the requester is the approver and is on leave, their
+delegate must not approve "on behalf of" them (that is the requester approving their own spending by proxy). The
+router now applies P07 first and escalates to the requester's manager; `decide()` also refuses an approval whose
+"on behalf of" person is the requester (for chains routed before this fix or delegations added later).
+
+**D-094 Admins can re-route a stuck approval chain.** The chain is snapshotted at submit, so an approver who is
+terminated, goes on leave without a delegate, or loses the role afterwards would leave a step nobody can act on.
+`POST /invoices/{id}/reroute` (Admin, reason required) re-resolves only the PENDING steps against today's people and
+delegations, at the amount the chain was built for. Decided steps stay, and everyone who acted (or was acted for)
+counts as on the chain, so nobody approves twice. It refuses when the result is unchanged. Audited as
+`APPROVAL_REROUTED` with each old -> new assignee.
+
+**D-095 Optimistic locking on payments and approval steps.** `@Version` on `Payment` and `ApprovalStep` (columns
+added with `default 0`, so existing databases upgrade in place). Two people releasing (or batching) the same payment,
+or double-clicking Approve, now give one success and one 409 "someone else changed this record", never two releases.
+The raw JPA/Hibernate lock exceptions are mapped to 409 as well as Spring's wrapper. Proven live by
+`scripts/verify_approvals_payments.py`, which fires two releases at the same instant.
+
+**D-096 The UI shows names, the API keeps ids.** People, departments, vendors, GL accounts, approval roles and policy
+conditions are shown by name everywhere ("Elise Tremblay on behalf of Liam O'Connor", "Facilities",
+"6610 · Rent & Operating Costs", "Department manager", "Why this step: Invoice total over $10,000 CAD"). Ids stay in
+the API, the database and the audit log because they are stable keys. `lib/names.ts` + `components/NamesProvider.tsx`
+load the reference lists once per session; `humanize()` also rewrites ids inside server text (flag messages, routing
+notes, audit details, error toasts), dropping a bracketed id when the name is already next to it. Role-gated lists
+(vendors, policies) are only fetched for roles allowed to read them; others fall back to the id. Invoice and payment
+numbers (AP-00473, PAY-00417) stay visible: they are document numbers people quote.
+
+**D-097 Payment holds follow the vendor after approval.** Re-validation only re-checks bills still in review, so a
+B02 (unverified bank change) raised while a bill was in approval never cleared after the Finance Manager verified the
+change: the payment stayed stuck with "Open BLOCK flags: B02". Now any vendor change (approval, bank-change request
+or verification) also runs `ValidationService.clearStaleHolds` on that vendor's APPROVED / SCHEDULED bills: hold
+flags (V01, V02, B01, B02) whose rule no longer fires are auto-cleared and audited as `PAYMENT_HOLD_CLEARED`. It never
+adds flags or re-runs the other rules on approved bills; release already checks the vendor, its bank account and
+pending bank changes live (ReleaseRules), so a new hold still blocks.
+
+**D-098 A delegation applies whether or not the person is marked on leave.** The PRD makes delegation time-bounded
+data, not a status, but the router only used it for `on_leave` users, so "Dev delegates to Elise for this week"
+(T7) did nothing while Dev was active. Any delegation active today now routes the step to the delegate "on behalf
+of" the person. Start and end dates are inclusive; expired or future ones are ignored. Self-approval (P07) is still
+checked first, for the person and for their delegate.
+
+**D-099 Re-prepare after a bank change; retries pay the current account.** A payment records the bank-account version
+it was prepared against, and release refuses it if the vendor's verified account has changed since ("re-prepare
+it"), but nothing could re-prepare a SCHEDULED payment. `POST /payments/{id}/reprepare` (AP clerk) points it at the
+current active, verified account; it still needs a release, and the releaser sees the new account. Audited as
+`PAYMENT_REPREPARED`. A failed payment's automatic retry now also uses the vendor's current active account (a failure
+is often a closed account), not the old version.
