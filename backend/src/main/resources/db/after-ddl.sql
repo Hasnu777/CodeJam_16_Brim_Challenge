@@ -24,3 +24,21 @@ CREATE SEQUENCE IF NOT EXISTS vendor_number_seq START 57
 CREATE SEQUENCE IF NOT EXISTS bank_change_number_seq START 10
 ^^^
 CREATE SEQUENCE IF NOT EXISTS batch_number_seq START 1
+
+
+^^^
+-- Also block TRUNCATE on the audit log (row triggers above don't see it).
+-- The only exception: the demo reset, which sets app.allow_reset = on for its own transaction.
+CREATE OR REPLACE FUNCTION audit_events_no_truncate() RETURNS trigger AS $$
+BEGIN
+   IF current_setting('app.allow_reset', true) = 'on' THEN
+    RETURN NULL;
+END IF;
+  RAISE EXCEPTION 'audit_events is append-only (TRUNCATE rejected)';
+END;
+$$ LANGUAGE plpgsql
+^^^
+DROP TRIGGER IF EXISTS audit_events_no_truncate ON audit_events
+^^^
+CREATE TRIGGER audit_events_no_truncate BEFORE TRUNCATE ON audit_events
+  FOR EACH STATEMENT EXECUTE FUNCTION audit_events_no_truncate()

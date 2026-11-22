@@ -50,6 +50,7 @@ app:
   tesseract: ${TESSERACT_BIN:tesseract}
   business-date: ${BUSINESS_DATE:2026-11-02}
   cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+  demo-mode: ${APP_DEMO_MODE:false}
 
 springdoc:
   api-docs:

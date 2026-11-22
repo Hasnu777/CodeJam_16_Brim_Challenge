@@ -18,10 +18,15 @@ public class AdminController {
     private final EntityManager em;
     private final com.brimap.audit.AuditService audit;
 
+
+    @org.springframework.beans.factory.annotation.Value("${app.demo-mode:false}")
+    private boolean demoMode;
+
     /** Wipe every table (audit log included) and reload the dataset. Demo only. */
     @PostMapping("/reset")
     @PreAuthorize("hasRole('ADM')")
     public SeedReport reset() {
+        if (!demoMode) throw new com.brimap.auth.ForbiddenException("Reset is disabled outside demo mode (set APP_DEMO_MODE=true)");
         String actor = com.brimap.auth.Auth.actorId();
         SeedReport r = seeder.reset();
         // The audit log restarts with the reset itself as event 1, so the chain is never silently empty.
