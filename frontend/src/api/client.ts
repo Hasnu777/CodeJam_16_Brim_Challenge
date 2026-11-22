@@ -42,6 +42,7 @@ export const api = {
   post: <T>(p: string, body?: unknown) => request<T>('POST', p, body ?? {}),
   put: <T>(p: string, body?: unknown) => request<T>('PUT', p, body ?? {}),
   upload: <T>(p: string, form: FormData) => request<T>('POST', p, form, true),
+  del: <T>(p: string, body?: unknown) => request<T>('DELETE', p, body ?? {}),
 }
 
 /** Build a query string, skipping empty values. */

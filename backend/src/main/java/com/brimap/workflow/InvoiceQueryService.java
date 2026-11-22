@@ -86,7 +86,7 @@ public class InvoiceQueryService {
                     fl.stream().filter(f -> f.getSeverity() == Severity.WARN).count(),
                     fl.stream().filter(f -> f.getSeverity() == Severity.INFO).count(),
                     cur == null ? null : cur.getAssignedUserId(), cur == null ? null : userNames.get(cur.getAssignedUserId()),
-                    top == null ? null : top.getRuleCode() + ": " + top.getTitle()));
+                    top == null ? null : top.getTitle()));
             if (out.size() >= limit) break;
         }
         return out;

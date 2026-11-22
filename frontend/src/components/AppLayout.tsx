@@ -17,15 +17,23 @@ export const NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: <IconHome size={19} />, roles: ['EMP', 'CLK', 'APR', 'FM', 'ADM', 'AUD'] },
   { to: '/inbox', label: 'Inbox', icon: <IconInbox size={19} />, roles: ['CLK', 'ADM', 'AUD'] },
   { to: '/invoices', label: 'Invoices', icon: <IconFileInvoice size={19} />, roles: ['EMP', 'CLK', 'APR', 'FM', 'ADM', 'AUD'] },
-  { to: '/approvals', label: 'My approvals', icon: <IconListCheck size={19} />, roles: ['APR', 'FM', 'ADM'] },
+  { to: '/approvals', label: 'My Approvals', icon: <IconListCheck size={19} />, roles: ['APR', 'FM', 'ADM'] },
   { to: '/payments', label: 'Payments', icon: <IconCash size={19} />, roles: ['CLK', 'FM', 'ADM', 'AUD'] },
   { to: '/vendors', label: 'Vendors', icon: <IconBuildingStore size={19} />, roles: ['CLK', 'APR', 'FM', 'ADM', 'AUD'] },
   { to: '/policies', label: 'Policies', icon: <IconGavel size={19} />, roles: ['FM', 'ADM', 'AUD'] },
-  { to: '/audit', label: 'Audit log', icon: <IconShieldCheck size={19} />, roles: ['ADM', 'AUD'] },
-  { to: '/fraud', label: 'Fraud alerts', icon: <IconAlertOctagon size={19} />, roles: ['CLK', 'FM', 'ADM', 'AUD'] },
+  { to: '/audit', label: 'Audit Log', icon: <IconShieldCheck size={19} />, roles: ['ADM', 'AUD'] },
+  { to: '/fraud', label: 'Fraud Alerts', icon: <IconAlertOctagon size={19} />, roles: ['CLK', 'FM', 'ADM', 'AUD'] },
   { to: '/reconciliation', label: 'Reconciliation', icon: <IconScale size={19} />, roles: ['FM', 'ADM', 'AUD'] },
-  { to: '/analytics', label: 'Spend analytics', icon: <IconChartLine size={19} />, roles: ['APR', 'FM', 'ADM', 'AUD'] },
+  { to: '/analytics', label: 'Spend Analytics', icon: <IconChartLine size={19} />, roles: ['APR', 'FM', 'ADM', 'AUD'] },
 ]
+
+/** "Maintenance Technician (Employee)": the person's job title, plus the app role when the title does not already say it. */
+function jobTitle(u: UserSummary): string {
+  const role = ROLE_LABEL[u.role!] ?? u.role ?? ''
+  const title = u.title ?? ''
+  if (!title) return role
+  return title.toLowerCase().includes(role.toLowerCase()) || role.toLowerCase().includes(title.toLowerCase()) ? title : `${title} (${role})`
+}
 
 /** Real session login (POST /api/auth/login via AuthContext), styled as the Lovable header selector. */
 export function UserSwitcher({ width, className }: { width?: number; className?: string }) {
@@ -42,7 +50,7 @@ export function UserSwitcher({ width, className }: { width?: number; className?:
       value={me?.id ?? null}
       data={(users.data ?? []).map((u) => ({
         value: u.id!,
-        label: `${u.fullName} · ${ROLE_LABEL[u.role!] ?? u.role}${u.status !== 'active' ? ` (${u.status!.replace('_', ' ')})` : ''}`,
+        label: `${u.fullName} · ${jobTitle(u)}${u.status !== 'active' ? ` (${u.status!.replace('_', ' ')})` : ''}`,
         disabled: u.status === 'terminated',
       }))}
       onChange={async (v) => {
@@ -74,10 +82,10 @@ export default function AppLayout() {
             <Title order={3} className="ap-brand"><span>Harborline</span> AP</Title>
           </Group>
           <Group gap="md" wrap="nowrap">
-            <Text size="xs" c="dimmed" visibleFrom="lg">Business date <b>{me.businessDate}</b></Text>
+            <Text size="xs" c="dimmed" visibleFrom="lg">Business Date <b>{me.businessDate}</b></Text>
             {me.actingFor.length > 0 && (
               <Tooltip label={`You are delegate for ${me.actingFor.map((a) => a.fullName).join(', ')}`}>
-                <Badge color="grape" variant="light" visibleFrom="md">delegate for {me.actingFor.map((a) => a.userId).join(', ')}</Badge>
+                <Badge color="grape" variant="light" visibleFrom="md">Delegate For {me.actingFor.map((a) => a.fullName).join(', ')}</Badge>
               </Tooltip>
             )}
             <UserSwitcher className="ap-user-switch" />
@@ -85,8 +93,7 @@ export default function AppLayout() {
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="sm">
-        <ScrollArea>
-          <Text size="xs" c="dimmed" px="sm" py="sm" fw={700}>{ROLE_LABEL[me.role]}</Text>
+        <ScrollArea pt="xs">
           {items.map((n) => (
             <NavLink key={n.to} component={Link} to={n.to} label={n.label} leftSection={n.icon} className="ap-nav-link"
               active={n.to === '/' ? loc.pathname === '/' : loc.pathname.startsWith(n.to)} onClick={close} />

@@ -284,12 +284,9 @@ public class PaymentService {
             sent++;
             p.setStatus("SENT");
             p.setBatchId(b.getId());
-            p.setReference(p.getReference() != null ? p.getReference() : "BRIM-" + p.getMethod() + "-" + p.getId().replace("PAY-", ""));
+            p.setReference(reference(p));
             payments.save(p);
-            file.append(p.getId()).append(',').append(v == null ? "" : v.getLegalName().replace(",", " ")).append(',')
-                    .append(card || a == null ? "" : a.getInstitution()).append(',').append(card || a == null ? "" : a.getTransit()).append(',')
-                    .append(card ? "VCARD " + vc.masked() : a == null ? "" : a.getAccountNumber()).append(',').append(p.getCurrency()).append(',').append(p.getAmount().toPlainString())
-                    .append(',').append(p.getReference()).append('\n');
+            appendRow(file, p, v, a, vc);
             total = total.add(p.getAmountCad() == null ? BigDecimal.ZERO : p.getAmountCad());
             audit.record("PAYMENT_SENT", "payment", p.getId(), Map.of("status", "RELEASED"), Map.of("status", "SENT", "batch", b.getId()), "In EFT batch " + b.getId());
         }
@@ -300,6 +297,49 @@ public class PaymentService {
         batches.save(b);
         audit.record("EFT_BATCH_CREATED", "payment_batch", b.getId(), null, Map.of("payments", sent, "totalCad", total.toPlainString()), null);
         return b;
+    }
+
+    /**
+     * What "Create payment batch" would send, without sending anything (D-103): no status change, no card charge, no
+     * audit row. The batch itself is only created when the file is downloaded, so closing the preview loses nothing.
+     */
+    @Transactional(readOnly = true)
+    public PaymentBatch previewBatch() {
+        CurrentUser u = Auth.require();
+        InvoiceWorkflowService.requireRole(u, "create payment batches", Role.FM, Role.ADM);
+        List<Payment> released = payments.findByStatus("RELEASED");
+        if (released.isEmpty()) throw new BusinessRuleException("No released payments to batch");
+        PaymentBatch b = new PaymentBatch();
+        b.setId("PREVIEW");
+        b.setCreatedAt(clock.now());
+        b.setCreatedBy(u.id());
+        StringBuilder file = new StringBuilder("# Simulated payment file (preview) (EFT + Brim virtual card charges) - Harborline Logistics - " + clock.today() + "\n");
+        file.append("payment_id,payee,institution,transit,account,currency,amount,reference\n");
+        BigDecimal total = BigDecimal.ZERO;
+        for (Payment p : released) {
+            Vendor v = p.getVendorId() == null ? null : vendors.findById(p.getVendorId()).orElse(null);
+            VendorBankAccount a = p.getBankAccountId() == null ? null : accounts.findById(p.getBankAccountId()).orElse(null);
+            VirtualCard vc = "CARD".equals(p.getMethod()) ? virtualCards.forPayment(p.getId()).orElse(null) : null;
+            appendRow(file, p, v, a, vc);
+            total = total.add(p.getAmountCad() == null ? BigDecimal.ZERO : p.getAmountCad());
+        }
+        b.setPaymentCount(released.size());
+        b.setTotalCad(total);
+        b.setFileContent(file.toString());
+        return b;
+    }
+
+    private static String reference(Payment p) {
+        return p.getReference() != null ? p.getReference() : "BRIM-" + p.getMethod() + "-" + p.getId().replace("PAY-", "");
+    }
+
+    private static void appendRow(StringBuilder file, Payment p, Vendor v, VendorBankAccount a, VirtualCard vc) {
+        boolean card = "CARD".equals(p.getMethod());
+        file.append(p.getId()).append(',').append(v == null ? "" : v.getLegalName().replace(",", " ")).append(',')
+                .append(card || a == null ? "" : a.getInstitution()).append(',').append(card || a == null ? "" : a.getTransit()).append(',')
+                .append(card ? (vc == null ? "VCARD (issued at release)" : "VCARD " + vc.masked()) : a == null ? "" : a.getAccountNumber())
+                .append(',').append(p.getCurrency()).append(',').append(p.getAmount().toPlainString())
+                .append(',').append(reference(p)).append('\n');
     }
 
     @Transactional

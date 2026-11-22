@@ -541,3 +541,34 @@ Settling closes the card; a failed payment cancels it, and the retry gets a new 
 charge, decline, close and cancel are all audited against the payment. `POST /payments/{id}/card-charge` (FM/Admin)
 lets a demo try charges against a released card; declines are returned (200, `approved: false`) rather than thrown,
 so the attempt stays in the audit log.
+
+
+## UI review pass (22 Nov)
+
+**D-101 Deleting a bill.** Duplicate uploads and wrong files need a way out. `DELETE /invoices/{id}` (with a written
+reason) is open to whoever brings bills in: an employee for their own uploads, the AP clerk and the Admin for any.
+Only bills that are not yet approved can go (Received, Extracted, In Review, Duplicate, Rejected), never history and
+never one with a payment. The bill, its lines, taxes, flags, approval rounds and extraction runs are removed in
+`InvoiceWorkflowService.delete`; the audit log keeps an `INVOICE_DELETED` row with the bill's last snapshot and the
+reason (the file itself is not kept). Open bills are then re-validated. Found while testing: nothing ever moved a
+Duplicate bill back to review once its duplicate flag cleared, so deleting a copy left the original stuck as
+Duplicate. Validation now returns a Duplicate bill to In Review (`DUPLICATE_CLEARED`) when no exact-duplicate flag
+remains.
+
+**D-102 One email at a time, and replies.** `POST /inbox/{id}/process` runs the same steps as "Process inbox" for one
+email (refused while a batch run is going or if it was already processed), then re-validates open bills. Replies:
+outbound mail is out of scope, so `POST /inbox/{id}/reply` records the reply or draft in the audit log against the
+email (`EMAIL_REPLY_SENT` / `EMAIL_REPLY_DRAFTED`), where the email's History shows it. Nothing leaves the system, and
+the pop-up says so.
+
+**D-103 A payment batch is created when its file is downloaded.** Creating the batch used to mark every released
+payment Sent and charge the virtual cards at once; closing the file pop-up without downloading lost the button (no
+released payments left) and the chance to wait for more releases. "Create Payment Batch" now shows a preview
+(`GET /payments/batch/preview`: no status change, no card charge, no audit row). "Download CSV and Send" creates the
+batch and downloads the file; Cancel changes nothing. Past batches can be downloaded again from the payment rows.
+
+**D-104 UI wording.** Headings, labels and buttons use Title Case. Rule codes (P13, D01, B01, E01...) and record ids
+for people, departments, vendors and emails are never shown; AP and payment ids are (people search by them), and so
+are GL account numbers and tax codes. Flags read as "issues". The user switcher shows the job title (with the app
+role when the title does not say it). The Brim card panel is three numbers, with its assumptions in a tooltip. Spend
+Analytics rows open exactly the bills behind them (the API now returns each row's invoice ids).

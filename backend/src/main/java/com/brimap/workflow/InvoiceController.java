@@ -78,6 +78,18 @@ public class InvoiceController {
 
     public record ReasonBody(String reason, String note) {}
 
+    private final com.brimap.validation.RevalidationService revalidation;
+
+    /** Delete a not-yet-approved bill (duplicate upload, wrong file). EMP: own uploads only. Audited (D-101). */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EMP','CLK','ADM')")
+    public Map<String, Object> delete(@PathVariable String id, @RequestBody ReasonBody body) {
+        workflow.delete(id, body == null ? null : body.reason());
+        // Other open bills may have been flagged against this one (e.g. as its duplicate): re-check them.
+        revalidation.revalidateOpen();
+        return Map.of("deleted", id);
+    }
+
     @PostMapping("/{id}/hold")
     @PreAuthorize("hasAnyRole('CLK','FM','ADM')")
     public Invoice hold(@PathVariable String id, @RequestBody ReasonBody body) {

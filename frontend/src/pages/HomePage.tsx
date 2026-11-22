@@ -12,7 +12,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Empty, MoneyCell, StatusBadge } from '../components/bits'
 import { MonthlySpendChart } from '../components/MonthlySpendChart'
 import { notifyError, notifyOk } from '../components/notify'
-import { dateTime, money, num, statusLabel } from '../lib/format'
+import { dateTime, money, MONTHS, noCode, num, statusLabel } from '../lib/format'
 import { useNames } from '../lib/names'
 
 type StatColor = 'violet' | 'orange' | 'red' | 'blue' | 'teal'
@@ -31,14 +31,13 @@ function Stat({ label, value, icon: Icon, color, to }: StatDef) {
       </Group>
       <Group gap={5} mt="lg">
         <IconArrowUpRight size={15} />
-        <Text size="xs" c="dimmed">View queue</Text>
+        <Text size="xs" c="dimmed">View Queue</Text>
       </Group>
     </Card>
   )
 }
 
 const BILLED = new Set(['APPROVED', 'SCHEDULED', 'RELEASED', 'PAID'])
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 /** Same basis as the analytics endpoint (approved / scheduled / paid, CAD), for roles that cannot call it. */
 function monthlyFrom(list: InvoiceSummary[], from: string, to: string): Record<string, string> {
@@ -82,28 +81,28 @@ export default function HomePage() {
 
   const stats: StatDef[] =
     r === 'EMP' ? [
-      { label: 'My submissions', value: inv.length, icon: IconHourglass, color: 'violet', to: '/invoices' },
-      { label: 'In review', value: count((i) => i.status === 'IN_REVIEW'), icon: IconBuildingStore, color: 'orange', to: '/invoices?status=IN_REVIEW' },
+      { label: 'My Submissions', value: inv.length, icon: IconHourglass, color: 'violet', to: '/invoices' },
+      { label: 'In Review', value: count((i) => i.status === 'IN_REVIEW'), icon: IconBuildingStore, color: 'orange', to: '/invoices?status=IN_REVIEW' },
       { label: 'Approved', value: count((i) => i.status === 'APPROVED'), icon: IconBuildingBank, color: 'blue', to: '/invoices?status=APPROVED' },
       { label: 'Paid', value: count((i) => i.status === 'PAID'), icon: IconSend, color: 'teal', to: '/invoices?status=PAID' },
     ] : r === 'CLK' ? [
-      { label: 'To review', value: count((i) => i.status === 'IN_REVIEW'), icon: IconHourglass, color: 'violet', to: '/invoices?status=IN_REVIEW' },
-      { label: 'With BLOCK flags', value: count((i) => (i.blockFlags ?? 0) > 0), icon: IconAlertOctagon, color: 'red', to: '/invoices?flagged=true' },
-      { label: 'Inbox needs attention', value: attentionEmails, icon: IconInbox, color: 'orange', to: '/inbox' },
-      { label: 'Approved, to schedule', value: count((i) => i.status === 'APPROVED'), icon: IconSend, color: 'teal', to: '/payments' },
+      { label: 'To Review', value: count((i) => i.status === 'IN_REVIEW'), icon: IconHourglass, color: 'violet', to: '/invoices?status=IN_REVIEW' },
+      { label: 'Blocked', value: count((i) => (i.blockFlags ?? 0) > 0), icon: IconAlertOctagon, color: 'red', to: '/invoices?flagged=true' },
+      { label: 'Attention Needed', value: attentionEmails, icon: IconInbox, color: 'orange', to: '/inbox' },
+      { label: 'Approved', value: count((i) => i.status === 'APPROVED'), icon: IconSend, color: 'teal', to: '/payments' },
     ] : r === 'APR' ? [
-      { label: 'Waiting for me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
-      { label: `${n.dept(me!.departmentId)} spend ${month}`, value: money(deptSpend), icon: IconChartLine, color: 'blue', to: '/invoices' },
+      { label: 'Waiting For Me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
+      { label: `${n.dept(me!.departmentId)} Spend, ${MONTHS[Number(month.slice(5, 7)) - 1]} ${month.slice(0, 4)}`, value: money(deptSpend), icon: IconChartLine, color: 'blue', to: '/invoices' },
     ] : r === 'AUD' ? [
-      { label: 'Invoices this batch', value: inv.length, icon: IconFileInvoice, color: 'blue', to: '/invoices' },
+      { label: 'Invoices This Batch', value: inv.length, icon: IconFileInvoice, color: 'blue', to: '/invoices' },
       { label: 'Flagged', value: count((i) => (i.blockFlags ?? 0) + (i.warnFlags ?? 0) > 0), icon: IconAlertOctagon, color: 'orange', to: '/invoices?flagged=true' },
       { label: 'Paid', value: count((i) => i.status === 'PAID'), icon: IconSend, color: 'teal', to: '/invoices?status=PAID' },
-      { label: 'Audit log', value: 'Verify', icon: IconShieldCheck, color: 'violet', to: '/audit' },
+      { label: 'Audit Log', value: 'Verify', icon: IconShieldCheck, color: 'violet', to: '/audit' },
     ] : [ // FM, ADM
-      { label: 'Waiting for me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
-      { label: 'Vendors to approve', value: (vendors.data ?? []).filter((v) => v.vendor?.status === 'pending_review').length, icon: IconBuildingStore, color: 'orange', to: '/vendors' },
-      { label: 'Bank changes to verify', value: (vendors.data ?? []).filter((v) => v.pendingBankChange).length, icon: IconBuildingBank, color: 'red', to: '/vendors' },
-      { label: 'Payments to release', value: releasable, icon: IconSend, color: 'teal', to: '/payments' },
+      { label: 'Waiting For Me', value: approvals.data?.length ?? '…', icon: IconHourglass, color: 'violet', to: '/approvals' },
+      { label: 'Vendors To Approve', value: (vendors.data ?? []).filter((v) => v.vendor?.status === 'pending_review').length, icon: IconBuildingStore, color: 'orange', to: '/vendors' },
+      { label: 'Bank Changes To Verify', value: (vendors.data ?? []).filter((v) => v.pendingBankChange).length, icon: IconBuildingBank, color: 'red', to: '/vendors' },
+      { label: 'Payments To Release', value: releasable, icon: IconSend, color: 'teal', to: '/payments' },
     ]
 
   // Attention band: the most pressing real item for this role (no sample invoice ids).
@@ -111,9 +110,9 @@ export default function HomePage() {
   const blocked = inv.filter((i) => (i.blockFlags ?? 0) > 0 && !['REJECTED', 'DUPLICATE', 'PAID'].includes(String(i.status)))
   const firstBlocked = blocked.find((i) => i.status === 'IN_REVIEW') ?? blocked[0]
   const attention = is('APR', 'FM', 'ADM') && firstQueued
-    ? { id: firstQueued.invoiceId!, line: `${firstQueued.vendorName} · ${firstQueued.topFlag ? n.text(firstQueued.topFlag) : `step ${firstQueued.stepSeq} of ${firstQueued.stepCount}`}`, title: 'Invoice waiting for your decision' }
+    ? { id: firstQueued.invoiceId!, line: `${firstQueued.vendorName} · ${firstQueued.topFlag ? noCode(n.text(firstQueued.topFlag)) : `step ${firstQueued.stepSeq} of ${firstQueued.stepCount}`}`, title: 'Invoice Waiting For Your Decision' }
     : r !== 'EMP' && firstBlocked
-      ? { id: firstBlocked.id!, line: `${firstBlocked.vendorName} · ${firstBlocked.blockFlags} blocking ${firstBlocked.blockFlags === 1 ? 'flag' : 'flags'}${blocked.length > 1 ? ` · ${blocked.length - 1} more blocked` : ''}`, title: 'Invoice needs your attention' }
+      ? { id: firstBlocked.id!, line: `${firstBlocked.vendorName} · ${firstBlocked.blockFlags} blocking ${firstBlocked.blockFlags === 1 ? 'flag' : 'flags'}${blocked.length > 1 ? ` · ${blocked.length - 1} more blocked` : ''}`, title: 'Invoice Needs Your Attention' }
       : null
 
   const monthly = canAnalytics ? spend.data?.monthly : monthlyFrom(r === 'CLK' ? (history.data ?? []) : inv, from, to)
@@ -129,7 +128,7 @@ export default function HomePage() {
             <Text c="grape" size="sm" mt={4}>You are acting as delegate for {me!.actingFor.map((a) => a.fullName).join(', ')}; their approvals appear in your queue.</Text>
           )}
         </div>
-        <Badge variant="light">{r === 'EMP' ? 'My workspace' : 'Finance workspace'}</Badge>
+        <Badge variant="light">{r === 'EMP' ? 'My Workspace' : 'Finance Workspace'}</Badge>
       </Group>
       {r === 'ADM' && <DemoReset />}
 
@@ -143,28 +142,28 @@ export default function HomePage() {
             <Text fw={700}>{attention.title}</Text>
             <Text size="sm" c="dimmed">{attention.id} · {attention.line}</Text>
           </div>
-          <Button component={Link} to={`/invoices/${attention.id}`} variant="light" color="red">Review invoice</Button>
+          <Button component={Link} to={`/invoices/${attention.id}`} variant="light" color="red">Review Invoice</Button>
         </Group>
       )}
       {r === 'CLK' && unprocessed > 0 && (
-        <Card withBorder className="ap-stat"><Group justify="space-between"><Text>{unprocessed} emails waiting in the AP inbox.</Text>
-          <Button component={Link} to="/inbox">Go to inbox</Button></Group></Card>
+        <Card withBorder className="ap-stat"><Group justify="space-between"><Text>{unprocessed} {unprocessed === 1 ? 'email is' : 'emails are'} waiting in your inbox.</Text>
+          <Button component={Link} to="/inbox">View Inbox</Button></Group></Card>
       )}
       {r === 'EMP' && <EmployeeUpload />}
 
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl">
         <section>
           <Group justify="space-between" mb="md">
-            <Title order={3}>{r === 'EMP' ? 'My monthly spend' : 'Monthly AP spend'}</Title>
+            <Title order={3}>{r === 'EMP' ? 'My Monthly Spend' : 'Monthly Spend'}</Title>
             <Text size="xs" c="dimmed">Jan – {MONTHS[lastMonth]} {year} · CAD</Text>
           </Group>
           {monthly ? <MonthlySpendChart monthly={monthly} /> : <Text c="dimmed" size="sm">Loading…</Text>}
-          {canAnalytics && <Button component={Link} to="/analytics" variant="subtle" mt="sm">Spend analytics →</Button>}
+          {canAnalytics && <Button component={Link} to="/analytics" variant="subtle" mt="sm">Spend Analytics →</Button>}
         </section>
 
         <section>
           {is('APR', 'FM', 'ADM') && (<>
-            <Title order={3} mb="md">Waiting for your approval</Title>
+            <Title order={3} mb="md">Waiting For Your Approval</Title>
             {queue.length ? (
               <Table>
                 <Table.Thead><Table.Tr><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th /></Table.Tr></Table.Thead>
@@ -172,9 +171,9 @@ export default function HomePage() {
                   {queue.slice(0, 6).map((q) => (
                     <Table.Tr key={q.invoiceId}>
                       <Table.Td><Link to={`/invoices/${q.invoiceId}`}>{q.invoiceId}</Link></Table.Td>
-                      <Table.Td>{q.vendorName}{q.topFlag && <Text size="xs" c="dimmed">{n.text(q.topFlag)}</Text>}</Table.Td>
+                      <Table.Td>{q.vendorName}{q.topFlag && <Text size="xs" c="dimmed">{noCode(n.text(q.topFlag))}</Text>}</Table.Td>
                       <Table.Td ta="right"><MoneyCell cad={q.totalCad} amount={q.total} currency={q.currency} /></Table.Td>
-                      <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">for {n.person(q.onBehalfOfUserId ?? q.assignedUserId)}</Badge> : null}</Table.Td>
+                      <Table.Td>{q.onBehalfOfUserId || q.asDelegate ? <Badge color="grape" variant="light">For {n.person(q.onBehalfOfUserId ?? q.assignedUserId)}</Badge> : null}</Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
@@ -183,18 +182,18 @@ export default function HomePage() {
           </>)}
 
           {r === 'CLK' && (<>
-            <Title order={3} mb="md">Ready for your review</Title>
+            <Title order={3} mb="md">Ready For Review</Title>
             <InvoiceTable rows={inv.filter((i) => i.status === 'IN_REVIEW').slice(0, 6)} empty="Nothing waiting for review." />
           </>)}
 
           {r === 'EMP' && (<>
-            <Title order={3} mb="md">My submissions</Title>
+            <Title order={3} mb="md">My Submissions</Title>
             {inv.length === 0 ? <Empty>No invoices yet. Upload a supplier invoice above and AP will take it from there.</Empty>
               : <InvoiceTable rows={inv.slice(0, 8)} empty="" />}
           </>)}
 
           {r === 'AUD' && (<>
-            <Title order={3} mb="md">Recent activity</Title>
+            <Title order={3} mb="md">Recent Activity</Title>
             <AuditTable events={audit.data ?? []} />
           </>)}
         </section>
@@ -202,7 +201,7 @@ export default function HomePage() {
 
       {r === 'ADM' && (
         <section>
-          <Title order={3} mb="md">Recent activity</Title>
+          <Title order={3} mb="md">Recent Activity</Title>
           <AuditTable events={audit.data ?? []} />
         </section>
       )}
@@ -256,8 +255,8 @@ function EmployeeUpload() {
     <Card withBorder p="lg" className="ap-stat">
       <Group justify="space-between">
         <div>
-          <Text fw={700}>Submit a supplier invoice</Text>
-          <Text size="sm" c="dimmed">PDF or photo. It is read automatically and sent to AP for your department.</Text>
+          <Text fw={700}>Submit a Supplier Invoice</Text>
+          <Text size="sm" c="dimmed">Upload a PDF or a photo (.jpg, .jpeg, .png).</Text>
         </div>
         <FileButton accept="application/pdf,image/png,image/jpeg" onChange={async (f) => {
           if (!f) return
@@ -275,7 +274,7 @@ function EmployeeUpload() {
             setBusy(false)
           }
         }}>
-          {(props) => <Button {...props} loading={busy}>Upload invoice</Button>}
+          {(props) => <Button {...props} loading={busy}>Upload Invoice</Button>}
         </FileButton>
       </Group>
     </Card>
@@ -305,10 +304,10 @@ function DemoReset() {
       <Card withBorder p="lg" className="ap-stat">
         <Group justify="space-between" wrap="nowrap">
           <div>
-            <Text fw={700}>Demo tools</Text>
+            <Text fw={700}>Demo Tools</Text>
             <Text size="sm" c="dimmed">Wipes all data (audit log included), reloads the dataset and processes the inbox. Only works in demo mode.</Text>
           </div>
-          <Button color="red" variant="light" loading={busy} onClick={reset} style={{ flexShrink: 0 }}>Reset demo data</Button>
+          <Button color="red" variant="light" loading={busy} onClick={reset} style={{ flexShrink: 0 }}>Reset Demo Data</Button>
         </Group>
       </Card>
   )

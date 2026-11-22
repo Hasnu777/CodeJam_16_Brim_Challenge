@@ -5,7 +5,7 @@ import { api } from '../api/client'
 import type { QueueItem } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { Empty, ErrorBox, Loading, MoneyCell } from '../components/bits'
-import { money, num } from '../lib/format'
+import { money, noCode, num } from '../lib/format'
 import { useNames } from '../lib/names'
 
 export default function MyApprovalsPage() {
@@ -18,7 +18,7 @@ export default function MyApprovalsPage() {
   return (
     <Stack>
       <div>
-        <Title order={3}>My approvals</Title>
+        <Title order={3}>My Approvals</Title>
         <Text size="sm" c="dimmed">
           Steps assigned to you{me!.actingFor.length ? ` or to ${me!.actingFor.map((a) => a.fullName).join(', ')} (you are their delegate)` : ''}.
           Limit {money(me!.approvalLimitCad)}.
@@ -28,7 +28,7 @@ export default function MyApprovalsPage() {
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr><Table.Th>Invoice</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Amount</Table.Th><Table.Th>Step</Table.Th>
-              <Table.Th>For</Table.Th><Table.Th>Top flag</Table.Th><Table.Th>Waiting</Table.Th></Table.Tr>
+              <Table.Th>For</Table.Th><Table.Th>Top Flag</Table.Th><Table.Th>Waiting</Table.Th></Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {rows.map((r) => (
@@ -40,10 +40,10 @@ export default function MyApprovalsPage() {
                   {r.routedAmountCad && num(r.routedAmountCad) !== num(r.totalCad) && <Text size="xs" c="orange">routed at {money(r.routedAmountCad)} (split)</Text>}
                 </Table.Td>
                 <Table.Td><Text size="sm">{r.stepSeq} of {r.stepCount} · {n.role(r.role)}</Text></Table.Td>
-                <Table.Td>{r.onBehalfOfUserId ? <Badge color="grape" variant="light">on behalf of {n.person(r.onBehalfOfUserId)}</Badge>
-                  : r.asDelegate ? <Badge color="grape" variant="light">delegate for {n.person(r.assignedUserId)}</Badge> : <Text size="sm">you</Text>}</Table.Td>
-                <Table.Td><Text size="xs">{n.text(r.topFlag) || '—'}</Text></Table.Td>
-                <Table.Td><Text size="sm">{r.daysWaiting} d</Text></Table.Td>
+                <Table.Td>{r.onBehalfOfUserId ? <Badge color="grape" variant="light">On behalf of {n.person(r.onBehalfOfUserId)}</Badge>
+                  : r.asDelegate ? <Badge color="grape" variant="light">Delegate for {n.person(r.assignedUserId)}</Badge> : <Text size="sm">You</Text>}</Table.Td>
+                <Table.Td><Text size="xs">{noCode(n.text(r.topFlag)) || '—'}</Text></Table.Td>
+                <Table.Td><Text size="sm">{r.daysWaiting} {r.daysWaiting === 1 ? 'day' : 'days'}</Text></Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

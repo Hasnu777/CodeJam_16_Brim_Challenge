@@ -61,6 +61,10 @@ public class PaymentController {
     @PreAuthorize("hasAnyRole('FM','ADM')")
     public PaymentBatch batch() { return payments.batch(); }
 
+    @GetMapping("/batch/preview")
+    @PreAuthorize("hasAnyRole('FM','ADM')")
+    public PaymentBatch previewBatch() { return payments.previewBatch(); }
+
     @GetMapping("/batches")
     @PreAuthorize("hasAnyRole('CLK','FM','ADM','AUD')")
     public List<PaymentBatch> batches() { return payments.batches(); }

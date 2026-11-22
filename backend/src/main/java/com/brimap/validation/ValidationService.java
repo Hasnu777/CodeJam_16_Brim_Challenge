@@ -111,6 +111,10 @@ public class ValidationService implements InvoiceProcessingStep {
         if (exactDuplicate && (inv.getStatus() == InvoiceStatus.EXTRACTED || inv.getStatus() == InvoiceStatus.IN_REVIEW)) {
             workflow.transition(inv, InvoiceStatus.DUPLICATE, "MARKED_DUPLICATE",
                     open.stream().filter(f -> f.getRuleCode().startsWith("D0")).map(Flag::getMessage).findFirst().orElse("Exact duplicate"));
+        } else if (!exactDuplicate && inv.getStatus() == InvoiceStatus.DUPLICATE) {
+            // The bill it duplicated is gone (deleted) or no longer matches: nothing left to be a duplicate of (D-101).
+            workflow.transition(inv, InvoiceStatus.IN_REVIEW, "DUPLICATE_CLEARED",
+                    "No longer a duplicate: the matching bill was deleted or no longer matches");
         }
         return open;
     }

@@ -333,7 +333,7 @@ public class ApprovalService {
                     inv.getVendorInvoiceNumber(), inv.getTotalCad(), inv.getRoutedAmountCad(), inv.getCurrency(), inv.getTotal(),
                     chain.indexOf(cur) + 1, chain.size(), // position in the current round (seq keeps counting across rounds)
                     cur.getRequiredRole(), cur.getAssignedUserId(), cur.getOnBehalfOfUserId(), !u.id().equals(cur.getAssignedUserId()),
-                    top == null ? null : top.getRuleCode() + ": " + top.getTitle(),
+                    top == null ? null : top.getTitle(),
                     since == null ? 0 : ChronoUnit.DAYS.between(since, clock.now()), inv.getDepartmentId(), inv.getRequesterUserId()));
         }
         out.sort(Comparator.comparingLong(QueueItem::daysWaiting).reversed());

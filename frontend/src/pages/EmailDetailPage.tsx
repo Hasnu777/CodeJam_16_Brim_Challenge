@@ -1,11 +1,14 @@
-import { Anchor, Badge, Button, Card, CloseButton, Grid, Group, Paper, ScrollArea, Stack, Table, Text, Timeline, Title } from '@mantine/core'
-import { useQuery } from '@tanstack/react-query'
+import { Anchor, Badge, Button, Card, CloseButton, Grid, Group, Modal, Paper, ScrollArea, Stack, Table, Text, Textarea, TextInput, Timeline, Title } from '@mantine/core'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import type { EmailMessage } from '../api/types'
 import { Empty, ErrorBox, Loading, StatusBadge } from '../components/bits'
-import { dateTime, money } from '../lib/format'
+import { useAuth } from '../auth/AuthContext'
+import { notifyError, notifyOk } from '../components/notify'
+import { dateTime, money, statusLabel } from '../lib/format'
+import { useNames } from '../lib/names'
 import { KIND } from './InboxPage'
 
 interface AttachmentInfo { name: string; available: boolean; contentType: string | null; sizeBytes: number | null }
@@ -26,6 +29,11 @@ export default function EmailDetailPage() {
   const { id } = useParams()
   const q = useQuery({ queryKey: ['inbox', id], queryFn: () => api.get<EmailView>(`/inbox/${id}`) })
   const [preview, setPreview] = useState<string | null>(null)
+  const [replying, setReplying] = useState(false)
+  const [processing, setProcessing] = useState(false)
+  const { is } = useAuth()
+  const n = useNames()
+  const qc = useQueryClient()
 
   if (q.isLoading) return <Loading />
   if (q.error) return <ErrorBox error={q.error} />
@@ -38,22 +46,37 @@ export default function EmailDetailPage() {
 
   return (
     <Stack>
-      <Anchor component={Link} to="/inbox" size="sm">← AP inbox</Anchor>
+      <Anchor component={Link} to="/inbox" size="sm">← Inbox</Anchor>
       <Group justify="space-between" align="flex-start">
-        <div>
-          <Title order={3}>{e.subject || '(no subject)'}</Title>
-          <Text size="sm" c="dimmed">{e.id}</Text>
-        </div>
-        {d.processed
-          ? <Group gap={4}><Badge color={kind?.color} variant="light" size="lg">{kind?.label ?? e.classification}</Badge>{e.intakeCode && <Badge variant="outline">{e.intakeCode}</Badge>}</Group>
-          : <Badge color="gray" variant="outline" size="lg">Unprocessed</Badge>}
+        <Title order={3}>{e.subject || '(no subject)'}</Title>
+        <Group gap="xs">
+          {d.processed
+            ? <Badge color={kind?.color} variant="light" size="lg">{kind?.label ?? e.classification}</Badge>
+            : <Badge color="gray" variant="outline" size="lg">Not Processed</Badge>}
+          {is('CLK', 'ADM') && !d.processed && (
+            <Button loading={processing} onClick={async () => {
+              setProcessing(true)
+              try {
+                await api.post(`/inbox/${e.id}/process`)
+                notifyOk('Email processed')
+                await qc.invalidateQueries()
+              } catch (err) {
+                notifyError(err)
+              } finally {
+                setProcessing(false)
+              }
+            }}>Process</Button>
+          )}
+          {is('CLK', 'ADM') && <Button variant="default" onClick={() => setReplying(true)}>Reply</Button>}
+        </Group>
       </Group>
+      {replying && <ReplyModal email={e} onClose={() => setReplying(false)} onSaved={() => qc.invalidateQueries({ queryKey: ['inbox', id] })} />}
 
       <Grid>
         <Grid.Col span={{ base: 12, md: shown ? 6 : 12 }}>
           <Stack>
             <Card withBorder>
-              <Text fw={600} mb="xs">Message as received</Text>
+              <Text fw={600} mb="xs">Message</Text>
               <Table withRowBorders={false} verticalSpacing={2}>
                 <Table.Tbody>
                   <Table.Tr><Table.Td w={90}><Text size="sm" c="dimmed">From</Text></Table.Td>
@@ -76,12 +99,12 @@ export default function EmailDetailPage() {
                   {d.attachments.map((a) => (
                     <Group key={a.name} justify="space-between" wrap="nowrap">
                       <Text size="sm" c={a.available ? undefined : 'red'} truncate>
-                        📎 {a.name} <Text span size="xs" c="dimmed">{a.available ? size(a.sizeBytes) : 'file missing'}</Text>
+                        📎 {a.name} <Text span size="xs" c="dimmed">{a.available ? size(a.sizeBytes) : 'File missing'}</Text>
                       </Text>
                       {a.available && (
                         <Group gap={4} wrap="nowrap">
                           <Button size="xs" variant={shown === a.name ? 'filled' : 'default'}
-                            onClick={() => setPreview(shown === a.name ? null : a.name)}>{shown === a.name ? 'Hide preview' : 'Preview'}</Button>
+                            onClick={() => setPreview(shown === a.name ? null : a.name)}>{shown === a.name ? 'Hide Preview' : 'Preview'}</Button>
                           <Button size="xs" variant="default" component="a" href={url(e.id!, a.name)} target="_blank" rel="noopener">Open</Button>
                         </Group>
                       )}
@@ -92,18 +115,18 @@ export default function EmailDetailPage() {
             </Card>
 
             <Card withBorder>
-              <Text fw={600} mb="xs">Processing result</Text>
+              <Text fw={600} mb="xs">Processing Result</Text>
               {!d.processed ? (
-                <Text size="sm" c="dimmed">Not processed yet. "Process inbox" will classify this email and turn invoice attachments into draft bills.</Text>
+                <Text size="sm" c="dimmed">Not processed yet. Process it to sort the email and turn any invoice attachments into draft bills.</Text>
               ) : (
                 <Stack gap="xs">
                   <Text size="sm"><Text span c="dimmed">Decided by </Text>{e.classifiedBy === 'LLM' ? 'the LLM (no keyword rule matched)' : 'keyword rules'}
                     <Text span c="dimmed"> · {dateTime(e.processedAt)}</Text></Text>
                   {e.reason && <Text size="sm">{e.reason}</Text>}
-                  {e.needsAttention && <Badge color="orange" variant="light" w="fit-content">Needs attention</Badge>}
+                  {e.needsAttention && <Badge color="orange" variant="light" w="fit-content">Needs Attention</Badge>}
                   {d.linkedInvoices.length > 0 && (
                     <Table striped>
-                      <Table.Thead><Table.Tr><Table.Th>Bill</Table.Th><Table.Th>Vendor invoice #</Table.Th><Table.Th>Total</Table.Th><Table.Th>Status</Table.Th></Table.Tr></Table.Thead>
+                      <Table.Thead><Table.Tr><Table.Th>Bill</Table.Th><Table.Th>Vendor Invoice #</Table.Th><Table.Th>Total</Table.Th><Table.Th>Status</Table.Th></Table.Tr></Table.Thead>
                       <Table.Tbody>
                         {d.linkedInvoices.map((i) => (
                           <Table.Tr key={i.id}>
@@ -125,8 +148,8 @@ export default function EmailDetailPage() {
                 <Text fw={600} mb="xs">History</Text>
                 <Timeline bulletSize={14} lineWidth={1}>
                   {d.history.map((h, i) => (
-                    <Timeline.Item key={i} title={<Group gap="xs"><Badge size="sm" variant="light">{h.action}</Badge><Text size="xs" c="dimmed">{dateTime(h.ts)} · {h.actor}</Text></Group>}>
-                      {h.detail && <Text size="xs">{h.detail}</Text>}
+                    <Timeline.Item key={i} title={<Group gap="xs"><Badge size="sm" variant="light">{HISTORY_LABEL[h.action] ?? statusLabel(h.action)}</Badge><Text size="xs" c="dimmed">{dateTime(h.ts)} · {n.person(h.actor)}</Text></Group>}>
+                      {h.detail && <Text size="xs" style={{ whiteSpace: 'pre-wrap' }}>{n.text(h.detail)}</Text>}
                     </Timeline.Item>
                   ))}
                 </Timeline>
@@ -154,5 +177,50 @@ export default function EmailDetailPage() {
         )}
       </Grid>
     </Stack>
+  )
+}
+
+const HISTORY_LABEL: Record<string, string> = {
+  EMAIL_CLASSIFIED: 'Processed',
+  EMAIL_REPLY_SENT: 'Reply Sent',
+  EMAIL_REPLY_DRAFTED: 'Reply Draft Saved',
+}
+
+/**
+ * D-102: reply to the sender. Outbound email is out of scope for this build, so Send does not leave the system: the
+ * reply (or draft) is recorded against the email and shows in its History.
+ */
+function ReplyModal({ email, onClose, onSaved }: { email: EmailMessage; onClose: () => void; onSaved: () => void }) {
+  const [to, setTo] = useState(email.fromAddress ?? '')
+  const [subject, setSubject] = useState(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject ?? ''}`)
+  const [body, setBody] = useState(`Hello ${email.fromName ?? ''},\n\n\n\nThank you,\nHarborline Logistics Accounts Payable`)
+  const [busy, setBusy] = useState<'send' | 'draft' | null>(null)
+  const save = async (draft: boolean) => {
+    setBusy(draft ? 'draft' : 'send')
+    try {
+      await api.post(`/inbox/${email.id}/reply`, { to, subject, body, draft })
+      notifyOk(draft ? 'Draft saved' : `Reply sent to ${to}`)
+      onSaved()
+      onClose()
+    } catch (e) {
+      notifyError(e)
+    } finally {
+      setBusy(null)
+    }
+  }
+  return (
+    <Modal opened onClose={onClose} title="Reply" size="lg">
+      <Stack>
+        <TextInput label="To" value={to} onChange={(e) => setTo(e.currentTarget.value)} />
+        <TextInput label="Subject" value={subject} onChange={(e) => setSubject(e.currentTarget.value)} />
+        <Textarea label="Message" value={body} onChange={(e) => setBody(e.currentTarget.value)} autosize minRows={8} />
+        <Text size="xs" c="dimmed">Outgoing email is simulated in this demo: the reply is saved to this email's history.</Text>
+        <Group justify="flex-end">
+          <Button variant="subtle" color="gray" onClick={onClose}>Cancel</Button>
+          <Button variant="default" loading={busy === 'draft'} disabled={!!busy} onClick={() => save(true)}>Save Draft</Button>
+          <Button loading={busy === 'send'} disabled={!!busy || !to.trim() || !body.trim()} onClick={() => save(false)}>Send</Button>
+        </Group>
+      </Stack>
+    </Modal>
   )
 }

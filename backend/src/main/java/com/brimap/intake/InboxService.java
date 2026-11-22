@@ -124,6 +124,29 @@ public class InboxService {
         return status();
     }
 
+    /** "Process" on one email (D-102): the same steps as the batch run, for this email only, then a re-check of open bills. */
+    public synchronized EmailMessage processSingle(String emailId) {
+        if (job != null && job.running()) throw new BusinessRuleException("Inbox processing is already running");
+        EmailMessage e = emails.findById(emailId).orElseThrow(() -> new com.brimap.common.NotFoundException("Email " + emailId));
+        if (e.getProcessedAt() != null) throw new BusinessRuleException("This email has already been processed");
+        processOne(emailId, null);
+        revalidation.revalidateOpen();
+        return emails.findById(emailId).orElseThrow();
+    }
+
+    /**
+     * Reply to the sender (D-102). Outbound mail is out of scope, so nothing leaves the system: the reply (or draft)
+     * is recorded in the audit log against the email, which is where its History panel reads from.
+     */
+    public void reply(String emailId, String to, String subject, String body, boolean draft) {
+        emails.findById(emailId).orElseThrow(() -> new com.brimap.common.NotFoundException("Email " + emailId));
+        if (!draft && (to == null || to.isBlank() || body == null || body.isBlank())) throw new IllegalArgumentException("A reply needs a recipient and a message");
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("to", String.valueOf(to));
+        m.put("subject", String.valueOf(subject));
+        tx.executeWithoutResult(s -> audit.record(draft ? "EMAIL_REPLY_DRAFTED" : "EMAIL_REPLY_SENT", "email", emailId, null, m, body));
+    }
+
     /** Synchronous single-email processing (also used by tests and the async workers). */
     public void processOne(String emailId, Job j) {
         EmailMessage e = emails.findById(emailId).orElseThrow();

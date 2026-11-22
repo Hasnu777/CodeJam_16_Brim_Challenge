@@ -15,11 +15,14 @@ import { FlagCard } from '../components/FlagCard'
 import { PoSuggestions } from '../components/PoSuggestions'
 import { usesInvoiceErrorPopout } from '../lib/invoiceErrorPresentation'
 import { notifyError, notifyOk } from '../components/notify'
-import { date, dateTime, money, num, statusLabel } from '../lib/format'
+import { date, dateTime, money, noCode, num, statusLabel } from '../lib/format'
 import { useNames } from '../lib/names'
 
 const EDITABLE = ['RECEIVED', 'EXTRACTED', 'IN_REVIEW', 'ON_HOLD', 'DUPLICATE']
 const PAYMENT_HOLDS = ['V01', 'V02', 'B01', 'B02']
+/** Same list as InvoiceWorkflowService.DELETABLE (D-101). */
+const DELETABLE = ['RECEIVED', 'EXTRACTED', 'IN_REVIEW', 'DUPLICATE', 'REJECTED']
+const RESOLVED_WORD: Record<string, string> = { ACKNOWLEDGED: 'acknowledged', RESOLVED: 'resolved', OVERRIDDEN: 'overridden' }
 
 /**
  * Keyed on the route id: following a flag link from one invoice to another (e.g. D02 "possible duplicate of")
@@ -94,7 +97,7 @@ function InvoiceDetailView() {
       {openFlags.map((f) => (
         <FlagCard key={f.id} flag={f} users={d.users} showDetails={showFlagDetails}
           canResolve={f.severity === 'BLOCK' ? is('FM', 'ADM') : is('CLK', 'FM', 'ADM')}
-          onResolve={(resolution, note) => act('flag', () => api.post(`/flags/${f.id}/resolve`, { resolution, note }), `${f.ruleCode} ${resolution.toLowerCase()}`)}>
+          onResolve={(resolution, note) => act('flag', () => api.post(`/flags/${f.id}/resolve`, { resolution, note }), `Issue ${RESOLVED_WORD[resolution] ?? resolution.toLowerCase()}`)}>
           {(f.ruleCode === 'P13' || f.ruleCode === 'PO1') && inv.vendorId && !inv.historical && !is('EMP') && (
             <PoSuggestions invoiceId={inv.id!} canLink={editable} busy={busy === 'linkPo'}
               onLink={(poId) => act('linkPo', async () => {
@@ -106,7 +109,7 @@ function InvoiceDetailView() {
         </FlagCard>
       ))}
       {openFlags.some((f) => f.severity === 'BLOCK') && is('CLK') && (
-        <Hint>BLOCK flags can only be overridden by a Finance Manager or Controller. Vendor and bank holds (V01, V02, B01, B02) clear automatically when the vendor is approved or the bank change is verified.</Hint>
+        <Hint>Blocking issues can only be overridden by a Finance Manager or the Controller. Vendor and bank holds clear automatically once the vendor is approved or the bank change is verified.</Hint>
       )}
     </Stack>
   )
@@ -135,11 +138,11 @@ function InvoiceDetailView() {
           {is('CLK') && inv.status === 'IN_REVIEW' && (
             <Why reasons={submitBlockers}>
               <Button disabled={submitBlockers.length > 0} loading={busy === 'submit'}
-                onClick={() => act('submit', () => api.post(`/invoices/${id}/submit`), 'Submitted for approval')}>Submit for approval</Button>
+                onClick={() => act('submit', () => api.post(`/invoices/${id}/submit`), 'Submitted for approval')}>Submit</Button>
             </Why>
           )}
           {is('CLK') && !inv.vendorId && !inv.historical && (
-            <Button variant="light" onClick={() => nav(`/vendors?onboard=${inv.id}`)}>Onboard this vendor</Button>
+            <Button variant="light" onClick={() => nav(`/vendors?onboard=${inv.id}`)}>Onboard This Vendor</Button>
           )}
           {is('CLK') && editable && inv.documentId && (
             <Button variant="default" loading={busy === 'reextract'} onClick={() => act('reextract', () => api.post(`/invoices/${id}/reextract`), 'Re-read the document')}>Re-extract</Button>
@@ -148,8 +151,15 @@ function InvoiceDetailView() {
           {is('CLK', 'FM', 'ADM') && !inv.historical && ['IN_REVIEW', 'PENDING_APPROVAL', 'APPROVED', 'SCHEDULED', 'EXTRACTED'].includes(inv.status!) && (
             <HoldButton id={id!} onDone={refresh} />
           )}
+          {!inv.historical && DELETABLE.includes(inv.status!) && d.payments.length === 0 && (is('CLK', 'ADM') || (is('EMP') && inv.requesterUserId === me!.id)) && (
+            <ReasonButton label="Delete" title={`Delete ${inv.id}`} color="red"
+              placeholder="Why, e.g. duplicate of AP-00412 uploaded twice / wrong file"
+              hint="Removes this bill for good. The audit log keeps a record of what was deleted, by whom and why; the file itself is not kept."
+              onConfirm={(reason) => api.del(`/invoices/${id}`, { reason })} done={`${inv.id} deleted`}
+              onDone={() => { void qc.invalidateQueries(); nav(is('EMP') ? '/' : '/invoices') }} />
+          )}
           {is('CLK', 'ADM') && inv.status === 'REJECTED' && !inv.historical && (
-            <ReasonButton label="Reopen" title="Reopen for the AP clerk to fix and resubmit" color="blue"
+            <ReasonButton label="Reopen" title="Reopen for the AP Clerk to Fix and Resubmit" color="blue"
               placeholder="What will be fixed, e.g. corrected the department after the FM's rejection"
               onConfirm={(reason) => api.post(`/invoices/${id}/reopen`, { reason })} done="Reopened: back in review" onDone={refresh} />
           )}
@@ -160,7 +170,7 @@ function InvoiceDetailView() {
               onConfirm={(reason) => api.post(`/invoices/${id}/reroute`, { reason })} done="Pending steps re-routed" onDone={refresh} />
           )}
           {is('CLK', 'FM', 'ADM') && inv.status === 'ON_HOLD' && (
-            <Button variant="default" onClick={() => act('rh', () => api.post(`/invoices/${id}/release-hold`, { note: 'Hold lifted' }), 'Hold lifted')}>Lift hold</Button>
+            <Button variant="default" onClick={() => act('rh', () => api.post(`/invoices/${id}/release-hold`, { note: 'Hold lifted' }), 'Hold lifted')}>Lift Hold</Button>
           )}
         </Group>
       </Group>
@@ -170,7 +180,7 @@ function InvoiceDetailView() {
           <Text fw={600}>{n.text(d.recommendation.headline)}</Text>
           {/* Open flags are listed once, in the errors banner/pop-up below; don't repeat them here as "- P13: ..." */}
           {d.recommendation.reasons.filter((r) => !(r.startsWith('- ') && openCodes.has(r.slice(2).split(':')[0])))
-            .map((r) => <Text key={r} size="xs" c={r.startsWith('+') ? 'teal' : 'dimmed'}>{n.text(r)}</Text>)}
+            .map((r) => <Text key={r} size="xs" c={r.startsWith('+') ? 'teal' : 'dimmed'}>{noCode(n.text(r))}</Text>)}
         </Card>
       )}
 
@@ -178,15 +188,15 @@ function InvoiceDetailView() {
         <>
           <Alert color={nBlock ? 'red' : 'yellow'} variant="light" icon={<IconAlertTriangle size={20} />} py="md">
             <Group gap="xs">
-              <Text fw={700}>{openFlags.length} {openFlags.length === 1 ? 'error' : 'errors'} found</Text>
-              {nBlock > 0 && <Badge size="sm" color="red" variant="light">{nBlock} blocking</Badge>}
-              {nWarn > 0 && <Badge size="sm" color="yellow" variant="light">{nWarn} {nWarn === 1 ? 'warning' : 'warnings'}</Badge>}
-              {nInfo > 0 && <Badge size="sm" color="gray" variant="light">{nInfo} info</Badge>}
-              <Anchor component="button" onClick={openFlagsModal}>Click to find out more</Anchor>
+              <Text fw={700}>{openFlags.length} {openFlags.length === 1 ? 'Issue' : 'Issues'} Found</Text>
+              {nBlock > 0 && <Badge size="sm" color="red" variant="light">{nBlock} Blocking</Badge>}
+              {nWarn > 0 && <Badge size="sm" color="yellow" variant="light">{nWarn} {nWarn === 1 ? 'Warning' : 'Warnings'}</Badge>}
+              {nInfo > 0 && <Badge size="sm" color="gray" variant="light">{nInfo} Info</Badge>}
+              <Anchor component="button" onClick={openFlagsModal}>See More</Anchor>
             </Group>
           </Alert>
           <Modal opened={flagsModal} onClose={closeFlagsModal} size="xl" centered scrollAreaComponent={ScrollArea.Autosize}
-            title={`${openFlags.length} ${openFlags.length === 1 ? 'error' : 'errors'} on ${inv.id}`}>
+            title={`${openFlags.length} ${openFlags.length === 1 ? 'Issue' : 'Issues'} on ${inv.id}`}>
             {findings}
           </Modal>
         </>
@@ -233,10 +243,10 @@ function InvoiceDetailView() {
 
       <Tabs defaultValue={steps.length ? 'chain' : 'history'}>
         <Tabs.List>
-          <Tabs.Tab value="chain">Approval chain {steps.length ? `(${steps.length})` : ''}</Tabs.Tab>
+          <Tabs.Tab value="chain">Approval Chain {steps.length ? `(${steps.length})` : ''}</Tabs.Tab>
           <Tabs.Tab value="history">History ({d.history.length})</Tabs.Tab>
           <Tabs.Tab value="related">Related</Tabs.Tab>
-          {doneFlags.length > 0 && <Tabs.Tab value="resolved">Resolved flags ({doneFlags.length})</Tabs.Tab>}
+          {doneFlags.length > 0 && <Tabs.Tab value="resolved">Resolved Flags ({doneFlags.length})</Tabs.Tab>}
           {d.extractions.length > 0 && <Tabs.Tab value="extraction">Extraction</Tabs.Tab>}
         </Tabs.List>
         <Tabs.Panel value="chain" pt="md">
@@ -246,10 +256,9 @@ function InvoiceDetailView() {
                 <Timeline.Item key={s.id} title={`${i + 1}. ${n.role(s.requiredRole)} · ${d.users[s.assignedUserId] ?? n.person(s.assignedUserId)}`}
                   bullet={s.decision === 'APPROVED' ? <IconCheck size={14} /> : s.decision === 'REJECTED' ? <IconX size={14} /> : <IconClock size={14} />}
                   color={s.decision === 'REJECTED' ? 'red' : undefined}>
-                  {s.onBehalfOfUserId && <Text size="sm" c="grape">on behalf of {d.users[s.onBehalfOfUserId] ?? s.onBehalfOfUserId}</Text>}
-                  <Text size="sm">{s.decision === 'PENDING' ? 'Waiting' : `${s.decision.toLowerCase()} by ${d.users[s.actedBy!] ?? s.actedBy}${s.actedOnBehalfOf ? ` on behalf of ${d.users[s.actedOnBehalfOf] ?? s.actedOnBehalfOf}` : ''} · ${dateTime(s.actedAt)}`}</Text>
+                  {s.onBehalfOfUserId && <Text size="sm" c="grape">On behalf of {d.users[s.onBehalfOfUserId] ?? s.onBehalfOfUserId}</Text>}
+                  <Text size="sm">{s.decision === 'PENDING' ? 'Waiting' : `${statusLabel(s.decision)} by ${d.users[s.actedBy!] ?? s.actedBy}${s.actedOnBehalfOf ? ` on behalf of ${d.users[s.actedOnBehalfOf] ?? s.actedOnBehalfOf}` : ''} · ${dateTime(s.actedAt)}`}</Text>
                   {s.comment && <Text size="sm" fs="italic">"{s.comment}"</Text>}
-                  {s.policyIds && <Text size="xs" c="dimmed">Why this step: {s.policyIds.split(',').map((p) => n.policy(p.trim())).join('; ')}</Text>}
                   {s.routingNotes && s.routingNotes.split('\n').map((note) => <Text key={note} size="xs" c="dimmed">↳ {n.text(note)}</Text>)}
                 </Timeline.Item>
               ))}
@@ -257,7 +266,7 @@ function InvoiceDetailView() {
           )}
           {earlierSteps.length > 0 && (
             <Stack gap={4} mt="md">
-              <Text size="sm" fw={600} c="dimmed">Earlier approval round (before the invoice was rejected and resubmitted)</Text>
+              <Text size="sm" fw={600} c="dimmed">Earlier Approval Round (before the invoice was rejected and resubmitted)</Text>
               {earlierSteps.map((s) => (
                 <Text key={s.id} size="xs" c="dimmed">
                   {n.role(s.requiredRole)} · {d.users[s.assignedUserId] ?? n.person(s.assignedUserId)}: {s.decision === 'PENDING' ? 'not reached' : `${s.decision.toLowerCase()} by ${d.users[s.actedBy!] ?? s.actedBy}`}{s.comment ? ` ("${s.comment}")` : ''}
@@ -283,8 +292,8 @@ function InvoiceDetailView() {
         <Tabs.Panel value="related" pt="md">
           <Stack gap="xs">
             <Text size="sm">Requester: {inv.requesterUserId ? d.users[inv.requesterUserId] ?? n.person(inv.requesterUserId) : '—'} · Department: {n.dept(inv.departmentId)}</Text>
-            <Text size="sm">PO: {inv.poId ?? '—'} · Contract: {inv.contractId ?? '—'} · Source: {inv.source}{inv.emailId ? ` (${inv.emailId}, ${inv.senderEmail})` : ''}</Text>
-            <Text size="sm">Vendor match: {inv.vendorMatchMethod}</Text>
+            <Text size="sm">PO: {inv.poId ?? '—'} · Contract: {inv.contractId ?? '—'} · Source: {inv.source === 'EMAIL' ? `Email from ${inv.senderEmail ?? 'the vendor'}` : inv.source === 'UPLOAD' ? 'Uploaded' : statusLabel(inv.source ?? '—')}</Text>
+            <Text size="sm">Vendor match: {statusLabel(inv.vendorMatchMethod ?? '—')}</Text>
             {d.payments.map((p) => (
               <Text key={p.id} size="sm">Payment <Anchor component={Link} to="/payments">{p.id}</Anchor> · {p.method} · {money(p.amountCad)} · <StatusBadge status={p.status} /> {p.releasedBy ? `released by ${d.users[p.releasedBy] ?? p.releasedBy}` : ''}</Text>
             ))}
@@ -296,7 +305,7 @@ function InvoiceDetailView() {
         <Tabs.Panel value="extraction" pt="md">
           {d.extractions.map((x) => (
             <Stack key={x.id} gap="xs">
-              <Text size="sm">Method {x.method}{x.model ? ` · ${x.model}` : ''}{x.fromCache ? ' · cached' : ''} · {x.durationMs} ms{x.error ? ` · ${x.error}` : ''}</Text>
+              <Text size="sm">Method: {x.method}{x.model ? ` · ${x.model}` : ''}{x.fromCache ? ' · cached' : ''} · {x.durationMs} ms{x.error ? ` · ${x.error}` : ''}</Text>
               <Text size="xs" c="dimmed">What the reader returned (before normalization and clerk corrections):</Text>
               <ScrollArea h={260}><Code block style={{ fontSize: 11 }}>{x.rawJson ? JSON.stringify(JSON.parse(x.rawJson), null, 2) : '(none: manual entry)'}</Code></ScrollArea>
             </Stack>
@@ -364,10 +373,10 @@ function HeaderFields({ d, editable, low, depts, onSaved, linkedPo, setLinkedPo 
   )
   return (
     <Card withBorder padding="sm">
-      <Group justify="space-between" mb="xs"><Text fw={600}>Invoice fields</Text>
+      <Group justify="space-between" mb="xs"><Text fw={600}>Invoice Fields</Text>
         {low.size > 0 && <Badge color="yellow" variant="light">highlighted = read with low confidence</Badge>}</Group>
       {extracted && editable && (
-        <Alert color="blue" variant="light" mb="xs" icon={<IconSparkles size={16} />} title="Suggested entries">
+        <Alert color="blue" variant="light" mb="xs" icon={<IconSparkles size={16} />} title="Suggested Entries">
           These fields were read from the document automatically. Check them against the invoice on the left, correct anything wrong, then save.
         </Alert>
       )}
@@ -398,7 +407,7 @@ function HeaderFields({ d, editable, low, depts, onSaved, linkedPo, setLinkedPo 
         <Grid.Col span={6}><TextInput label="Remit-to account" value={inv.remitAccount ? `${inv.remitInstitution ?? ''}-${inv.remitTransit ?? ''}-${inv.remitAccount}` : '—'} disabled /></Grid.Col>
         <Grid.Col span={6}><TextInput label="GST # on invoice" value={inv.gstNumberOnInvoice ?? '—'} disabled /></Grid.Col>
       </Grid>
-      {editable && <Group justify="flex-end" mt="xs"><Button size="xs" onClick={save} loading={saving}>Save fields</Button></Group>}
+      {editable && <Group justify="flex-end" mt="xs"><Button size="xs" onClick={save} loading={saving}>Save Fields</Button></Group>}
     </Card>
   )
 }
@@ -415,30 +424,33 @@ function LinesTable({ id, lines, editable, gl, depts, onSaved }: { id: string; l
   }
   return (
     <Card withBorder padding="sm">
-      <Group justify="space-between" mb="xs"><Text fw={600}>Lines and coding</Text>
-        {editable && <Button size="xs" variant="light" onClick={() => api.post(`/invoices/${id}/coding/accept-all`).then(onSaved).catch(notifyError)}>Accept all suggestions</Button>}</Group>
+      <Group justify="space-between" mb="xs"><Text fw={600}>Lines and Coding</Text>
+        {editable && <Button size="xs" variant="light" onClick={() => api.post(`/invoices/${id}/coding/accept-all`).then(onSaved).catch(notifyError)}>Accept All Suggestions</Button>}</Group>
       <Table>
-        <Table.Thead><Table.Tr><Table.Th>Description</Table.Th><Table.Th>Qty × price</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>GL account</Table.Th><Table.Th>Dept</Table.Th></Table.Tr></Table.Thead>
+        <Table.Thead><Table.Tr><Table.Th>Description</Table.Th><Table.Th>Qty × Price</Table.Th><Table.Th ta="right">Amount</Table.Th><Table.Th>GL Account</Table.Th><Table.Th>Department</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>
           {lines.map((l) => (
             <Table.Tr key={l.id}>
-              <Table.Td><Text size="sm">{l.description}</Text>{l.lineType && <Text size="xs" c="dimmed">{l.lineType} · {[l.gstHstCode, l.pstQstCode].filter(Boolean).join(' + ')}</Text>}</Table.Td>
+              <Table.Td><Text size="sm">{l.description}</Text></Table.Td>
               <Table.Td><Text size="sm" ff="monospace">{l.quantity != null ? num(l.quantity) : ''} × {money(l.unitPrice)}</Text></Table.Td>
               <Table.Td ta="right"><Text size="sm" ff="monospace">{money(l.amount)}</Text></Table.Td>
               <Table.Td>
-                <Tooltip multiline w={300} label={n.text(l.suggestionReason) || 'No suggestion'} withArrow>
-                  <div>
-                    {editable ? (
-                      <Select size="xs" w={190} searchable value={l.glAccount ?? null} data={gl.map((g) => ({ value: g.accountNumber!, label: `${g.accountNumber} · ${g.name}` }))}
-                        onChange={(v) => v && setLine(l, { glAccount: v })} />
-                    ) : <Text size="sm">{n.gl(l.glAccount)}</Text>}
-                    <Text size="xs" c={l.suggestionOverridden ? 'orange' : 'dimmed'}>{l.suggestionOverridden ? `overridden (suggested ${n.gl(l.suggestedGlAccount)})` : 'why?'}</Text>
-                  </div>
-                </Tooltip>
+                {/* Select and "Why?" side by side so the row lines up with the Department select. */}
+                <Group gap={8} wrap="nowrap" align="center">
+                  {editable ? (
+                    <Select size="xs" w={170} searchable value={l.glAccount ?? null} data={gl.map((g) => ({ value: g.accountNumber!, label: `${g.accountNumber} · ${g.name}` }))}
+                      onChange={(v) => v && setLine(l, { glAccount: v })} />
+                  ) : <Text size="sm">{n.gl(l.glAccount)}</Text>}
+                  <Tooltip multiline w={300} withArrow
+                    label={l.suggestionOverridden ? `Changed by the clerk (suggested ${n.gl(l.suggestedGlAccount)}). ${n.text(l.suggestionReason)}` : n.text(l.suggestionReason) || 'No suggestion'}>
+                    <Text size="xs" c={l.suggestionOverridden ? 'orange' : 'dimmed'} td="underline" style={{ cursor: 'help', whiteSpace: 'nowrap' }}>
+                      {l.suggestionOverridden ? 'Changed' : 'Why?'}</Text>
+                  </Tooltip>
+                </Group>
               </Table.Td>
               <Table.Td>
                 {editable ? (
-                  <Select size="xs" w={150} value={l.departmentId ?? null} data={depts.map((x) => ({ value: x.id!, label: x.name! }))} onChange={(v) => v && setLine(l, { departmentId: v })} />
+                  <Select size="xs" w={130} value={l.departmentId ?? null} data={depts.map((x) => ({ value: x.id!, label: x.name! }))} onChange={(v) => v && setLine(l, { departmentId: v })} />
                 ) : <Text size="sm">{n.dept(l.departmentId)}</Text>}
               </Table.Td>
             </Table.Tr>
@@ -474,7 +486,7 @@ function ApproveReject({ id, blockers, onDone }: { id: string; blockers: string[
       <Why reasons={blockers.filter((b) => !b.startsWith('Open BLOCK'))}>
         <Button color="red" variant="light" disabled={blockers.some((b) => !b.startsWith('Open BLOCK'))} onClick={() => { setMode('reject'); open() }}>Reject</Button>
       </Why>
-      <Modal opened={opened} onClose={close} title={mode === 'approve' ? 'Approve this step' : 'Reject this invoice'}>
+      <Modal opened={opened} onClose={close} title={mode === 'approve' ? 'Approve This Step' : 'Reject This Invoice'}>
         <Stack>
           <Textarea label={mode === 'approve' ? 'Comment (optional)' : 'Reason (required)'} value={text} onChange={(e) => setText(e.currentTarget.value)} autosize minRows={2} />
           <Button color={mode === 'approve' ? 'teal' : 'red'} loading={busy} disabled={mode === 'reject' && !text.trim()} onClick={go}>
@@ -526,7 +538,7 @@ function HoldButton({ id, onDone }: { id: string; onDone: () => void }) {
   return (
     <>
       <Button variant="subtle" color="red" onClick={open}>Hold</Button>
-      <Modal opened={opened} onClose={close} title="Place a manual hold">
+      <Modal opened={opened} onClose={close} title="Place a Manual Hold">
         <Stack>
           <TextInput label="Reason" value={reason} onChange={(e) => setReason(e.currentTarget.value)} />
           <Button color="red" disabled={!reason.trim()} onClick={() => api.post(`/invoices/${id}/hold`, { reason }).then(() => { close(); onDone() }).catch(notifyError)}>Hold</Button>

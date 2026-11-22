@@ -44,7 +44,7 @@ export default function AuditPage() {
       <Stack>
         <Group justify="space-between">
           <div>
-            <Title order={3}>Audit log</Title>
+            <Title order={3}>Audit Log</Title>
             <Text size="sm" c="dimmed">Append-only (the database rejects UPDATE/DELETE) and hash-chained: each event stores the previous event's hash.</Text>
           </div>
           <Group>
@@ -55,13 +55,13 @@ export default function AuditPage() {
                   </Badge>
                 </Tooltip>
             )}
-            <Button variant="default" onClick={verifyChain}>Verify chain</Button>
+            <Button variant="default" onClick={verifyChain}>Verify Chain</Button>
             <Button component="a" href={'/api/audit/export.csv' + qs(applied)}>Export CSV</Button>
           </Group>
         </Group>
         <Group align="flex-end">
           <TextInput label="Entity" placeholder="invoice, payment, vendor…" value={f.entity} onChange={set('entity')} w={150} />
-          <TextInput label="Entity id" placeholder="AP-00473" value={f.entityId} onChange={set('entityId')} w={130} />
+          <TextInput label="Entity ID" placeholder="AP-00473" value={f.entityId} onChange={set('entityId')} w={130} />
           <TextInput label="Actor (or on behalf of)" placeholder="Person id, e.g. U003" value={f.actor} onChange={set('actor')} w={150} />
           <TextInput label="Action" placeholder="APPROVED" value={f.action} onChange={set('action')} w={170} />
           <TextInput label="From" type="date" value={f.from} onChange={set('from')} />

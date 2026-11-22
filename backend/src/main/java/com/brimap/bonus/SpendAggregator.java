@@ -35,7 +35,8 @@ public final class SpendAggregator {
         public boolean lineLevel() { return this == DEPT || this == GL; }
     }
 
-    public record Row(String key, String label, BigDecimal amountCad, long invoices, BigDecimal share) {}
+    /** invoiceIds: the bills behind the row, so the UI can open exactly those (drill-down). */
+    public record Row(String key, String label, BigDecimal amountCad, long invoices, BigDecimal share, List<String> invoiceIds) {}
 
     public record Result(String groupBy, String scope, BigDecimal totalCad, long invoiceCount, List<Row> rows, Map<String, BigDecimal> monthly) {}
 
@@ -85,7 +86,8 @@ public final class SpendAggregator {
         List<Row> rows = amount.entrySet().stream()
                 .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
                 .map(e -> new Row(e.getKey(), groupBy == GroupBy.CATEGORY ? e.getKey() : ref.labels().getOrDefault(e.getKey(), e.getKey()),
-                        e.getValue(), invoicesPerKey.get(e.getKey()).size(), share(e.getValue(), total)))
+                        e.getValue(), invoicesPerKey.get(e.getKey()).size(), share(e.getValue(), total),
+                        invoicesPerKey.get(e.getKey()).stream().sorted().toList()))
                 .toList();
         return new Result(groupBy.name().toLowerCase(Locale.ROOT), deptScope == null ? "all" : deptScope, total, counted.size(), rows, monthly);
     }

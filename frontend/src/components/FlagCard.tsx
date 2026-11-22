@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Flag } from '../api/types'
-import { dateTime, money } from '../lib/format'
+import { dateTime, money, statusLabel } from '../lib/format'
 import { SeverityBadge } from './bits'
 import { useNames } from '../lib/names'
 
@@ -47,8 +47,7 @@ export function FlagCard({ flag, canResolve, onResolve, users, children, showDet
           <Group gap="xs">
             <SeverityBadge severity={flag.severity} />
             <Text fw={600} size="sm">{flag.title}</Text>
-            <Text size="xs" c="dimmed">{flag.ruleCode}</Text>
-            {resolved && <Badge color="green" variant="light" size="sm">{flag.resolution === 'AUTO_CLEARED' ? 'cleared' : flag.status?.toLowerCase()}</Badge>}
+            {resolved && <Badge color="green" variant="light" size="sm">{flag.resolution === 'AUTO_CLEARED' ? 'Cleared' : statusLabel(flag.status ?? '')}</Badge>}
           </Group>
           <Text size="sm">{n.text(flag.message)}</Text>
           {!resolved && children}
@@ -67,7 +66,7 @@ export function FlagCard({ flag, canResolve, onResolve, users, children, showDet
             </Text>
           )}
         </Stack>
-        {showDetails && rows.length > 0 && <Anchor size="xs" onClick={toggle}>{open ? 'hide details' : 'details'}</Anchor>}
+        {showDetails && rows.length > 0 && <Anchor size="xs" onClick={toggle}>{open ? 'Hide Details' : 'Details'}</Anchor>}
       </Group>
       {showDetails && rows.length > 0 && (
         <Collapse in={open}>
@@ -117,7 +116,7 @@ const LABELS: Record<string, string> = {
   creditsInvoiceId: 'Credits invoice', resemblesVendorId: 'Resembles vendor', otherVendorIds: 'Other vendors',
   invoiceIds: 'Invoices', lineNo: 'Line', daysBeforeInvoice: 'Days before invoice', ageDays: 'Age (days)',
   invoicePaysToNewAccount: 'Pays to new account', remitAccount: 'Remit-to account', shipToProvince: 'Ship-to province',
-  cardTransactionId: 'Card transaction', bankChangeRequestId: 'Bank change request', rule: 'Rule',
+  cardTransactionId: 'Card transaction', bankChangeRequestId: 'Bank change request',
 }
 
 function label(key: string): string {
@@ -139,7 +138,8 @@ function value(key: string, v: unknown): string {
 }
 
 function detailRows(evidence: Record<string, unknown>): [string, string][] {
-  return Object.entries(evidence).map(([k, v]) => [label(k), value(k, v)])
+  // 'rule' is the internal rule code; the UI never shows codes.
+  return Object.entries(evidence).filter(([k]) => k !== 'rule').map(([k, v]) => [label(k), value(k, v)])
 }
 
 function safe(s?: string | null): Record<string, unknown> {

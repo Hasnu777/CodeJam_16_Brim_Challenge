@@ -39,7 +39,7 @@ export default function ReconciliationPage() {
     <Stack>
       <Group justify="space-between">
         <div>
-          <Title order={3}>Bank reconciliation</Title>
+          <Title order={3}>Bank Reconciliation</Title>
           <Text size="sm" c="dimmed">Statement debits matched to payments by reference digits / cheque number and amount. Deterministic; every leftover gets a likely explanation.</Text>
         </div>
         {is('FM', 'ADM') && summary.canSettle > 0 && (
@@ -53,8 +53,8 @@ export default function ReconciliationPage() {
       </SimpleGrid>
       <Tabs defaultValue="lines">
         <Tabs.List>
-          <Tabs.Tab value="lines">Unmatched statement lines ({unmatchedStatementLines.length})</Tabs.Tab>
-          <Tabs.Tab value="payments">Payments not on the statement ({unmatchedPayments.length})</Tabs.Tab>
+          <Tabs.Tab value="lines">Unmatched Statement Lines ({unmatchedStatementLines.length})</Tabs.Tab>
+          <Tabs.Tab value="payments">Payments Not on the Statement ({unmatchedPayments.length})</Tabs.Tab>
           <Tabs.Tab value="matched">Matched ({matched.length})</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="lines" pt="sm">{table(unmatchedStatementLines, false)}</Tabs.Panel>

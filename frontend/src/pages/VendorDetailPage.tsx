@@ -101,7 +101,7 @@ export default function VendorDetailPage() {
                 {c.appliedBeforeVerification && c.status === 'PENDING' && <Text size="xs" c="red">Already written into the vendor master before anyone verified it: payments to this vendor are held.</Text>}
                 {c.status === 'PENDING' && is('FM', 'ADM') && (
                   <Group mt="xs" align="flex-end">
-                    <Textarea size="xs" label="Callback note" placeholder="Called the number on file (not the one in the email)…" value={note} onChange={(e) => setNote(e.currentTarget.value)} style={{ flex: 1 }} autosize />
+                    <Textarea size="xs" label="Callback Note" placeholder="Called the number on file (not the one in the email)…" value={note} onChange={(e) => setNote(e.currentTarget.value)} style={{ flex: 1 }} autosize />
                     <Why reasons={c.requestedBy === me!.id ? ['You requested this change; someone else must verify it'] : []}>
                       <Button size="xs" color="green" disabled={c.requestedBy === me!.id}
                         onClick={() => run(() => api.post(`/bank-change-requests/${c.id}/verify`, { callbackDone: true, approve: true, note }), `${c.id} verified`)}>Callback done, verify</Button>
@@ -120,7 +120,7 @@ export default function VendorDetailPage() {
         <Tabs.List>
           <Tabs.Tab value="invoices">Invoices ({invoices.length})</Tabs.Tab>
           <Tabs.Tab value="contracts">Contracts ({contracts.length})</Tabs.Tab>
-          <Tabs.Tab value="cards">Card transactions ({cardTransactions.length})</Tabs.Tab>
+          <Tabs.Tab value="cards">Card Transactions ({cardTransactions.length})</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="invoices" pt="sm">
           <Table striped><Table.Tbody>
@@ -158,8 +158,8 @@ function BankChangeButton({ vendorId, onDone }: { vendorId: string; onDone: () =
   const [phone, setPhone] = useState(false)
   return (
     <>
-      <Button variant="default" onClick={open}>Request bank change</Button>
-      <Modal opened={opened} onClose={close} title="Record a bank-detail change request">
+      <Button variant="default" onClick={open}>Request Bank Change</Button>
+      <Modal opened={opened} onClose={close} title="Record a Bank Detail Change Request">
         <Stack>
           <Text size="sm" c="dimmed">This never changes the account in use. It creates a new unverified version and holds payments until a Finance Manager verifies it by calling the vendor.</Text>
           <Group grow>

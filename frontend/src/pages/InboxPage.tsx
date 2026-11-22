@@ -50,6 +50,21 @@ export default function InboxPage() {
     }
   }
   const canAct = is('CLK', 'ADM')
+  const [one, setOne] = useState<string | null>(null)
+
+  /** D-102: process just this email (same rules as the batch run). */
+  const processOne = async (id: string) => {
+    setOne(id)
+    try {
+      const e = await api.post<EmailMessage>(`/inbox/${id}/process`)
+      notifyOk(`Processed: ${KIND[e.classification ?? '']?.label ?? 'done'}`)
+      await qc.invalidateQueries()
+    } catch (err) {
+      notifyError(err)
+    } finally {
+      setOne(null)
+    }
+  }
 
   const process = async () => {
     try {
@@ -75,11 +90,8 @@ export default function InboxPage() {
     <Stack>
       <Group justify="space-between">
         <div>
-          <Title order={3}>AP inbox</Title>
-          <Text size="sm" c="dimmed">
-            ap@harborline-logistics.example · keyword rules decide first, the LLM only breaks ties ·{' '}
-            {s?.llmEnabled ? `reading with ${s.llmModel}` : 'LLM key not set: reading with pdftotext/OCR + rules'}
-          </Text>
+          <Title order={3}>Inbox</Title>
+          <Text size="sm" c="dimmed">{s?.mailbox ?? 'ap@harborline-logistics.example'}</Text>
         </div>
         {canAct && (
           <Group>
@@ -98,14 +110,14 @@ export default function InboxPage() {
                 setUploading(false)
               }
             }}>
-              {(props) => <Button variant="default" {...props} loading={uploading}>Upload a file</Button>}
+              {(props) => <Button variant="default" {...props} loading={uploading}>Upload</Button>}
             </FileButton>
             {s?.mailEnabled && (
               <Tooltip label={`Read new mail from ${s.mailbox}`}>
-                <Button variant="default" onClick={fetchMail} loading={fetching} disabled={s?.running}>Fetch new mail</Button>
+                <Button variant="default" onClick={fetchMail} loading={fetching} disabled={s?.running}>Fetch New Mail</Button>
               </Tooltip>
             )}
-            <Button onClick={process} loading={s?.running} disabled={!s?.unprocessed}>Process inbox ({s?.unprocessed ?? 0})</Button>
+            <Button onClick={process} loading={s?.running} disabled={!s?.unprocessed}>Process Inbox ({s?.unprocessed ?? 0})</Button>
           </Group>
         )}
       </Group>
@@ -117,13 +129,13 @@ export default function InboxPage() {
       )}
       {!!s?.errors?.length && <ErrorBox error={s.errors.join('; ')} />}
       <SegmentedControl w="fit-content" value={filter} onChange={setFilter}
-        data={[{ value: 'all', label: 'All' }, { value: 'attention', label: 'Needs attention' }, { value: 'new', label: 'Unprocessed' }]} />
+        data={[{ value: 'all', label: 'All' }, { value: 'attention', label: 'Needs Attention' }, { value: 'new', label: 'Not Processed' }]} />
       {rows.length === 0 ? (
-        <Empty>{filter === 'attention' ? 'Nothing needs attention.' : 'No emails. Process the inbox to begin.'}</Empty>
+        <Empty>{filter === 'attention' ? 'Nothing needs attention.' : 'No emails here.'}</Empty>
       ) : (
         <Table striped highlightOnHover>
           <Table.Thead>
-            <Table.Tr><Table.Th>Received</Table.Th><Table.Th>From</Table.Th><Table.Th>Subject</Table.Th><Table.Th>Classification</Table.Th><Table.Th>Result</Table.Th></Table.Tr>
+            <Table.Tr><Table.Th>Received</Table.Th><Table.Th>From</Table.Th><Table.Th>Subject</Table.Th><Table.Th>Classification</Table.Th><Table.Th>Summary</Table.Th>{canAct && <Table.Th />}</Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {rows.map((e) => (
@@ -135,12 +147,9 @@ export default function InboxPage() {
                 <Table.Td>
                   {e.classification ? (
                     <Tooltip label={`Decided by ${e.classifiedBy === 'LLM' ? 'the LLM (tiebreaker)' : 'keyword rules'}`}>
-                      <Group gap={4} wrap="nowrap">
-                        <Badge color={KIND[e.classification]?.color} variant="light">{KIND[e.classification]?.label ?? e.classification}</Badge>
-                        {e.intakeCode && <Badge variant="outline" size="xs">{e.intakeCode}</Badge>}
-                      </Group>
+                      <Badge color={KIND[e.classification]?.color} variant="light">{KIND[e.classification]?.label ?? e.classification}</Badge>
                     </Tooltip>
-                  ) : <Badge color="gray" variant="outline">unprocessed</Badge>}
+                  ) : <Badge color="gray" variant="outline">Not Processed</Badge>}
                 </Table.Td>
                 <Table.Td maw={380}>
                   {e.classification && e.classification !== 'INVOICE' && <Text size="xs">{e.reason}</Text>}
@@ -150,6 +159,12 @@ export default function InboxPage() {
                     ))}
                   </Group>
                 </Table.Td>
+                {canAct && (
+                  <Table.Td onClick={(ev) => ev.stopPropagation()}>
+                    {!e.processedAt && <Button size="compact-xs" variant="light" loading={one === e.id} disabled={s?.running || (!!one && one !== e.id)}
+                      onClick={() => processOne(e.id!)}>Process</Button>}
+                  </Table.Td>
+                )}
               </Table.Tr>
             ))}
           </Table.Tbody>

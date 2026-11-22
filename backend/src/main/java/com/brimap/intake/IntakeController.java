@@ -51,6 +51,19 @@ public class IntakeController {
     @PreAuthorize("hasAnyRole('CLK','ADM')")
     public Map<String, Object> processInbox() { return inbox.processAll(); }
 
+    @PostMapping("/inbox/{id}/process")
+    @PreAuthorize("hasAnyRole('CLK','ADM')")
+    public EmailMessage processOne(@PathVariable String id) { return inbox.processSingle(id); }
+
+    public record ReplyBody(String to, String subject, String body, boolean draft) {}
+
+    @PostMapping("/inbox/{id}/reply")
+    @PreAuthorize("hasAnyRole('CLK','ADM')")
+    public Map<String, Object> reply(@PathVariable String id, @RequestBody ReplyBody b) {
+        inbox.reply(id, b.to(), b.subject(), b.body(), b.draft());
+        return Map.of("recorded", true, "draft", b.draft());
+    }
+
     @GetMapping("/inbox/status")
     @PreAuthorize("hasAnyRole('CLK','ADM','AUD')")
     public Map<String, Object> status() {

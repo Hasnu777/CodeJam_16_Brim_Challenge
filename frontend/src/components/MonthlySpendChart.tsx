@@ -1,11 +1,24 @@
 import { Text } from "@mantine/core";
-import { money, num } from "../lib/format";
+import { money, moneyShort, MONTHS, num } from "../lib/format";
 
-/** Responsive monthly line plot. Chronological ordering is independent of API object order. */
+/** A round step (1, 2, 2.5 or 5 x 10^n) so the axis reads $0 / $60K / $120K... */
+function niceStep(raw: number): number {
+  const pow = 10 ** Math.floor(Math.log10(raw));
+  const f = raw / pow;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * pow;
+}
+
+/**
+ * Responsive monthly line plot. Chronological ordering is independent of API object order. Months are labelled
+ * Jan, Feb...; the axis uses short amounts ($240K) and each point's exact amount is in its tooltip. maxHeight keeps the
+ * chart from growing with the page width (fonts scale with the SVG).
+ */
 export function MonthlySpendChart({
   monthly,
+  maxHeight = 300,
 }: {
   monthly: Record<string, string>;
+  maxHeight?: number;
 }) {
   const data = Object.entries(monthly).sort(([a], [b]) => a.localeCompare(b));
   if (!data.length)
@@ -15,12 +28,18 @@ export function MonthlySpendChart({
       </Text>
     );
   const values = data.map(([, value]) => num(value));
-  const min = Math.min(0, ...values);
-  const max = Math.max(1, ...values);
-  const span = max - min;
+  const step = niceStep(Math.max(1, ...values) / 4);
+  const max = step * 4;
+  const left = 56;
+  const right = 640;
   const x = (index: number) =>
-    data.length === 1 ? 355 : 70 + (index * 570) / (data.length - 1);
-  const y = (value: number) => 210 - ((value - min) / span) * 185;
+    data.length === 1 ? (left + right) / 2 : left + 14 + (index * (right - left - 28)) / (data.length - 1);
+  const y = (value: number) => 210 - (value / max) * 185;
+  const label = (month: string) => {
+    const m = MONTHS[Number(month.slice(5, 7)) - 1] ?? month.slice(5);
+    // Show the year only when the range spans more than one.
+    return new Set(data.map(([k]) => k.slice(0, 4))).size > 1 ? `${m} ${month.slice(2, 4)}` : m;
+  };
   const points = data
     .map(([, value], index) => `${x(index)},${y(num(value))}`)
     .join(" ");
@@ -30,28 +49,28 @@ export function MonthlySpendChart({
       width="100%"
       role="img"
       aria-label="Monthly spending in Canadian dollars"
-      style={{ display: "block" }}
+      style={{ display: "block", maxHeight, margin: "0 auto" }}
     >
       <title>Monthly spending in Canadian dollars</title>
       {[0, 1, 2, 3, 4].map((tick) => {
-        const value = min + (span * tick) / 4;
+        const value = step * tick;
         return (
           <g key={tick}>
             <line
-              x1={70}
-              x2={640}
+              x1={left}
+              x2={right}
               y1={y(value)}
               y2={y(value)}
               stroke="var(--mantine-color-default-border)"
             />
             <text
-              x={62}
+              x={left - 8}
               y={y(value) + 4}
               textAnchor="end"
               fontSize={11}
               fill="var(--mantine-color-dimmed)"
             >
-              {money(value)}
+              {moneyShort(value)}
             </text>
           </g>
         );
@@ -72,10 +91,10 @@ export function MonthlySpendChart({
             fill="var(--mantine-primary-color-filled)"
             tabIndex={0}
             role="img"
-            aria-label={`${month}: ${money(value)}`}
+            aria-label={`${label(month)}: ${money(value)}`}
           >
             <title>
-              {month}: {money(value)}
+              {label(month)} {month.slice(0, 4)}: {money(value)}
             </title>
           </circle>
           <text
@@ -85,7 +104,7 @@ export function MonthlySpendChart({
             textAnchor="middle"
             fill="var(--mantine-color-dimmed)"
           >
-            {month.slice(5)}
+            {label(month)}
           </text>
         </g>
       ))}

@@ -31,11 +31,11 @@ export default function VendorsPage() {
       </Group>
       <Group>
         <TextInput placeholder="Search name, id, category" value={q} onChange={(e) => setQ(e.currentTarget.value)} w={280} />
-        <Switch label="Needs attention (pending, on hold, bank change)" checked={onlyAttention} onChange={(e) => setOnlyAttention(e.currentTarget.checked)} />
+        <Switch label="Needs Attention (pending, on hold, bank change)" checked={onlyAttention} onChange={(e) => setOnlyAttention(e.currentTarget.checked)} />
       </Group>
       <Table striped highlightOnHover>
         <Table.Thead><Table.Tr><Table.Th>Vendor</Table.Th><Table.Th>Category</Table.Th><Table.Th>Status</Table.Th><Table.Th>Bank</Table.Th>
-          <Table.Th ta="right">Spend YTD</Table.Th><Table.Th>Invoices</Table.Th><Table.Th>Open flags</Table.Th></Table.Tr></Table.Thead>
+          <Table.Th ta="right">Spend YTD</Table.Th><Table.Th>Invoices</Table.Th><Table.Th>Open Flags</Table.Th></Table.Tr></Table.Thead>
         <Table.Tbody>
           {rows.map((r) => {
             const v = r.vendor!
@@ -88,7 +88,7 @@ function OnboardModal({ fromInvoiceId, onClose }: { fromInvoiceId: string | null
       <Stack>
         <Text size="sm" c="dimmed">The vendor starts as pending review. Its bills are held until a Finance Manager (not you) approves it, which also verifies the bank account.</Text>
         <Grid gutter="xs">
-          <Grid.Col span={8}><TextInput label="Legal name" required value={f.legalName} onChange={set('legalName')} /></Grid.Col>
+          <Grid.Col span={8}><TextInput label="Legal Name" required value={f.legalName} onChange={set('legalName')} /></Grid.Col>
           <Grid.Col span={4}><TextInput label="GST/HST #" value={f.gstHstNumber} onChange={set('gstHstNumber')} placeholder="123456789RT0001" /></Grid.Col>
           <Grid.Col span={6}><TextInput label="Category" value={f.category} onChange={set('category')} /></Grid.Col>
           <Grid.Col span={6}><Select label="Default GL account" searchable value={f.defaultGlAccount || null} onChange={(v) => setF({ ...f, defaultGlAccount: v ?? '' })}
@@ -97,7 +97,7 @@ function OnboardModal({ fromInvoiceId, onClose }: { fromInvoiceId: string | null
           <Grid.Col span={3}><TextInput label="Province/state" value={f.provinceOrState} onChange={set('provinceOrState')} /></Grid.Col>
           <Grid.Col span={3}><TextInput label="Country" value={f.country} onChange={set('country')} /></Grid.Col>
           <Grid.Col span={4}><NumberInput label="Terms (days)" value={f.paymentTermsDays} onChange={(v) => setF({ ...f, paymentTermsDays: Number(v) || 30 })} /></Grid.Col>
-          <Grid.Col span={4}><Select label="Payment method" value={f.preferredPaymentMethod} data={['EFT', 'CHEQUE', 'CARD']} onChange={(v) => setF({ ...f, preferredPaymentMethod: v ?? 'EFT' })} /></Grid.Col>
+          <Grid.Col span={4}><Select label="Payment Method" value={f.preferredPaymentMethod} data={['EFT', 'CHEQUE', 'CARD']} onChange={(v) => setF({ ...f, preferredPaymentMethod: v ?? 'EFT' })} /></Grid.Col>
           <Grid.Col span={4}><Switch mt={28} label="Requires PO" checked={f.requiresPo} onChange={(e) => setF({ ...f, requiresPo: e.currentTarget.checked })} /></Grid.Col>
           <Grid.Col span={3}><TextInput label="Institution" value={f.bankInstitution} onChange={set('bankInstitution')} /></Grid.Col>
           <Grid.Col span={3}><TextInput label="Transit" value={f.bankTransit} onChange={set('bankTransit')} /></Grid.Col>

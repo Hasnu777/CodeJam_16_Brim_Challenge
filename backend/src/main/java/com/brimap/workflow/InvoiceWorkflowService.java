@@ -30,6 +30,17 @@ public class InvoiceWorkflowService {
     private final InvoiceRepository invoices;
     private final AuditService audit;
     private final AppClock clock;
+    private final com.brimap.repository.InvoiceLineRepository lines;
+    private final com.brimap.repository.InvoiceTaxRepository taxes;
+    private final com.brimap.repository.FlagRepository flags;
+    private final com.brimap.repository.ApprovalStepRepository steps;
+    private final com.brimap.repository.ExtractionRepository extractions;
+    private final com.brimap.repository.PaymentRepository payments;
+    private final com.brimap.repository.EmailMessageRepository emails;
+
+    /** Statuses a bill can be deleted in: not yet approved, and never anything with money attached (D-101). */
+    public static final java.util.Set<InvoiceStatus> DELETABLE = java.util.EnumSet.of(
+            InvoiceStatus.RECEIVED, InvoiceStatus.EXTRACTED, InvoiceStatus.IN_REVIEW, InvoiceStatus.DUPLICATE, InvoiceStatus.REJECTED);
 
     public Invoice load(String id) {
         return invoices.findById(id).orElseThrow(() -> new NotFoundException("Invoice " + id));
@@ -115,6 +126,39 @@ public class InvoiceWorkflowService {
         inv.setHoldReason(null);
         inv.setStatusBeforeHold(null);
         return transition(inv, back, "HOLD_RELEASED", note);
+    }
+
+    /**
+     * Delete a bill that should never have existed (a duplicate upload, the wrong file). EMP may delete only their own
+     * uploads; CLK and ADM any. The bill and its lines, taxes, flags, approval rounds and extraction runs are removed;
+     * the audit log keeps an INVOICE_DELETED row with the bill's last snapshot and the reason (D-101).
+     */
+    @Transactional
+    public void delete(String id, String reason) {
+        CurrentUser u = Auth.require();
+        requireRole(u, "delete invoices", Role.EMP, Role.CLK, Role.ADM);
+        if (reason == null || reason.isBlank()) throw new IllegalArgumentException("Say why the invoice is being deleted");
+        Invoice inv = load(id);
+        if (u.role() == Role.EMP && !u.id().equals(inv.getRequesterUserId())) throw new ForbiddenException("You can only delete invoices you uploaded");
+        if (inv.isHistorical()) throw new BusinessRuleException(id + " is a historical record and cannot be deleted");
+        if (!DELETABLE.contains(inv.getStatus()))
+            throw new BusinessRuleException(id + " is " + inv.getStatus() + "; only bills that are not yet approved can be deleted");
+        if (!payments.findByInvoiceId(id).isEmpty()) throw new BusinessRuleException(id + " has a payment and cannot be deleted");
+        Map<String, Object> before = snapshot(inv);
+        lines.deleteAll(lines.findByInvoiceIdOrderByLineNo(id));
+        taxes.deleteAll(taxes.findByInvoiceId(id));
+        flags.deleteAll(flags.findByInvoiceId(id));
+        steps.deleteAll(steps.findByInvoiceIdOrderBySeq(id));
+        extractions.deleteAll(extractions.findByInvoiceIdOrderByCreatedAtDesc(id));
+        if (inv.getEmailId() != null) emails.findById(inv.getEmailId()).ifPresent(e -> {
+            if (e.getLinkedInvoiceIds() == null) return;
+            String rest = java.util.Arrays.stream(e.getLinkedInvoiceIds().split(",")).filter(x -> !x.equals(id)).collect(java.util.stream.Collectors.joining(","));
+            e.setLinkedInvoiceIds(rest.isEmpty() ? null : rest);
+            emails.save(e);
+        });
+        invoices.delete(inv);
+        audit.record("INVOICE_DELETED", "invoice", id, before, null, reason.trim());
+        // The caller re-validates open bills: one marked as a duplicate of this bill goes back to review (ValidationService).
     }
 
     public static void requireRole(CurrentUser u, String what, Role... roles) {

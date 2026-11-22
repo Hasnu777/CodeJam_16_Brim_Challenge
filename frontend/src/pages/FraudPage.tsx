@@ -13,22 +13,24 @@ interface Resp { alerts: Alert[]; blockedAmountCad: string; countsByCode: Record
 export default function FraudPage() {
   const q = useQuery({ queryKey: ['fraud'], queryFn: () => api.get<Resp>('/fraud/alerts') })
   if (q.isLoading || !q.data) return <Loading />
-  const { alerts, blockedAmountCad, countsByCode } = q.data
+  const { alerts, blockedAmountCad } = q.data
+  // Counts by signal name (the API groups by rule code, which the UI never shows).
+  const bySignal = alerts.reduce<Record<string, number>>((m, a) => ({ ...m, [a.title]: (m[a.title] ?? 0) + 1 }), {})
   return (
     <Stack>
       <div>
-        <Title order={3}>Fraud alerts</Title>
+        <Title order={3}>Fraud Alerts</Title>
         <Text size="sm" c="dimmed">Bank details changed or unverified, remit-to accounts that differ, lookalike vendors and sender domains, bills already paid by card.</Text>
       </div>
       <SimpleGrid cols={{ base: 2, md: 4 }}>
-        <Card withBorder><Text size="xs" c="dimmed" tt="uppercase" fw={600}>Payments held</Text><Text size="xl" fw={700} c="red">{money(blockedAmountCad)}</Text></Card>
+        <Card withBorder><Text size="xs" c="dimmed" tt="uppercase" fw={600}>Payments Held</Text><Text size="xl" fw={700} c="red">{money(blockedAmountCad)}</Text></Card>
         <Card withBorder><Text size="xs" c="dimmed" tt="uppercase" fw={600}>Alerts</Text><Text size="xl" fw={700}>{alerts.length}</Text></Card>
-        <Card withBorder style={{ gridColumn: 'span 2' }}><Text size="xs" c="dimmed" tt="uppercase" fw={600}>By signal</Text>
-          <Group gap={6} mt={4}>{Object.entries(countsByCode).map(([k, v]) => <Badge key={k} variant="light">{k} × {v}</Badge>)}</Group></Card>
+        <Card withBorder style={{ gridColumn: 'span 2' }}><Text size="xs" c="dimmed" tt="uppercase" fw={600}>By Signal</Text>
+          <Group gap={6} mt={4}>{Object.entries(bySignal).map(([k, v]) => <Badge key={k} variant="light" tt="none">{k} × {v}</Badge>)}</Group></Card>
       </SimpleGrid>
       {alerts.length === 0 ? <Empty>No open fraud signals.</Empty> : (
         <Table striped>
-          <Table.Thead><Table.Tr><Table.Th /><Table.Th>Signal</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Bill</Table.Th><Table.Th ta="right">At stake</Table.Th></Table.Tr></Table.Thead>
+          <Table.Thead><Table.Tr><Table.Th /><Table.Th>Signal</Table.Th><Table.Th>Vendor</Table.Th><Table.Th>Bill</Table.Th><Table.Th ta="right">At Stake</Table.Th></Table.Tr></Table.Thead>
           <Table.Tbody>
             {alerts.map((a, i) => (
               <Table.Tr key={i}>

@@ -2,7 +2,7 @@ import { Alert, Badge, Center, Group, Loader, Paper, Stack, Text, Tooltip } from
 import { IconInfoCircle } from '@tabler/icons-react'
 import type { ReactNode } from 'react'
 import { ApiError } from '../api/client'
-import { money, SEVERITY_COLOR, STATUS_COLOR, statusLabel } from '../lib/format'
+import { money, SEVERITY_COLOR, SEVERITY_LABEL, STATUS_COLOR, statusLabel } from '../lib/format'
 import { humanize } from '../lib/names'
 
 export function StatusBadge({ status }: { status?: string | null }) {
@@ -12,7 +12,7 @@ export function StatusBadge({ status }: { status?: string | null }) {
 
 export function SeverityBadge({ severity }: { severity?: string | null }) {
   if (!severity) return null
-  return <Badge color={SEVERITY_COLOR[severity] ?? 'gray'} variant={severity === 'BLOCK' ? 'filled' : 'light'}>{severity}</Badge>
+  return <Badge color={SEVERITY_COLOR[severity] ?? 'gray'} variant={severity === 'BLOCK' ? 'filled' : 'light'}>{SEVERITY_LABEL[severity] ?? severity}</Badge>
 }
 
 export function FlagCounts({ block, warn, info }: { block?: number; warn?: number; info?: number }) {
@@ -21,7 +21,7 @@ export function FlagCounts({ block, warn, info }: { block?: number; warn?: numbe
       {!!block && <Badge color="red" size="sm">{block}</Badge>}
       {!!warn && <Badge color="yellow" size="sm" variant="light">{warn}</Badge>}
       {!!info && <Badge color="gray" size="sm" variant="light">{info}</Badge>}
-      {!block && !warn && !info && <Text size="xs" c="dimmed">none</Text>}
+      {!block && !warn && !info && <Text size="xs" c="dimmed">None</Text>}
     </Group>
   )
 }

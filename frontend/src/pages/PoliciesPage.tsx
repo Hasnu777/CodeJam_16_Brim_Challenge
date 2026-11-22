@@ -66,12 +66,12 @@ export default function PoliciesPage() {
     <Stack>
       <Group justify="space-between">
         <div>
-          <Title order={3}>Approval and payment rules</Title>
+          <Title order={3}>Approval and Payment Rules</Title>
           <Text size="sm" c="dimmed">The routing engine reads only this table. Amounts are the invoice total in CAD, tax included.</Text>
         </div>
         {edit && <Group>
           <Button variant="default" disabled={!dirty} onClick={() => { setRows(q.data ?? []); setDirty(false) }}>Discard</Button>
-          <Button disabled={!dirty} onClick={save}>Save rules</Button>
+          <Button disabled={!dirty} onClick={save}>Save Rules</Button>
         </Group>}
       </Group>
       {!edit && <Alert color="gray">Read-only. Only the Controller / Admin can change rules.</Alert>}
@@ -100,7 +100,7 @@ export default function PoliciesPage() {
 
       {is('ADM', 'FM') && (
         <Card withBorder>
-          <Title order={5}>Preview routing</Title>
+          <Title order={5}>Preview Routing</Title>
           <Text size="sm" c="dimmed" mb="sm">Who would approve an invoice under the rules above (including unsaved edits)?</Text>
           <Group align="flex-end">
             <Select searchable w={420} label="Invoice" value={previewId} onChange={setPreviewId}

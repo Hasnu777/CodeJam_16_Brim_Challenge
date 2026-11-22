@@ -8,7 +8,32 @@ export function money(v: unknown, currency = 'CAD'): string {
   const n = Number(v)
   if (Number.isNaN(n)) return String(v)
   if (currency === 'CAD') return cad.format(n)
-  return `${currency} ${plain.format(n)}`
+  // "USD $3,100.00": the code says which dollar, the symbol says it is money.
+  try {
+    return `${currency} ${new Intl.NumberFormat('en-CA', { style: 'currency', currency, currencyDisplay: 'narrowSymbol' }).format(n)}`
+  } catch {
+    return `${currency} ${plain.format(n)}`
+  }
+}
+
+/** "$240K", "$1.2M": short axis labels. */
+export function moneyShort(v: number): string {
+  const a = Math.abs(v)
+  if (a >= 1_000_000) return `$${(v / 1_000_000).toFixed(a >= 10_000_000 ? 0 : 1)}M`
+  if (a >= 1_000) return `$${Math.round(v / 1_000)}K`
+  return `$${Math.round(v)}`
+}
+
+export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** "Pending Approval" from PENDING_APPROVAL; every word capitalised (UI convention). */
+export function titleCase(s: string): string {
+  return s.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+/** Drop a leading rule code ("P13: PO required" -> "PO required"); the UI never shows rule codes. */
+export function noCode(s?: string | null): string {
+  return (s ?? '').replace(/^(- |\+ )?[A-Z]{1,3}\d{1,3}[a-z]?:\s*/, (_m, sign) => sign ?? '')
 }
 
 export function num(v: unknown): number {
@@ -39,7 +64,7 @@ export const ROLE_LABEL: Record<string, string> = {
   CLK: 'AP Clerk',
   APR: 'Approver',
   FM: 'Finance Manager',
-  ADM: 'Controller / Admin',
+  ADM: 'Admin',
   AUD: 'Auditor',
 }
 
@@ -73,5 +98,7 @@ export const STATUS_COLOR: Record<string, string> = {
 }
 
 export function statusLabel(s: string): string {
-  return s.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
+  return titleCase(s)
 }
+
+export const SEVERITY_LABEL: Record<string, string> = { BLOCK: 'Blocking', WARN: 'Warning', INFO: 'Info' }

@@ -5,7 +5,7 @@
 import { createContext, useContext } from 'react'
 
 export const APPROVAL_ROLE_LABEL: Record<string, string> = {
-  dept_manager: 'Department manager',
+  dept_manager: 'Department Manager',
   finance_manager: 'Finance Manager',
   controller_admin: 'Controller',
   cfo: 'CFO',
@@ -73,6 +73,8 @@ function humanizeWith(r: Registry, s?: string | null): string {
     .replace(/\bD0\d\b/g, (m) => r.departments[m] ?? m)
     .replace(/\bV\d{3}\b/g, (m) => r.vendors[m] ?? m)
     .replace(/\b(dept_manager|finance_manager|controller_admin|cfo)\b/g, (m) => APPROVAL_ROLE_LABEL[m])
+    // Email ids (EM-042) are internal keys: "From email EM-042: x.pdf" -> "From email: x.pdf".
+    .replace(/\s*\(?\bEM-\d{3,}\b\)?/g, '')
 }
 
 /** Outside React (notifications, helpers): uses whatever the provider has loaded so far. */
