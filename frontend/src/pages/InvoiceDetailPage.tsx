@@ -18,7 +18,17 @@ import { date, dateTime, money, num } from '../lib/format'
 const EDITABLE = ['RECEIVED', 'EXTRACTED', 'IN_REVIEW', 'ON_HOLD', 'DUPLICATE']
 const PAYMENT_HOLDS = ['V01', 'V02', 'B01', 'B02']
 
+/**
+ * Keyed on the route id: following a flag link from one invoice to another (e.g. D02 "possible duplicate of")
+ * keeps this route mounted, so without the key every useState below (the editable fields, the approve/hold
+ * dialogs) would still hold the previous invoice's values.
+ */
 export default function InvoiceDetailPage() {
+  const { id } = useParams()
+  return <InvoiceDetail key={id} />
+}
+
+function InvoiceDetail() {
   const { id } = useParams()
   const { me, is } = useAuth()
   const qc = useQueryClient()
@@ -133,7 +143,8 @@ export default function InvoiceDetailPage() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 7 }}>
           <Stack>
-            <HeaderFields d={d} editable={editable} low={low} depts={depts.data ?? []} onSaved={refresh} />
+            {/* re-seed the form when the server copy changes (save, re-extract, revalidation) */}
+            <HeaderFields key={`${inv.id}:${inv.version}`} d={d} editable={editable} low={low} depts={depts.data ?? []} onSaved={refresh} />
             <LinesTable id={id!} lines={d.lines} editable={editable} gl={gl.data ?? []} depts={depts.data ?? []} onSaved={refresh} />
             <Card withBorder padding="sm">
               <Group justify="space-between" mb={4}><Text fw={600}>Taxes</Text>
