@@ -411,3 +411,35 @@ so it always adds up to the headline total. Before this, it always summed bill t
 department/GL totals. Unknown `groupBy` or `from` after `to` returns 400. For an approver, the department view only
 shows lines coded to their own department, even when one bill is split across departments. The page explains that
 the vendor/category and department/GL totals differ by the tax amount.
+
+**D-085 PO suggestions are ranked by vendor, checked by date and amount, and never linked automatically.** Under a
+P13 (PO required) or PO1 (bad PO) flag, the clerk sees the vendor's `open` / `partially_invoiced` POs
+(`GET /invoices/{id}/po-suggestions`, pure ranking in `purchasing/PoSuggester`). The vendor identifies the PO: in the
+dataset no vendor has more than one open PO, so a date-only guess would mostly surface closed or other vendors' POs.
+Date and amount are sanity checks: a PO issued after the invoice date, a remaining balance below the pre-tax amount
+(same "billed" as P12: other non-rejected, non-duplicate invoices on the PO) or a currency mismatch is a warning.
+Ranking: fewest warnings, then same department, then issued closest before the invoice. The clerk clicks Link
+(`POST /invoices/{id}/po`, audit `PO_LINKED`); re-validation clears P13 or raises PO1/P12. P13 is a control, so it is
+never filled in silently. Linking fills department/requester from the PO only when blank, so an employee's own upload
+keeps its requester. Employees do not see suggestions (the endpoint excludes EMP; they cannot link anyway).
+(Originally written as D-083 on matt-work; that entry was lost in an edit and is restored here.)
+
+**D-086 Flag presentation: one counted banner, details for reviewers only.** Open flags show as one banner
+("N errors found", severity badges, "Click to find out more") that opens a centered, scrollable pop-up with the flag
+cards and PO suggestions; employees keep the findings inline (`lib/invoiceErrorPresentation.ts`). The recommendation
+card no longer repeats open flags as "- P13: ...", since the banner already lists them. A flag's evidence JSON is shown
+as a labelled "details" list (money/percent formatted) to FM, approver, controller and auditor, and hidden from the
+clerk, who works from the message. This is presentation only: the evidence is still in the API response.
+
+**D-087 Lovable design ported into the existing app, not adopted as a new app.** The Lovable export (TanStack Start,
+Tailwind v4, shadcn kit, in-memory sample data and a fake role switcher) is a visual reference only. Its views are
+Mantine with seven `.ap-*` classes, so the look ports without Tailwind: theme in `frontend/src/theme.ts` (blue,
+Nunito Sans, small radius), colour tokens and `.ap-*` rules in `frontend/src/index.css`, font link in `index.html`, and
+`AppLayout.tsx` as the workspace shell. Real API client, session login, react-router, document viewer and role checks
+are unchanged. Where a Lovable view only differed by sample-mode text or disabled buttons (most pages), ours was kept.
+Home follows Lovable's layout but uses role-correct real data (Lovable showed FM stats to everyone and hard-coded
+AP-00480 and "Jan – Oct 2026"). Monthly spend is a chronological SVG line (`MonthlySpendChart`) on Home and Analytics.
+
+**D-088 Secrets only in `.env`; `.gitignore` blocks variants.** `.env.example` stays the committed template with an
+empty `LLM_API_KEY`. `.gitignore` ignores `.env` and `.env.*` (except `.env.example`), because a key saved as
+`.env.txt` (Windows hides the extension) was neither read by Docker Compose nor ignored by git.

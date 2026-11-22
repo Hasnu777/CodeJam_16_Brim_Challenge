@@ -1,5 +1,6 @@
 # Brim AP Automation (CodeJam hackathon, submission Sun ~12:15 pm ET)
 - Spec: docs/PRD.md (read it before any work). Decisions log: docs/decisions.md.
+- Latest handoff (state of matt-work, how to run, open items): docs/handoff-2026-11-22.md.
 - Dataset: dataset_given/ (data/*.csv, inbox/emails.json, incoming_invoices/).
 - Stack: Spring Boot 3 + Gradle + Java 21, PostgreSQL (Docker Compose), React + TS + Vite.
 - The LLM only reads documents. Everything after extraction is deterministic, tested Java.
