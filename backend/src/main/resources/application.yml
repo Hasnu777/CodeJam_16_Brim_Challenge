@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: brim-ap
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/${POSTGRES_DB:brimap}}
+    username: ${POSTGRES_USER:brimap}
+    password: ${POSTGRES_PASSWORD:brimap}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        jdbc.batch_size: 200
+        order_inserts: true
+        jdbc.time_zone: UTC
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/after-ddl.sql
+      separator: ^^^
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    # Money travels as strings ("4802.50") so JS never sees a float.
+    generator:
+      write-bigdecimal-as-plain: true
+
+server:
+  port: ${SERVER_PORT:8088}
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+      timeout: 8h
+
+app:
+  data-dir: ${APP_DATA_DIR:../dataset_given}
+  storage-dir: ${APP_STORAGE_DIR:../storage}
+  seed-mode: ${APP_SEED_MODE:if-empty}
+  llm-api-key: ${LLM_API_KEY:}
+  llm-model: ${LLM_MODEL:}
+  llm-base-url: ${LLM_BASE_URL:}
+  pdftotext: ${PDFTOTEXT_BIN:pdftotext}
+  tesseract: ${TESSERACT_BIN:tesseract}
+  business-date: ${BUSINESS_DATE:2026-11-02}
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+  # Live AP mailbox over IMAP (off by default; emails.json is always loaded). Password goes in .env only.
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:993}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    folder: ${MAIL_FOLDER:INBOX}
+    ssl: ${MAIL_SSL:true}
+    max-per-fetch: ${MAIL_MAX_PER_FETCH:50}
+    auto-poll: ${MAIL_AUTO_POLL:false}
+    poll-ms: ${MAIL_POLL_MS:60000}
+  demo-mode: ${APP_DEMO_MODE:false}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    org.hibernate.engine.jdbc.batch: warn

@@ -1,0 +1,810 @@
+invoice_id,line_no,description,quantity,unit_price,amount,gl_account,department_id,gst_hst_code,pst_qst_code,line_type
+AP-00001,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00002,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00002,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00003,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00003,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00004,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00004,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00005,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00005,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00006,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00007,1,LTL shipment Quebec City-Halifax,1,1419.61,1419.61,5010,D01,GST5,,services
+AP-00007,2,LTL shipment Regina-Vancouver,1,1167.92,1167.92,5010,D01,GST5,,services
+AP-00007,3,Fuel surcharge (6.29%),1,162.76,162.76,5010,D01,GST5,,services
+AP-00008,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00009,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00010,1,Fleet fuel card charges - January,1,5805.08,5805.08,5020,D01,GST5,,services
+AP-00010,2,Card fees and reports - January,1,158.50,158.50,5020,D01,GST5,,services
+AP-00011,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00012,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00012,2,Usage overage - data transfer,1,184.15,184.15,6130,D05,FOREIGN,,services
+AP-00013,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00014,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00015,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00016,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,HST13,,services
+AP-00017,1,Printer paper cartons,27,46.96,1267.92,6210,D06,GST5,PST7_BC,goods
+AP-00018,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00019,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,GST5,,services
+AP-00020,1,LTL shipment Ottawa-Quebec City,1,1386.14,1386.14,5010,D01,HST13,,services
+AP-00020,2,LTL shipment Toronto-Edmonton,1,1100.25,1100.25,5010,D01,HST13,,services
+AP-00020,3,LTL shipment Montreal-Winnipeg,1,1671.24,1671.24,5010,D01,HST13,,services
+AP-00020,4,Fuel surcharge (6.29%),1,261.51,261.51,5010,D01,HST13,,services
+AP-00021,1,Fleet fuel card charges - January,1,5887.45,5887.45,5020,D01,GST5,,services
+AP-00021,2,Card fees and reports - January,1,111.17,111.17,5020,D01,GST5,,services
+AP-00022,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,HST13,,services
+AP-00023,1,LTL shipment Toronto-Regina,1,492.19,492.19,5010,D01,HST13,,services
+AP-00023,2,LTL shipment Hamilton-Regina,1,1241.41,1241.41,5010,D01,HST13,,services
+AP-00023,3,Fuel surcharge (7.08%),1,122.74,122.74,5010,D01,HST13,,services
+AP-00024,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00025,1,Energy - January,1,4560.77,4560.77,6620,D07,GST5,,services
+AP-00026,1,LTL shipment Toronto-Quebec City,1,1767.47,1767.47,5010,D01,GST5,QST9975,services
+AP-00026,2,LTL shipment Halifax-Edmonton,1,937.83,937.83,5010,D01,GST5,QST9975,services
+AP-00026,3,LTL shipment Hamilton-Regina,1,1756.77,1756.77,5010,D01,GST5,QST9975,services
+AP-00026,4,LTL shipment Montreal-Vancouver,1,2121.02,2121.02,5010,D01,GST5,QST9975,services
+AP-00026,5,Fuel surcharge (8.70%),1,572.73,572.73,5010,D01,GST5,QST9975,services
+AP-00027,1,Consulting hours - Warehouse layout review,26,207.53,5395.78,6330,D05,GST5,,services
+AP-00027,2,Workshop facilitation,1,1263.27,1263.27,6330,D05,GST5,,services
+AP-00028,1,Airfare - Vancouver-Montreal,1,999.18,999.18,6710,D01,GST5,QST9975,services
+AP-00028,2,Airfare - Ottawa-Edmonton,1,764.13,764.13,6710,D01,GST5,QST9975,services
+AP-00029,1,LTL shipment Montreal-Hamilton,1,10783.77,10783.77,5010,D01,GST5,QST9975,services
+AP-00029,2,Fuel surcharge (8.21%),1,885.35,885.35,5010,D01,GST5,QST9975,services
+AP-00030,1,Electricity - January,1,4458.35,4458.35,6620,D07,HST13,,services
+AP-00031,1,Dock door repair,1,1471.73,1471.73,6630,D01,GST5,,services
+AP-00031,2,Lighting retrofit labour,7,104.73,733.11,6630,D01,GST5,,services
+AP-00031,3,HVAC service call,1,1058.60,1058.60,6630,D01,GST5,,services
+AP-00032,1,Energy - January,1,4155.11,4155.11,6620,D07,GST5,,services
+AP-00033,1,Consulting hours - Pricing analysis,36.75,252.43,9276.80,6330,D01,GST5,,services
+AP-00033,2,Workshop facilitation,1,1718.77,1718.77,6330,D01,GST5,,services
+AP-00034,1,LTL shipment Vancouver-Regina,1,750.04,750.04,5010,D01,GST5,,services
+AP-00034,2,LTL shipment Vancouver-Quebec City,1,2075.34,2075.34,5010,D01,GST5,,services
+AP-00034,3,Fuel surcharge (10.21%),1,288.47,288.47,5010,D01,GST5,,services
+AP-00035,1,LTL shipment Halifax-Quebec City,1,1252.05,1252.05,5010,D01,HST13,,services
+AP-00035,2,LTL shipment Vancouver-Ottawa,1,1758.86,1758.86,5010,D01,HST13,,services
+AP-00035,3,LTL shipment Ottawa-Winnipeg,1,2158.17,2158.17,5010,D01,HST13,,services
+AP-00035,4,Fuel surcharge (9.86%),1,509.67,509.67,5010,D01,HST13,,services
+AP-00036,1,AV equipment rental,1,265.29,265.29,6720,D03,GST5,,services
+AP-00037,1,Racking components,11,170.11,1871.21,5040,D01,GST5,QST9975,goods
+AP-00037,2,Stretch wrap cases,29,50.79,1472.91,5040,D01,GST5,QST9975,goods
+AP-00037,3,"Pallets (48x40), qty 456",456,8.66,3948.96,5040,D01,GST5,QST9975,goods
+AP-00038,1,"Pallets (48x40), qty 202",202,10.76,2173.52,5040,D01,HST13,,goods
+AP-00039,1,Meeting table,2,1297.45,2594.90,6220,D07,HST13,,goods
+AP-00039,2,Sit/stand desks,6,663.15,3978.90,6220,D07,HST13,,goods
+AP-00039,3,Filing cabinets,6,204.82,1228.92,6220,D07,HST13,,goods
+AP-00040,1,LTL shipment Vancouver-Montreal,1,1163.18,1163.18,5010,D01,GST5,,services
+AP-00040,2,LTL shipment Saskatoon-Hamilton,1,1133.52,1133.52,5010,D01,GST5,,services
+AP-00040,3,Fuel surcharge (8.20%),1,188.33,188.33,5010,D01,GST5,,services
+AP-00041,1,LTL shipment Hamilton-Calgary,1,1529.02,1529.02,5010,D01,GST5,QST9975,services
+AP-00041,2,Fuel surcharge (6.38%),1,97.55,97.55,5010,D01,GST5,QST9975,services
+AP-00042,1,Digital ad campaign - Spring promotion,1,3409.28,3409.28,6410,D03,GST5,,services
+AP-00042,2,Creative design services,1,1133.46,1133.46,6410,D03,GST5,,services
+AP-00042,3,Creative design services,1,1184.20,1184.20,6410,D03,GST5,,services
+AP-00043,1,Forklift repair parts,5,291.35,1456.75,6630,D07,HST13,,goods
+AP-00044,1,Digital ad campaign - Holiday campaign,1,4666.41,4666.41,6410,D03,HST13,,services
+AP-00045,1,LTL shipment Winnipeg-Quebec City,1,1676.86,1676.86,5010,D01,HST13,,services
+AP-00045,2,LTL shipment Edmonton-Quebec City,1,1037.48,1037.48,5010,D01,HST13,,services
+AP-00045,3,LTL shipment Calgary-Halifax,1,1055.65,1055.65,5010,D01,HST13,,services
+AP-00045,4,Fuel surcharge (6.63%),1,249.95,249.95,5010,D01,HST13,,services
+AP-00046,1,Legal services - Vendor agreement review,7,548.61,3840.27,6310,D08,GST5,,services
+AP-00046,2,Disbursements and filing fees,1,432.72,432.72,6310,D08,GST5,,services
+AP-00046,3,Legal services - Corporate records update,6,548.61,3291.66,6310,D08,GST5,,services
+AP-00047,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00048,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00048,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00049,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00049,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00050,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00050,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00051,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00051,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00052,1,LTL shipment Winnipeg-Calgary,1,900.36,900.36,5010,D01,HST13,,services
+AP-00052,2,LTL shipment Vancouver-Halifax,1,1037.50,1037.50,5010,D01,HST13,,services
+AP-00052,3,LTL shipment Regina-Calgary,1,1614.74,1614.74,5010,D01,HST13,,services
+AP-00052,4,Fuel surcharge (7.08%),1,251.52,251.52,5010,D01,HST13,,services
+AP-00053,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00054,1,Placement fee - Warehouse Supervisor,1,2431.89,2431.89,6810,D06,GST5,,services
+AP-00054,2,Placement fee - Dispatcher,1,2416.85,2416.85,6810,D06,GST5,,services
+AP-00055,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00056,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00057,1,Digital ad campaign - Search ads,1,5135.47,5135.47,6410,D03,GST5,QST9975,services
+AP-00057,2,Creative design services,1,1877.31,1877.31,6410,D03,GST5,QST9975,services
+AP-00057,3,Creative design services,1,1022.38,1022.38,6410,D03,GST5,QST9975,services
+AP-00058,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00059,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00059,2,Usage overage - data transfer,1,891.99,891.99,6130,D05,FOREIGN,,services
+AP-00060,1,Fleet fuel card charges - February,1,7436.67,7436.67,5020,D01,GST5,,services
+AP-00060,2,Card fees and reports - February,1,145.13,145.13,5020,D01,GST5,,services
+AP-00061,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00062,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00063,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00064,1,Fleet fuel card charges - February,1,4515.75,4515.75,5020,D01,HST13,,services
+AP-00064,2,Card fees and reports - February,1,100.11,100.11,5020,D01,HST13,,services
+AP-00065,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,GST5,,services
+AP-00066,1,Printed brochures,3750,0.55,2062.50,6420,D03,GST5,,goods
+AP-00067,1,Digital ad campaign - Social media boost,1,2546.16,2546.16,6410,D03,HST13,,services
+AP-00068,1,LTL shipment Quebec City-Toronto,1,1014.64,1014.64,5010,D01,GST5,QST9975,services
+AP-00068,2,LTL shipment Ottawa-Edmonton,1,1586.36,1586.36,5010,D01,GST5,QST9975,services
+AP-00068,3,LTL shipment Halifax-Hamilton,1,725.20,725.20,5010,D01,GST5,QST9975,services
+AP-00068,4,Fuel surcharge (8.15%),1,271.09,271.09,5010,D01,GST5,QST9975,services
+AP-00069,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00070,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,GST5,,services
+AP-00071,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,GST5,,services
+AP-00072,1,LTL shipment Saskatoon-Regina,1,730.95,730.95,5010,D01,GST5,,services
+AP-00072,2,LTL shipment Quebec City-Ottawa,1,1876.01,1876.01,5010,D01,GST5,,services
+AP-00072,3,LTL shipment Toronto-Montreal,1,1478.82,1478.82,5010,D01,GST5,,services
+AP-00072,4,LTL shipment Toronto-Edmonton,1,1435.48,1435.48,5010,D01,GST5,,services
+AP-00072,5,Fuel surcharge (7.05%),1,389.25,389.25,5010,D01,GST5,,services
+AP-00073,1,Compliance training licences,34,70.85,2408.90,6910,D06,FOREIGN,,services
+AP-00073,2,Instructor-led session,1,408.46,408.46,6910,D06,FOREIGN,,services
+AP-00074,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00075,1,Tire service (units),14,409.42,5731.88,5020,D01,HST13,,goods
+AP-00075,2,Wheel alignment,6,152.15,912.90,5020,D01,HST13,,services
+AP-00076,1,LTL shipment Montreal-Halifax,1,1634.04,1634.04,5010,D01,GST5,,services
+AP-00076,2,Fuel surcharge (10.55%),1,172.39,172.39,5010,D01,GST5,,services
+AP-00077,1,Energy - February,1,4023.84,4023.84,6620,D07,GST5,,services
+AP-00078,1,LTL shipment Montreal-Ottawa,1,1168.45,1168.45,5010,D01,HST13,,services
+AP-00078,2,LTL shipment Ottawa-Saskatoon,1,847.39,847.39,5010,D01,HST13,,services
+AP-00078,3,LTL shipment Calgary-Quebec City,1,2219.25,2219.25,5010,D01,HST13,,services
+AP-00078,4,Fuel surcharge (6.42%),1,271.89,271.89,5010,D01,HST13,,services
+AP-00079,1,Electricity - February,1,2251.90,2251.90,6620,D07,HST13,,services
+AP-00080,1,Legal services - Employment matter,9,525.00,4725.00,6310,D08,GST5,,services
+AP-00080,2,Disbursements and filing fees,1,349.43,349.43,6310,D08,GST5,,services
+AP-00080,3,Legal services - Employment matter,3,525.00,1575.00,6310,D08,GST5,,services
+AP-00081,1,HVAC service call,1,1691.47,1691.47,6630,D01,GST5,QST9975,services
+AP-00081,2,Dock leveler repair,1,2795.89,2795.89,6630,D01,GST5,QST9975,services
+AP-00081,3,Lighting retrofit labour,7,101.23,708.61,6630,D01,GST5,QST9975,services
+AP-00082,1,LTL shipment Regina-Quebec City,1,437.93,437.93,5010,D01,GST5,,services
+AP-00082,2,Fuel surcharge (9.02%),1,39.50,39.50,5010,D01,GST5,,services
+AP-00083,1,Digital ad campaign - Search ads,1,10720.19,10720.19,6410,D03,GST5,,services
+AP-00083,2,Creative design services,1,2876.60,2876.60,6410,D03,GST5,,services
+AP-00084,1,LTL shipment Regina-Quebec City,1,437.93,437.93,5010,D01,GST5,,services
+AP-00084,2,Fuel surcharge (9.02%),1,39.50,39.50,5010,D01,GST5,,services
+AP-00085,1,Energy - February,1,4732.48,4732.48,6620,D07,GST5,,services
+AP-00086,1,Dock leveler repair,1,1588.46,1588.46,6630,D07,HST13,,services
+AP-00087,1,Placement fee - Sales Executive,1,6752.01,6752.01,6810,D06,HST13,,services
+AP-00087,2,Placement fee - Fleet Planner,1,9647.45,9647.45,6810,D06,HST13,,services
+AP-00088,1,LTL shipment Regina-Saskatoon,1,2202.19,2202.19,5010,D01,GST5,QST9975,services
+AP-00088,2,Fuel surcharge (9.12%),1,200.84,200.84,5010,D01,GST5,QST9975,services
+AP-00089,1,Sit/stand desks,11,570.42,6274.62,6220,D07,HST13,,goods
+AP-00089,2,Meeting table,1,1301.32,1301.32,6220,D07,HST13,,goods
+AP-00090,1,Digital ad campaign - Trade show,1,2899.06,2899.06,6410,D03,GST5,QST9975,services
+AP-00090,2,Creative design services,1,1207.69,1207.69,6410,D03,GST5,QST9975,services
+AP-00090,3,Creative design services,1,640.49,640.49,6410,D03,GST5,QST9975,services
+AP-00091,1,LTL shipment Toronto-Hamilton,1,928.46,928.46,5010,D01,GST5,QST9975,services
+AP-00091,2,LTL shipment Regina-Quebec City,1,1706.62,1706.62,5010,D01,GST5,QST9975,services
+AP-00091,3,Fuel surcharge (6.76%),1,178.13,178.13,5010,D01,GST5,QST9975,services
+AP-00092,1,LTL shipment Winnipeg-Vancouver,1,2011.73,2011.73,5010,D01,GST5,,services
+AP-00092,2,LTL shipment Saskatoon-Edmonton,1,2191.69,2191.69,5010,D01,GST5,,services
+AP-00092,3,Fuel surcharge (9.75%),1,409.83,409.83,5010,D01,GST5,,services
+AP-00093,1,LTL shipment Regina-Winnipeg,1,622.84,622.84,5010,D01,HST13,,services
+AP-00093,2,LTL shipment Quebec City-Montreal,1,832.62,832.62,5010,D01,HST13,,services
+AP-00093,3,Fuel surcharge (10.06%),1,146.42,146.42,5010,D01,HST13,,services
+AP-00094,1,Tire service (units),9,267.94,2411.46,5020,D01,HST13,,goods
+AP-00095,1,"Pallets (48x40), qty 561",561,10.99,6165.39,5040,D01,HST13,,goods
+AP-00095,2,Corner boards (bundle),13,32.36,420.68,5040,D01,HST13,,goods
+AP-00096,1,LTL shipment Saskatoon-Ottawa,1,1357.71,1357.71,5010,D01,HST13,,services
+AP-00096,2,LTL shipment Winnipeg-Quebec City,1,850.19,850.19,5010,D01,HST13,,services
+AP-00096,3,Fuel surcharge (10.51%),1,232.05,232.05,5010,D01,HST13,,services
+AP-00097,1,LTL shipment Saskatoon-Toronto,1,1741.48,1741.48,5010,D01,HST13,,services
+AP-00097,2,LTL shipment Hamilton-Edmonton,1,729.56,729.56,5010,D01,HST13,,services
+AP-00097,3,Fuel surcharge (6.69%),1,165.31,165.31,5010,D01,HST13,,services
+AP-00098,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00099,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00099,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00100,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00100,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00101,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00101,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00102,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00102,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00103,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00104,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00104,2,Usage overage - data transfer,1,238.12,238.12,6130,D05,FOREIGN,,services
+AP-00105,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00106,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00107,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00108,1,Airfare - Edmonton-Quebec City,1,959.48,959.48,6710,D05,GST5,,services
+AP-00108,2,Airfare - Hamilton-Vancouver,1,363.54,363.54,6710,D05,GST5,,services
+AP-00108,3,Airfare - Calgary-Ottawa,1,423.77,423.77,6710,D05,GST5,,services
+AP-00109,1,Fleet fuel card charges - March,1,6649.69,6649.69,5020,D01,GST5,,services
+AP-00109,2,Card fees and reports - March,1,109.86,109.86,5020,D01,GST5,,services
+AP-00110,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00111,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00112,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00113,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,HST13,,services
+AP-00114,1,Fleet fuel card charges - March,1,7150.64,7150.64,5020,D01,GST5,,services
+AP-00114,2,Card fees and reports - March,1,136.55,136.55,5020,D01,GST5,,services
+AP-00115,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,HST13,,services
+AP-00116,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00117,1,Event staffing (hours),9,49.80,448.20,6720,D06,HST13,,services
+AP-00117,2,Team event catering,1,2963.91,2963.91,6720,D06,HST13,,services
+AP-00117,3,Venue rental,1,2198.49,2198.49,6720,D06,HST13,,services
+AP-00118,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,HST13,,services
+AP-00119,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00120,1,Quarterly review engagement,1,5125.07,5125.07,6320,D04,GST5,,services
+AP-00120,2,Tax advisory hours,9,348.46,3136.14,6320,D04,GST5,,services
+AP-00121,1,Energy - March,1,2946.39,2946.39,6620,D07,GST5,,services
+AP-00122,1,Racking components,16,185.91,2974.56,5040,D01,HST13,,goods
+AP-00122,2,Corner boards (bundle),36,34.93,1257.48,5040,D01,HST13,,goods
+AP-00123,1,Lighting retrofit labour,16,106.04,1696.64,6630,D07,HST13,,services
+AP-00124,1,Consulting hours - CRM rollout,18,197.53,3555.54,6330,D01,HST13,,services
+AP-00125,1,Digital ad campaign - Trade show,1,8156.15,8156.15,6410,D03,HST13,,services
+AP-00125,2,Creative design services,1,2497.78,2497.78,6410,D03,HST13,,services
+AP-00125,3,Creative design services,1,7751.98,7751.98,6410,D03,HST13,,services
+AP-00126,1,Electricity - March,1,4271.20,4271.20,6620,D07,HST13,,services
+AP-00127,1,HVAC service call,1,1686.02,1686.02,6630,D07,HST13,,services
+AP-00127,2,Dock leveler repair,1,1311.79,1311.79,6630,D07,HST13,,services
+AP-00127,3,Dock door repair,1,907.67,907.67,6630,D07,HST13,,services
+AP-00128,1,Digital ad campaign - Customer webinar series,1,14694.29,14694.29,6410,D03,GST5,,services
+AP-00128,2,Creative design services,1,2116.06,2116.06,6410,D03,GST5,,services
+AP-00128,3,Creative design services,1,2901.74,2901.74,6410,D03,GST5,,services
+AP-00129,1,Energy - March,1,4506.56,4506.56,6620,D07,GST5,,services
+AP-00130,1,Digital ad campaign - Customer webinar series,1,7861.22,7861.22,6410,D03,GST5,,services
+AP-00130,2,Creative design services,1,3039.30,3039.30,6410,D03,GST5,,services
+AP-00130,3,Creative design services,1,2483.97,2483.97,6410,D03,GST5,,services
+AP-00131,1,LTL shipment Hamilton-Winnipeg,1,2017.26,2017.26,5010,D01,GST5,,services
+AP-00131,2,Fuel surcharge (6.39%),1,128.90,128.90,5010,D01,GST5,,services
+AP-00132,1,LTL shipment Edmonton-Montreal,1,2273.38,2273.38,5010,D01,GST5,,services
+AP-00132,2,Fuel surcharge (10.25%),1,233.02,233.02,5010,D01,GST5,,services
+AP-00133,1,LTL shipment Montreal-Toronto,1,2090.58,2090.58,5010,D01,HST13,,services
+AP-00133,2,LTL shipment Regina-Ottawa,1,1529.66,1529.66,5010,D01,HST13,,services
+AP-00133,3,Fuel surcharge (7.88%),1,285.27,285.27,5010,D01,HST13,,services
+AP-00134,1,Tire service (units),6,383.65,2301.90,5020,D01,GST5,QST9975,goods
+AP-00134,2,Wheel alignment,6,167.50,1005.00,5020,D01,GST5,QST9975,services
+AP-00135,1,LTL shipment Calgary-Hamilton,1,1973.12,1973.12,5010,D01,GST5,QST9975,services
+AP-00136,1,Lighting retrofit labour,16,115.14,1842.24,6630,D01,GST5,QST9975,services
+AP-00136,2,Dock door repair,1,1509.36,1509.36,6630,D01,GST5,QST9975,services
+AP-00136,3,Forklift repair parts,1,310.88,310.88,6630,D01,GST5,QST9975,goods
+AP-00137,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00137,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00138,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00138,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00139,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00139,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00140,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00140,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00141,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00142,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00143,1,Consulting hours - Pricing analysis,13,244.55,3179.15,6330,D05,GST5,,services
+AP-00143,2,Workshop facilitation,1,2105.48,2105.48,6330,D05,GST5,,services
+AP-00143,3,Travel and expenses (at cost),1,227.44,227.44,6330,D05,GST5,,services
+AP-00144,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00145,1,Fleet fuel card charges - April,1,7234.54,7234.54,5020,D01,GST5,QST9975,services
+AP-00145,2,Card fees and reports - April,1,61.72,61.72,5020,D01,GST5,QST9975,services
+AP-00146,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00147,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00147,2,Usage overage - data transfer,1,476.88,476.88,6130,D05,FOREIGN,,services
+AP-00148,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,HST13,,services
+AP-00149,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00150,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00151,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00152,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,HST13,,services
+AP-00153,1,LTL shipment Toronto-Ottawa,1,1703.12,1703.12,5010,D01,GST5,,services
+AP-00153,2,Fuel surcharge (10.29%),1,175.25,175.25,5010,D01,GST5,,services
+AP-00154,1,Fleet fuel card charges - April,1,4573.62,4573.62,5020,D01,HST13,,services
+AP-00154,2,Card fees and reports - April,1,57.22,57.22,5020,D01,HST13,,services
+AP-00155,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00156,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,HST13,,services
+AP-00157,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,GST5,,services
+AP-00158,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00159,1,Electricity - April,1,3020.69,3020.69,6620,D07,HST13,,services
+AP-00160,1,Airfare - Halifax-Montreal,1,1096.53,1096.53,6710,D03,GST5,,services
+AP-00160,2,Airfare - Winnipeg-Calgary,1,915.11,915.11,6710,D03,GST5,,services
+AP-00161,1,Energy - April,1,2371.41,2371.41,6620,D07,GST5,,services
+AP-00162,1,Energy - April,1,2044.35,2044.35,6620,D07,GST5,,services
+AP-00163,1,LTL shipment Hamilton-Winnipeg,1,1481.76,1481.76,5010,D01,GST5,,services
+AP-00164,1,Trade show banners,4,293.16,1172.64,6420,D02,GST5,,goods
+AP-00165,1,LTL shipment Hamilton-Winnipeg,1,1481.76,1481.76,5010,D01,GST5,,services
+AP-00166,1,LTL shipment Montreal-Ottawa,1,917.79,917.79,5010,D01,GST5,,services
+AP-00166,2,LTL shipment Toronto-Vancouver,1,1982.52,1982.52,5010,D01,GST5,,services
+AP-00166,3,Fuel surcharge (9.89%),1,286.84,286.84,5010,D01,GST5,,services
+AP-00167,1,Corner boards (bundle),29,106.34,3083.86,5040,D01,HST13,,goods
+AP-00167,2,Racking components,19,253.55,4817.45,5040,D01,HST13,,goods
+AP-00167,3,"Pallets (48x40), qty 184",184,30.52,5615.68,5040,D01,HST13,,goods
+AP-00168,1,LTL shipment Regina-Ottawa,1,2066.54,2066.54,5010,D01,GST5,QST9975,services
+AP-00168,2,LTL shipment Hamilton-Regina,1,1879.28,1879.28,5010,D01,GST5,QST9975,services
+AP-00168,3,Fuel surcharge (9.75%),1,384.72,384.72,5010,D01,GST5,QST9975,services
+AP-00169,1,Stretch wrap cases,54,32.86,1774.44,5040,D01,GST5,PST7_BC,goods
+AP-00169,2,Corner boards (bundle),13,15.00,195.00,5040,D01,GST5,PST7_BC,goods
+AP-00169,3,"Pallets (48x40), qty 622",622,5.44,3383.68,5040,D01,GST5,PST7_BC,goods
+AP-00170,1,Digital ad campaign - Trade show,1,5117.44,5117.44,6410,D03,HST13,,services
+AP-00170,2,Creative design services,1,2145.91,2145.91,6410,D03,HST13,,services
+AP-00171,1,Legal services - Vendor agreement review,5.5,482.78,2655.29,6310,D04,HST13,,services
+AP-00171,2,Disbursements and filing fees,1,299.46,299.46,6310,D04,HST13,,services
+AP-00171,3,Legal services - Vendor agreement review,3,482.78,1448.34,6310,D04,HST13,,services
+AP-00172,1,Safety boots,39,129.26,5041.14,5050,D01,GST5,PST7_BC,goods
+AP-00172,2,Hard hats,35,35.95,1258.25,5050,D01,GST5,PST7_BC,goods
+AP-00172,3,Safety glasses (box of 12),16,61.05,976.80,5050,D01,GST5,PST7_BC,goods
+AP-00173,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00173,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00174,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00174,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00175,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00175,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00176,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00176,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00177,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00178,1,LTL shipment Quebec City-Calgary,1,2226.54,2226.54,5010,D01,GST5,,services
+AP-00179,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00180,1,Airfare - Ottawa-Calgary,1,1052.88,1052.88,6710,D05,GST5,,services
+AP-00180,2,Airfare - Edmonton-Saskatoon,1,897.52,897.52,6710,D05,GST5,,services
+AP-00180,3,Airfare - Vancouver-Toronto,1,916.01,916.01,6710,D05,GST5,,services
+AP-00181,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00182,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00182,2,Usage overage - data transfer,1,768.52,768.52,6130,D05,FOREIGN,,services
+AP-00183,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00184,1,Lighting retrofit labour,10,96.68,966.80,6630,D01,HST13,,services
+AP-00184,2,Dock leveler repair,1,2574.36,2574.36,6630,D01,HST13,,services
+AP-00185,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00186,1,Compliance training licences,26,44.21,1149.46,6910,D06,FOREIGN,,services
+AP-00186,2,Instructor-led session,1,1081.51,1081.51,6910,D06,FOREIGN,,services
+AP-00187,1,Tire service (units),12,287.94,3455.28,5020,D01,HST13,,goods
+AP-00187,2,Wheel alignment,7,163.91,1147.37,5020,D01,HST13,,services
+AP-00187,3,Tire disposal fees,15,7.11,106.65,5020,D01,HST13,,services
+AP-00188,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00189,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00190,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00191,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,GST5,,services
+AP-00192,1,LTL shipment Saskatoon-Edmonton,1,636.77,636.77,5010,D01,GST5,,services
+AP-00192,2,LTL shipment Calgary-Toronto,1,937.08,937.08,5010,D01,GST5,,services
+AP-00192,3,LTL shipment Saskatoon-Calgary,1,1561.76,1561.76,5010,D01,GST5,,services
+AP-00192,4,LTL shipment Calgary-Hamilton,1,1909.20,1909.20,5010,D01,GST5,,services
+AP-00192,5,Fuel surcharge (11.23%),1,566.53,566.53,5010,D01,GST5,,services
+AP-00193,1,Ergonomic task chairs,8,531.58,4252.64,6220,D07,HST13,,goods
+AP-00193,2,Meeting table,1,1132.39,1132.39,6220,D07,HST13,,goods
+AP-00193,3,Filing cabinets,7,389.44,2726.08,6220,D07,HST13,,goods
+AP-00194,1,Fleet fuel card charges - May,1,6256.78,6256.78,5020,D01,GST5,QST9975,services
+AP-00194,2,Card fees and reports - May,1,147.86,147.86,5020,D01,GST5,QST9975,services
+AP-00195,1,LTL shipment Saskatoon-Calgary,1,1166.09,1166.09,5010,D01,HST13,,services
+AP-00195,2,LTL shipment Hamilton-Ottawa,1,1724.03,1724.03,5010,D01,HST13,,services
+AP-00195,3,LTL shipment Saskatoon-Quebec City,1,2026.79,2026.79,5010,D01,HST13,,services
+AP-00195,4,LTL shipment Toronto-Winnipeg,1,1533.67,1533.67,5010,D01,HST13,,services
+AP-00195,5,Fuel surcharge (8.76%),1,565.07,565.07,5010,D01,HST13,,services
+AP-00196,1,Digital ad campaign - Search ads,1,1982.47,1982.47,6410,D03,GST5,,services
+AP-00197,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,HST13,,services
+AP-00198,1,Fleet fuel card charges - May,1,7030.31,7030.31,5020,D01,HST13,,services
+AP-00198,2,Card fees and reports - May,1,109.74,109.74,5020,D01,HST13,,services
+AP-00199,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,GST5,,services
+AP-00200,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00201,1,Airfare - Hamilton-Vancouver,1,850.01,850.01,6710,D02,GST5,,services
+AP-00201,2,Airfare - Saskatoon-Quebec City,1,773.17,773.17,6710,D02,GST5,,services
+AP-00202,1,LTL shipment Vancouver-Saskatoon,1,9025.30,9025.30,5010,D01,HST13,,services
+AP-00202,2,Fuel surcharge (11.60%),1,1046.93,1046.93,5010,D01,HST13,,services
+AP-00203,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00204,1,Printer paper cartons,11,47.95,527.45,6210,D08,GST5,PST7_BC,goods
+AP-00205,1,Filing cabinets,2,381.48,762.96,6220,D07,HST13,,goods
+AP-00206,1,Energy - May,1,1776.82,1776.82,6620,D07,GST5,,services
+AP-00207,1,LTL shipment Halifax-Ottawa,1,1998.19,1998.19,5010,D01,GST5,QST9975,services
+AP-00207,2,LTL shipment Montreal-Quebec City,1,1958.85,1958.85,5010,D01,GST5,QST9975,services
+AP-00207,3,Fuel surcharge (7.36%),1,291.24,291.24,5010,D01,GST5,QST9975,services
+AP-00208,1,Electricity - May,1,3672.79,3672.79,6620,D07,HST13,,services
+AP-00209,1,Toner cartridges,20,153.30,3066.00,6210,D06,GST5,PST7_BC,goods
+AP-00210,1,LTL shipment Halifax-Toronto,1,791.75,791.75,5010,D01,GST5,,services
+AP-00210,2,LTL shipment Toronto-Calgary,1,1877.47,1877.47,5010,D01,GST5,,services
+AP-00210,3,LTL shipment Saskatoon-Vancouver,1,1452.83,1452.83,5010,D01,GST5,,services
+AP-00210,4,Fuel surcharge (7.36%),1,303.38,303.38,5010,D01,GST5,,services
+AP-00211,1,Energy - May,1,3177.83,3177.83,6620,D07,GST5,,services
+AP-00212,1,Legal services - Commercial lease review,8,463.61,3708.88,6310,D08,GST5,,services
+AP-00212,2,Disbursements and filing fees,1,248.28,248.28,6310,D08,GST5,,services
+AP-00212,3,Legal services - Corporate records update,4,463.61,1854.44,6310,D08,GST5,,services
+AP-00213,1,Breakroom supplies,1,147.67,147.67,6210,D06,HST13,,goods
+AP-00213,2,Stationery and desk supplies,1,617.00,617.00,6210,D06,HST13,,goods
+AP-00214,1,Tire service (units),6,327.44,1964.64,5020,D01,HST13,,goods
+AP-00214,2,Wheel alignment,2,156.11,312.22,5020,D01,HST13,,services
+AP-00215,1,Trade show banners,1,247.07,247.07,6420,D03,GST5,QST9975,goods
+AP-00215,2,Branded signage,3,298.38,895.14,6420,D03,GST5,QST9975,goods
+AP-00216,1,Consulting hours - CRM rollout,16.25,257.71,4187.79,6330,D01,GST5,QST9975,services
+AP-00216,2,Workshop facilitation,1,1976.84,1976.84,6330,D01,GST5,QST9975,services
+AP-00216,3,Travel and expenses (at cost),1,309.23,309.23,6330,D01,GST5,QST9975,services
+AP-00217,1,Team event catering,1,2047.48,2047.48,6720,D03,HST13,,services
+AP-00217,2,AV equipment rental,1,896.13,896.13,6720,D03,HST13,,services
+AP-00218,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00219,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00219,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00220,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00220,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00221,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00221,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00222,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00222,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00223,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00223,2,Usage overage - data transfer,1,707.69,707.69,6130,D05,FOREIGN,,services
+AP-00224,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00225,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00226,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00227,1,Fleet fuel card charges - June,1,3834.23,3834.23,5020,D01,HST13,,services
+AP-00227,2,Card fees and reports - June,1,95.90,95.90,5020,D01,HST13,,services
+AP-00228,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00229,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00230,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00231,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00232,1,Lighting retrofit labour,11,97.94,1077.34,6630,D01,GST5,,services
+AP-00232,2,Dock door repair,1,2369.34,2369.34,6630,D01,GST5,,services
+AP-00232,3,Dock leveler repair,1,1814.59,1814.59,6630,D01,GST5,,services
+AP-00233,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,HST13,,services
+AP-00234,1,LTL shipment Montreal-Vancouver,1,1532.20,1532.20,5010,D01,GST5,,services
+AP-00234,2,Fuel surcharge (10.23%),1,156.74,156.74,5010,D01,GST5,,services
+AP-00235,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,GST5,,services
+AP-00236,1,LTL shipment Halifax-Regina,1,388.15,388.15,5010,D01,GST5,,services
+AP-00237,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,GST5,,services
+AP-00238,1,LTL shipment Saskatoon-Toronto,1,2079.16,2079.16,5010,D01,GST5,,services
+AP-00238,2,LTL shipment Toronto-Halifax,1,2146.72,2146.72,5010,D01,GST5,,services
+AP-00238,3,LTL shipment Quebec City-Saskatoon,1,1704.14,1704.14,5010,D01,GST5,,services
+AP-00238,4,Fuel surcharge (11.46%),1,679.58,679.58,5010,D01,GST5,,services
+AP-00239,1,Fleet fuel card charges - June,1,4787.22,4787.22,5020,D01,GST5,,services
+AP-00240,1,Safety glasses (box of 12),22,55.52,1221.44,5050,D01,GST5,PST7_BC,goods
+AP-00241,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00242,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,HST13,,services
+AP-00243,1,Energy - June,1,3871.48,3871.48,6620,D07,GST5,,services
+AP-00244,1,LTL shipment Hamilton-Montreal,1,939.24,939.24,5010,D01,GST5,QST9975,services
+AP-00244,2,LTL shipment Halifax-Edmonton,1,2090.49,2090.49,5010,D01,GST5,QST9975,services
+AP-00244,3,LTL shipment Regina-Halifax,1,1818.77,1818.77,5010,D01,GST5,QST9975,services
+AP-00244,4,LTL shipment Hamilton-Calgary,1,2118.65,2118.65,5010,D01,GST5,QST9975,services
+AP-00244,5,Fuel surcharge (6.61%),1,460.53,460.53,5010,D01,GST5,QST9975,services
+AP-00245,1,LTL shipment Quebec City-Winnipeg,1,1855.92,1855.92,5010,D01,GST5,,services
+AP-00245,2,Fuel surcharge (11.41%),1,211.76,211.76,5010,D01,GST5,,services
+AP-00246,1,LTL shipment Halifax-Toronto,1,1834.10,1834.10,5010,D01,GST5,,services
+AP-00246,2,LTL shipment Halifax-Toronto,1,1806.43,1806.43,5010,D01,GST5,,services
+AP-00246,3,LTL shipment Toronto-Quebec City,1,1794.93,1794.93,5010,D01,GST5,,services
+AP-00246,4,LTL shipment Regina-Toronto,1,1612.52,1612.52,5010,D01,GST5,,services
+AP-00246,5,Fuel surcharge (6.36%),1,448.25,448.25,5010,D01,GST5,,services
+AP-00247,1,Placement fee - Sales Executive,1,3516.80,3516.80,6810,D06,HST13,,services
+AP-00247,2,Placement fee - Warehouse Supervisor,1,3655.83,3655.83,6810,D06,HST13,,services
+AP-00248,1,HVAC service call,1,1386.94,1386.94,6630,D01,HST13,,services
+AP-00248,2,Dock leveler repair,1,949.70,949.70,6630,D01,HST13,,services
+AP-00248,3,Lighting retrofit labour,14,114.76,1606.64,6630,D01,HST13,,services
+AP-00249,1,Electricity - June,1,1599.71,1599.71,6620,D07,HST13,,services
+AP-00250,1,LTL shipment Montreal-Halifax,1,973.54,973.54,5010,D01,HST13,,services
+AP-00250,2,LTL shipment Calgary-Ottawa,1,1652.31,1652.31,5010,D01,HST13,,services
+AP-00250,3,Fuel surcharge (8.78%),1,230.55,230.55,5010,D01,HST13,,services
+AP-00251,1,Energy - June,1,3388.56,3388.56,6620,D07,GST5,,services
+AP-00252,1,Legal services - Corporate records update,15,454.37,6815.55,6310,D06,HST13,,services
+AP-00253,1,Digital ad campaign - Trade show,1,5964.44,5964.44,6410,D03,HST13,,services
+AP-00253,2,Creative design services,1,1415.94,1415.94,6410,D03,HST13,,services
+AP-00254,1,Corner boards (bundle),30,28.96,868.80,5040,D01,HST13,,goods
+AP-00255,1,Legal services - Vendor agreement review,9.5,551.52,5239.44,6310,D06,HST13,,services
+AP-00255,2,Disbursements and filing fees,1,156.43,156.43,6310,D06,HST13,,services
+AP-00255,3,Legal services - Customs dispute,4,551.52,2206.08,6310,D06,HST13,,services
+AP-00256,1,LTL shipment Regina-Montreal,1,1627.36,1627.36,5010,D01,HST13,,services
+AP-00257,1,LTL shipment Quebec City-Vancouver,1,1077.68,1077.68,5010,D01,HST13,,services
+AP-00257,2,LTL shipment Quebec City-Vancouver,1,828.05,828.05,5010,D01,HST13,,services
+AP-00257,3,LTL shipment Edmonton-Regina,1,763.20,763.20,5010,D01,HST13,,services
+AP-00257,4,Fuel surcharge (7.09%),1,189.23,189.23,5010,D01,HST13,,services
+AP-00258,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00259,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00259,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00260,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00260,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00261,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00261,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00262,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00262,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00263,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00264,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00264,2,Usage overage - data transfer,1,816.42,816.42,6130,D05,FOREIGN,,services
+AP-00265,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00266,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00267,1,LTL shipment Winnipeg-Toronto,1,1700.29,1700.29,5010,D01,GST5,,services
+AP-00267,2,LTL shipment Ottawa-Calgary,1,1935.49,1935.49,5010,D01,GST5,,services
+AP-00267,3,LTL shipment Winnipeg-Toronto,1,1571.07,1571.07,5010,D01,GST5,,services
+AP-00267,4,LTL shipment Calgary-Halifax,1,1440.92,1440.92,5010,D01,GST5,,services
+AP-00267,5,Fuel surcharge (9.39%),1,624.23,624.23,5010,D01,GST5,,services
+AP-00268,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00269,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00270,1,Tire service (units),17,281.46,4784.82,5020,D01,GST5,,goods
+AP-00270,2,Wheel alignment,3,137.14,411.42,5020,D01,GST5,,services
+AP-00270,3,Tire disposal fees,9,7.93,71.37,5020,D01,GST5,,services
+AP-00271,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00272,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00273,1,LTL shipment Edmonton-Ottawa,1,634.13,634.13,5010,D01,HST13,,services
+AP-00273,2,LTL shipment Ottawa-Regina,1,1340.51,1340.51,5010,D01,HST13,,services
+AP-00273,3,Fuel surcharge (10.44%),1,206.15,206.15,5010,D01,HST13,,services
+AP-00274,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,GST5,,services
+AP-00275,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,HST13,,services
+AP-00276,1,LTL shipment Edmonton-Winnipeg,1,401.30,401.30,5010,D01,GST5,,services
+AP-00276,2,LTL shipment Vancouver-Edmonton,1,1032.16,1032.16,5010,D01,GST5,,services
+AP-00276,3,LTL shipment Hamilton-Winnipeg,1,1511.25,1511.25,5010,D01,GST5,,services
+AP-00276,4,LTL shipment Halifax-Toronto,1,1061.09,1061.09,5010,D01,GST5,,services
+AP-00276,5,Fuel surcharge (6.31%),1,252.77,252.77,5010,D01,GST5,,services
+AP-00277,1,Fleet fuel card charges - July,1,3563.29,3563.29,5020,D01,GST5,,services
+AP-00277,2,Card fees and reports - July,1,119.41,119.41,5020,D01,GST5,,services
+AP-00278,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,HST13,,services
+AP-00279,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00280,1,LTL shipment Ottawa-Calgary,1,1593.23,1593.23,5010,D01,HST13,,services
+AP-00280,2,LTL shipment Winnipeg-Calgary,1,1207.47,1207.47,5010,D01,HST13,,services
+AP-00280,3,LTL shipment Hamilton-Halifax,1,1803.52,1803.52,5010,D01,HST13,,services
+AP-00280,4,Fuel surcharge (7.58%),1,349.00,349.00,5010,D01,HST13,,services
+AP-00281,1,Fleet fuel card charges - July,1,6055.35,6055.35,5020,D01,GST5,QST9975,services
+AP-00281,2,Card fees and reports - July,1,45.91,45.91,5020,D01,GST5,QST9975,services
+AP-00282,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00283,1,Breakroom supplies,1,373.45,373.45,6210,D04,GST5,,goods
+AP-00283,2,Printer paper cartons,9,51.01,459.09,6210,D04,GST5,,goods
+AP-00284,1,Corner boards (bundle),33,33.48,1104.84,5040,D01,HST13,,goods
+AP-00284,2,Racking components,11,92.06,1012.66,5040,D01,HST13,,goods
+AP-00285,1,Placement fee - Senior Accountant,1,3727.87,3727.87,6810,D06,GST5,,services
+AP-00285,2,Placement fee - Data Analyst,1,4250.56,4250.56,6810,D06,GST5,,services
+AP-00286,1,Printer paper cartons,39,52.00,2028.00,6210,D02,HST13,,goods
+AP-00286,2,Stationery and desk supplies,1,278.47,278.47,6210,D02,HST13,,goods
+AP-00287,1,Electricity - July,1,2232.76,2232.76,6620,D07,HST13,,services
+AP-00288,1,Airfare - Halifax-Vancouver,1,866.58,866.58,6710,D02,GST5,QST9975,services
+AP-00288,2,Airfare - Edmonton-Saskatoon,1,735.11,735.11,6710,D02,GST5,QST9975,services
+AP-00288,3,Airfare - Hamilton-Montreal,1,581.03,581.03,6710,D02,GST5,QST9975,services
+AP-00288,4,Airfare - Halifax-Quebec City,1,495.74,495.74,6710,D02,GST5,QST9975,services
+AP-00289,1,First aid kits,15,66.84,1002.60,5050,D01,HST13,,goods
+AP-00289,2,Safety glasses (box of 12),19,72.98,1386.62,5050,D01,HST13,,goods
+AP-00290,1,Energy - July,1,1876.22,1876.22,6620,D07,GST5,,services
+AP-00291,1,LTL shipment Ottawa-Saskatoon,1,1923.32,1923.32,5010,D01,HST13,,services
+AP-00291,2,LTL shipment Winnipeg-Toronto,1,2015.30,2015.30,5010,D01,HST13,,services
+AP-00291,3,LTL shipment Montreal-Toronto,1,842.30,842.30,5010,D01,HST13,,services
+AP-00291,4,LTL shipment Winnipeg-Hamilton,1,1140.07,1140.07,5010,D01,HST13,,services
+AP-00291,5,Fuel surcharge (7.58%),1,448.81,448.81,5010,D01,HST13,,services
+AP-00292,1,Quarterly review engagement,1,4467.77,4467.77,6320,D04,GST5,,services
+AP-00292,2,Tax advisory hours,10,360.88,3608.80,6320,D04,GST5,,services
+AP-00293,1,Energy - July,1,1878.42,1878.42,6620,D07,GST5,,services
+AP-00294,1,Hard hats,41,32.24,1321.84,5050,D07,HST13,,goods
+AP-00295,1,LTL shipment Quebec City-Montreal,1,1153.43,1153.43,5010,D01,HST13,,services
+AP-00295,2,LTL shipment Quebec City-Edmonton,1,1415.43,1415.43,5010,D01,HST13,,services
+AP-00295,3,LTL shipment Quebec City-Regina,1,4532.70,4532.70,5010,D01,HST13,,services
+AP-00295,4,LTL shipment Saskatoon-Vancouver,1,3735.51,3735.51,5010,D01,HST13,,services
+AP-00295,5,Fuel surcharge (8.39%),1,909.23,909.23,5010,D01,HST13,,services
+AP-00296,1,Printer paper cartons,30,42.65,1279.50,6210,D07,HST13,,goods
+AP-00296,2,Toner cartridges,13,122.33,1590.29,6210,D07,HST13,,goods
+AP-00297,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00298,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00298,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00299,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00299,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00300,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00300,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00301,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00301,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00302,1,Compliance training licences,19,54.90,1043.10,6910,D06,FOREIGN,,services
+AP-00302,2,Instructor-led session,1,679.55,679.55,6910,D06,FOREIGN,,services
+AP-00303,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00304,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00305,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00305,2,Usage overage - data transfer,1,819.21,819.21,6130,D05,FOREIGN,,services
+AP-00306,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00307,1,Breakroom supplies,1,381.44,381.44,6210,D07,HST13,,goods
+AP-00307,2,Stationery and desk supplies,1,309.37,309.37,6210,D07,HST13,,goods
+AP-00307,3,Printer paper cartons,21,44.41,932.61,6210,D07,HST13,,goods
+AP-00307,4,Toner cartridges,7,117.88,825.16,6210,D07,HST13,,goods
+AP-00308,1,LTL shipment Edmonton-Halifax,1,651.64,651.64,5010,D01,GST5,,services
+AP-00308,2,LTL shipment Montreal-Hamilton,1,2119.02,2119.02,5010,D01,GST5,,services
+AP-00308,3,Fuel surcharge (7.15%),1,198.10,198.10,5010,D01,GST5,,services
+AP-00309,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00310,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00311,1,Fleet fuel card charges - August,1,6697.56,6697.56,5020,D01,HST13,,services
+AP-00311,2,Card fees and reports - August,1,112.51,112.51,5020,D01,HST13,,services
+AP-00312,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00313,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00314,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,GST5,,services
+AP-00315,1,Fleet fuel card charges - August,1,4881.17,4881.17,5020,D01,HST13,,services
+AP-00315,2,Card fees and reports - August,1,111.69,111.69,5020,D01,HST13,,services
+AP-00316,1,Quarterly review engagement,1,3063.13,3063.13,6320,D04,GST5,,services
+AP-00316,2,Tax advisory hours,3,348.24,1044.72,6320,D04,GST5,,services
+AP-00317,1,LTL shipment Montreal-Quebec City,1,1113.83,1113.83,5010,D01,GST5,QST9975,services
+AP-00317,2,LTL shipment Montreal-Halifax,1,444.67,444.67,5010,D01,GST5,QST9975,services
+AP-00317,3,LTL shipment Regina-Ottawa,1,2187.61,2187.61,5010,D01,GST5,QST9975,services
+AP-00317,4,LTL shipment Toronto-Ottawa,1,1737.91,1737.91,5010,D01,GST5,QST9975,services
+AP-00317,5,Fuel surcharge (6.11%),1,335.07,335.07,5010,D01,GST5,QST9975,services
+AP-00318,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00319,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,GST5,,services
+AP-00320,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,HST13,,services
+AP-00321,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,HST13,,services
+AP-00322,1,Energy - August,1,2091.24,2091.24,6620,D07,GST5,,services
+AP-00323,1,LTL shipment Quebec City-Regina,1,1644.35,1644.35,5010,D01,GST5,,services
+AP-00323,2,LTL shipment Hamilton-Edmonton,1,628.94,628.94,5010,D01,GST5,,services
+AP-00323,3,LTL shipment Montreal-Ottawa,1,1827.31,1827.31,5010,D01,GST5,,services
+AP-00323,4,LTL shipment Calgary-Ottawa,1,487.58,487.58,5010,D01,GST5,,services
+AP-00323,5,Fuel surcharge (7.78%),1,356.96,356.96,5010,D01,GST5,,services
+AP-00324,1,Legal services - Carrier agreement negotiation,5.5,423.29,2328.10,6310,D06,GST5,,services
+AP-00324,2,Disbursements and filing fees,1,112.01,112.01,6310,D06,GST5,,services
+AP-00325,1,Lighting retrofit labour,6,103.94,623.64,6630,D01,GST5,QST9975,services
+AP-00325,2,Forklift repair parts,4,357.13,1428.52,6630,D01,GST5,QST9975,goods
+AP-00326,1,LTL shipment Regina-Ottawa,1,1460.39,1460.39,5010,D01,GST5,QST9975,services
+AP-00326,2,LTL shipment Ottawa-Toronto,1,814.44,814.44,5010,D01,GST5,QST9975,services
+AP-00326,3,LTL shipment Edmonton-Saskatoon,1,798.02,798.02,5010,D01,GST5,QST9975,services
+AP-00326,4,Fuel surcharge (10.62%),1,326.34,326.34,5010,D01,GST5,QST9975,services
+AP-00327,1,LTL shipment Quebec City-Toronto,1,1079.07,1079.07,5010,D01,GST5,,services
+AP-00327,2,LTL shipment Winnipeg-Halifax,1,2241.06,2241.06,5010,D01,GST5,,services
+AP-00327,3,LTL shipment Halifax-Quebec City,1,1853.72,1853.72,5010,D01,GST5,,services
+AP-00327,4,LTL shipment Hamilton-Montreal,1,1019.69,1019.69,5010,D01,GST5,,services
+AP-00327,5,Fuel surcharge (7.32%),1,453.37,453.37,5010,D01,GST5,,services
+AP-00328,1,Electricity - August,1,2815.47,2815.47,6620,D07,HST13,,services
+AP-00329,1,"Pallets (48x40), qty 400",400,9.70,3880.00,5040,D01,HST13,,goods
+AP-00330,1,LTL shipment Hamilton-Regina,1,3993.30,3993.30,5010,D01,GST5,,services
+AP-00330,2,LTL shipment Halifax-Hamilton,1,8796.20,8796.20,5010,D01,GST5,,services
+AP-00330,3,Fuel surcharge (8.32%),1,1064.09,1064.09,5010,D01,GST5,,services
+AP-00331,1,LTL shipment Vancouver-Regina,1,13203.11,13203.11,5010,D01,HST13,,services
+AP-00332,1,LTL shipment Edmonton-Ottawa,1,1811.36,1811.36,5010,D01,HST13,,services
+AP-00332,2,LTL shipment Ottawa-Edmonton,1,1219.07,1219.07,5010,D01,HST13,,services
+AP-00332,3,LTL shipment Saskatoon-Regina,1,1043.40,1043.40,5010,D01,HST13,,services
+AP-00332,4,LTL shipment Toronto-Winnipeg,1,887.84,887.84,5010,D01,HST13,,services
+AP-00332,5,Fuel surcharge (9.89%),1,490.71,490.71,5010,D01,HST13,,services
+AP-00333,1,Energy - August,1,3546.69,3546.69,6620,D07,GST5,,services
+AP-00334,1,"Pallets (48x40), qty 564",564,20.76,11708.64,5040,D01,GST5,,goods
+AP-00335,1,Digital ad campaign - Social media boost,1,3741.81,3741.81,6410,D03,GST5,,services
+AP-00335,2,Creative design services,1,685.86,685.86,6410,D03,GST5,,services
+AP-00336,1,Dock leveler repair,1,1587.58,1587.58,6630,D07,HST13,,services
+AP-00336,2,Forklift repair parts,1,335.44,335.44,6630,D07,HST13,,goods
+AP-00337,1,Trade show banners,4,415.43,1661.72,6420,D02,GST5,PST7_BC,goods
+AP-00337,2,Branded signage,5,477.31,2386.55,6420,D02,GST5,PST7_BC,goods
+AP-00338,1,LTL shipment Quebec City-Halifax,1,481.38,481.38,5010,D01,HST13,,services
+AP-00338,2,LTL shipment Edmonton-Vancouver,1,394.69,394.69,5010,D01,HST13,,services
+AP-00338,3,Fuel surcharge (9.47%),1,82.96,82.96,5010,D01,HST13,,services
+AP-00339,1,Stretch wrap cases,44,104.90,4615.60,5040,D01,GST5,,goods
+AP-00339,2,"Pallets (48x40), qty 222",222,16.06,3565.32,5040,D01,GST5,,goods
+AP-00339,3,Corner boards (bundle),34,45.70,1553.80,5040,D01,GST5,,goods
+AP-00339,4,Racking components,16,248.29,3972.64,5040,D01,GST5,,goods
+AP-00340,1,LTL shipment Regina-Winnipeg,1,1117.50,1117.50,5010,D01,HST13,,services
+AP-00340,2,LTL shipment Quebec City-Vancouver,1,2100.75,2100.75,5010,D01,HST13,,services
+AP-00340,3,Fuel surcharge (10.50%),1,337.92,337.92,5010,D01,HST13,,services
+AP-00341,1,Safety boots,35,173.48,6071.80,5050,D01,GST5,,goods
+AP-00342,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00342,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00343,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00343,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00344,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00344,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00345,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00345,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00346,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00347,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00348,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00349,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00350,1,Business cards (boxes),36,37.48,1349.28,6420,D02,GST5,QST9975,goods
+AP-00350,2,Trade show banners,1,414.55,414.55,6420,D02,GST5,QST9975,goods
+AP-00351,1,Fleet fuel card charges - September,1,6307.90,6307.90,5020,D01,GST5,QST9975,services
+AP-00352,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00353,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00353,2,Usage overage - data transfer,1,211.76,211.76,6130,D05,FOREIGN,,services
+AP-00354,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00355,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00356,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00357,1,Legal services - Employment matter,5,441.12,2205.60,6310,D08,GST5,,services
+AP-00358,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,GST5,,services
+AP-00359,1,Fleet fuel card charges - September,1,5015.16,5015.16,5020,D01,HST13,,services
+AP-00359,2,Card fees and reports - September,1,49.41,49.41,5020,D01,HST13,,services
+AP-00360,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00361,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,GST5,,services
+AP-00362,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,GST5,,services
+AP-00363,1,Consulting hours - Warehouse layout review,50.5,200.01,10100.51,6330,D02,HST13,,services
+AP-00363,2,Workshop facilitation,1,1149.85,1149.85,6330,D02,HST13,,services
+AP-00363,3,Travel and expenses (at cost),1,462.07,462.07,6330,D02,HST13,,services
+AP-00364,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00365,1,Energy - September,1,3108.53,3108.53,6620,D07,GST5,,services
+AP-00366,1,Electricity - September,1,1682.49,1682.49,6620,D07,HST13,,services
+AP-00367,1,LTL shipment Montreal-Halifax,1,1371.88,1371.88,5010,D01,HST13,,services
+AP-00367,2,LTL shipment Calgary-Ottawa,1,1448.24,1448.24,5010,D01,HST13,,services
+AP-00367,3,LTL shipment Regina-Edmonton,1,1332.24,1332.24,5010,D01,HST13,,services
+AP-00367,4,Fuel surcharge (9.87%),1,409.84,409.84,5010,D01,HST13,,services
+AP-00368,1,Breakroom supplies,1,351.86,351.86,6210,D07,HST13,,goods
+AP-00369,1,LTL shipment Regina-Winnipeg,1,761.23,761.23,5010,D01,GST5,,services
+AP-00369,2,LTL shipment Hamilton-Toronto,1,632.48,632.48,5010,D01,GST5,,services
+AP-00369,3,Fuel surcharge (6.70%),1,93.38,93.38,5010,D01,GST5,,services
+AP-00370,1,LTL shipment Vancouver-Calgary,1,3906.52,3906.52,5010,D01,HST13,,services
+AP-00370,2,LTL shipment Vancouver-Montreal,1,3248.32,3248.32,5010,D01,HST13,,services
+AP-00370,3,LTL shipment Regina-Hamilton,1,4911.72,4911.72,5010,D01,HST13,,services
+AP-00370,4,Fuel surcharge (6.70%),1,808.46,808.46,5010,D01,HST13,,services
+AP-00371,1,LTL shipment Calgary-Ottawa,1,1897.57,1897.57,5010,D01,HST13,,services
+AP-00371,2,LTL shipment Winnipeg-Edmonton,1,798.72,798.72,5010,D01,HST13,,services
+AP-00371,3,LTL shipment Edmonton-Calgary,1,749.50,749.50,5010,D01,HST13,,services
+AP-00371,4,LTL shipment Winnipeg-Hamilton,1,1884.90,1884.90,5010,D01,HST13,,services
+AP-00371,5,Fuel surcharge (6.26%),1,333.70,333.70,5010,D01,HST13,,services
+AP-00372,1,LTL shipment Halifax-Calgary,1,1857.35,1857.35,5010,D01,GST5,,services
+AP-00373,1,Energy - September,1,3716.16,3716.16,6620,D07,GST5,,services
+AP-00374,1,LTL shipment Calgary-Regina,1,1525.23,1525.23,5010,D01,HST13,,services
+AP-00374,2,LTL shipment Montreal-Quebec City,1,958.96,958.96,5010,D01,HST13,,services
+AP-00374,3,LTL shipment Hamilton-Toronto,1,2275.81,2275.81,5010,D01,HST13,,services
+AP-00374,4,LTL shipment Vancouver-Quebec City,1,1668.58,1668.58,5010,D01,HST13,,services
+AP-00374,5,Fuel surcharge (7.72%),1,496.29,496.29,5010,D01,HST13,,services
+AP-00375,1,LTL shipment Montreal-Hamilton,1,2011.18,2011.18,5010,D01,HST13,,services
+AP-00375,2,LTL shipment Hamilton-Saskatoon,1,1102.01,1102.01,5010,D01,HST13,,services
+AP-00375,3,LTL shipment Edmonton-Ottawa,1,490.28,490.28,5010,D01,HST13,,services
+AP-00375,4,Fuel surcharge (7.51%),1,270.62,270.62,5010,D01,HST13,,services
+AP-00376,1,Safety glasses (box of 12),20,48.63,972.60,5050,D07,HST13,,goods
+AP-00376,2,First aid kits,18,88.55,1593.90,5050,D07,HST13,,goods
+AP-00376,3,Safety boots,39,100.65,3925.35,5050,D07,HST13,,goods
+AP-00377,1,Racking components,24,182.12,4370.88,5040,D01,GST5,QST9975,goods
+AP-00377,2,Stretch wrap cases,53,68.37,3623.61,5040,D01,GST5,QST9975,goods
+AP-00378,1,Branded signage,11,225.97,2485.67,6420,D03,HST13,,goods
+AP-00378,2,Printed brochures,4115,0.41,1687.15,6420,D03,HST13,,goods
+AP-00378,3,Trade show banners,5,200.74,1003.70,6420,D03,HST13,,goods
+AP-00379,1,Airfare - Calgary-Edmonton,1,339.14,339.14,6710,D01,HST13,,services
+AP-00379,2,Airfare - Vancouver-Halifax,1,377.55,377.55,6710,D01,HST13,,services
+AP-00379,3,Airfare - Montreal-Vancouver,1,1264.47,1264.47,6710,D01,HST13,,services
+AP-00380,1,LTL shipment Quebec City-Saskatoon,1,1444.45,1444.45,5010,D01,GST5,,services
+AP-00380,2,LTL shipment Saskatoon-Montreal,1,2021.07,2021.07,5010,D01,GST5,,services
+AP-00380,3,LTL shipment Toronto-Edmonton,1,1191.87,1191.87,5010,D01,GST5,,services
+AP-00380,4,LTL shipment Quebec City-Ottawa,1,826.78,826.78,5010,D01,GST5,,services
+AP-00380,5,Fuel surcharge (6.28%),1,344.41,344.41,5010,D01,GST5,,services
+AP-00381,1,LTL shipment Edmonton-Winnipeg,1,1354.26,1354.26,5010,D01,HST13,,services
+AP-00381,2,LTL shipment Winnipeg-Quebec City,1,2133.08,2133.08,5010,D01,HST13,,services
+AP-00381,3,LTL shipment Edmonton-Ottawa,1,624.65,624.65,5010,D01,HST13,,services
+AP-00381,4,Fuel surcharge (10.80%),1,444.09,444.09,5010,D01,HST13,,services
+AP-00382,1,Placement fee - Data Analyst,1,3657.85,3657.85,6810,D06,HST13,,services
+AP-00382,2,Placement fee - Warehouse Supervisor,1,3329.06,3329.06,6810,D06,HST13,,services
+AP-00383,1,LTL shipment Saskatoon-Halifax,1,2164.55,2164.55,5010,D01,HST13,,services
+AP-00383,2,LTL shipment Saskatoon-Winnipeg,1,1984.54,1984.54,5010,D01,HST13,,services
+AP-00383,3,Fuel surcharge (10.76%),1,446.44,446.44,5010,D01,HST13,,services
+AP-00384,1,LTL shipment Winnipeg-Calgary,1,13749.29,13749.29,5010,D01,GST5,,services
+AP-00385,1,Corner boards (bundle),35,24.72,865.20,5040,D01,HST13,,goods
+AP-00386,1,Stationery and desk supplies,1,796.66,796.66,6210,D06,GST5,PST7_BC,goods
+AP-00386,2,Printer paper cartons,15,48.29,724.35,6210,D06,GST5,PST7_BC,goods
+AP-00386,3,Breakroom supplies,1,217.57,217.57,6210,D06,GST5,PST7_BC,goods
+AP-00387,1,Quarterly review engagement,1,3110.54,3110.54,6320,D04,GST5,,services
+AP-00388,1,Airfare - Ottawa-Saskatoon,1,971.37,971.37,6710,D05,GST5,,services
+AP-00389,1,Corvid Analytics Business - 10 seats,1,3250.00,3250.00,6110,D05,FOREIGN,,services
+AP-00390,1,Base rent - Toronto HQ,1,13800.00,13800.00,6610,D07,HST13,,services
+AP-00390,2,Operating costs (CAM) - Toronto HQ,1,2350.00,2350.00,6610,D07,HST13,,services
+AP-00391,1,Base rent - Vancouver office,1,7200.00,7200.00,6610,D07,GST5,,services
+AP-00391,2,Operating costs (CAM) - Vancouver,1,1050.00,1050.00,6610,D07,GST5,,services
+AP-00392,1,Base rent - Calgary warehouse,1,9400.00,9400.00,6610,D07,GST5,,services
+AP-00392,2,Operating costs (CAM) - Calgary,1,1250.00,1250.00,6610,D07,GST5,,services
+AP-00393,1,Loyer de base - Montreal,1,5500.00,5500.00,6610,D07,GST5,QST9975,services
+AP-00393,2,Frais d'exploitation - Montreal,1,900.00,900.00,6610,D07,GST5,QST9975,services
+AP-00394,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00394,2,Usage overage - data transfer,1,262.73,262.73,6130,D05,FOREIGN,,services
+AP-00395,1,Fibre internet 1 Gbps (Montreal office),1,940.00,940.00,6120,D05,GST5,QST9975,services
+AP-00396,1,Quarterly review engagement,1,4493.35,4493.35,6320,D04,GST5,,services
+AP-00396,2,Tax advisory hours,6,342.53,2055.18,6320,D04,GST5,,services
+AP-00397,1,Compute and storage - committed base,1,4500.00,4500.00,6130,D05,FOREIGN,,services
+AP-00397,2,Usage overage - data transfer,1,671.39,671.39,6130,D05,FOREIGN,,services
+AP-00398,1,Business mobile plans (38 lines),1,2380.00,2380.00,6120,D05,HST13,,services
+AP-00399,1,LTL shipment Toronto-Vancouver,1,1199.09,1199.09,5010,D01,GST5,,services
+AP-00399,2,Fuel surcharge (8.37%),1,100.36,100.36,5010,D01,GST5,,services
+AP-00400,1,Abacus Ledger accounting platform,1,1320.00,1320.00,6110,D04,GST5,,services
+AP-00401,1,Commercial property and liability premium,1,3875.00,3875.00,6510,D04,EXEMPT,,services
+AP-00402,1,Commercial fleet policy premium,1,6240.00,6240.00,6510,D01,EXEMPT,,services
+AP-00403,1,Fleet fuel card charges - October,1,4611.22,4611.22,5020,D01,GST5,QST9975,services
+AP-00403,2,Card fees and reports - October,1,93.98,93.98,5020,D01,GST5,QST9975,services
+AP-00404,1,Hightide CRM Professional (18 seats),1,2100.00,2100.00,6110,D02,FOREIGN,,services
+AP-00405,1,Fernleaf Team plan (45 users),1,845.00,845.00,6110,D05,GST5,,services
+AP-00406,1,LTL shipment Ottawa-Toronto,1,1995.50,1995.50,5010,D01,GST5,,services
+AP-00406,2,Fuel surcharge (10.51%),1,209.73,209.73,5010,D01,GST5,,services
+AP-00407,1,Fleet fuel card charges - October,1,4756.84,4756.84,5020,D01,HST13,,services
+AP-00407,2,Card fees and reports - October,1,75.34,75.34,5020,D01,HST13,,services
+AP-00408,1,Driftwood Workspace subscription (28 seats),1,2650.00,2650.00,6110,D05,HST13,,services
+AP-00409,1,Group benefits administration fee,1,2310.00,2310.00,6820,D06,GST5,,services
+AP-00410,1,Janitorial services - Toronto HQ,1,2475.00,2475.00,6640,D07,HST13,,services
+AP-00411,1,LTL shipment Montreal-Toronto,1,1306.28,1306.28,5010,D01,GST5,,services
+AP-00411,2,LTL shipment Montreal-Toronto,1,1723.58,1723.58,5010,D01,GST5,,services
+AP-00411,3,LTL shipment Toronto-Montreal,1,779.01,779.01,5010,D01,GST5,,services
+AP-00411,4,LTL shipment Calgary-Ottawa,1,696.45,696.45,5010,D01,GST5,,services
+AP-00411,5,Fuel surcharge (9.81%),1,441.97,441.97,5010,D01,GST5,,services
+AP-00412,1,LTL shipment Vancouver-Saskatoon,1,1696.92,1696.92,5010,D01,GST5,QST9975,services
+AP-00412,2,LTL shipment Saskatoon-Halifax,1,2189.30,2189.30,5010,D01,GST5,QST9975,services
+AP-00412,3,Fuel surcharge (6.44%),1,250.27,250.27,5010,D01,GST5,QST9975,services
+AP-00413,1,Signet e-signature business plan,1,515.00,515.00,6110,D04,GST5,,services
+AP-00414,1,Consulting hours - Fleet routing study,21.5,235.00,5052.50,6330,D05,HST13,,services
+AP-00414,2,Workshop facilitation,1,1177.44,1177.44,6330,D05,HST13,,services
+AP-00415,1,LTL shipment Hamilton-Saskatoon,1,1692.96,1692.96,5010,D01,GST5,,services
+AP-00415,2,LTL shipment Regina-Ottawa,1,1040.08,1040.08,5010,D01,GST5,,services
+AP-00415,3,LTL shipment Hamilton-Halifax,1,1467.41,1467.41,5010,D01,GST5,,services
+AP-00415,4,Fuel surcharge (7.61%),1,319.65,319.65,5010,D01,GST5,,services
+AP-00416,1,Electricity - October,1,2927.19,2927.19,6620,D07,HST13,,services
+AP-00417,1,Energy - October,1,2695.06,2695.06,6620,D07,GST5,,services
+AP-00418,1,LTL shipment Calgary-Toronto,1,1031.67,1031.67,5010,D01,GST5,,services
+AP-00418,2,LTL shipment Edmonton-Toronto,1,1886.44,1886.44,5010,D01,GST5,,services
+AP-00418,3,LTL shipment Edmonton-Regina,1,2198.46,2198.46,5010,D01,GST5,,services
+AP-00418,4,LTL shipment Winnipeg-Toronto,1,1499.40,1499.40,5010,D01,GST5,,services
+AP-00418,5,Fuel surcharge (8.28%),1,547.80,547.80,5010,D01,GST5,,services
+AP-00419,1,LTL shipment Edmonton-Hamilton,1,4539.69,4539.69,5010,D01,HST13,,services
+AP-00419,2,LTL shipment Winnipeg-Montreal,1,5915.53,5915.53,5010,D01,HST13,,services
+AP-00419,3,Fuel surcharge (11.45%),1,1197.12,1197.12,5010,D01,HST13,,services
+AP-00420,1,Placement fee - Warehouse Supervisor,1,12104.80,12104.80,6810,D06,HST13,,services
+AP-00421,1,Placement fee - Warehouse Supervisor,1,12104.80,12104.80,6810,D06,HST13,,services
+AP-00422,1,Energy - October,1,1946.76,1946.76,6620,D07,GST5,,services
+AP-00423,1,Team event catering,1,2077.78,2077.78,6720,D06,HST13,,services
+AP-00423,2,AV equipment rental,1,691.35,691.35,6720,D06,HST13,,services
+AP-00423,3,Event staffing (hours),18,49.23,886.14,6720,D06,HST13,,services
+AP-00424,1,Hi-vis vests,82,18.86,1546.52,5050,D01,GST5,,goods
+AP-00424,2,Safety boots,12,143.40,1720.80,5050,D01,GST5,,goods
+AP-00425,1,LTL shipment Regina-Montreal,1,1721.55,1721.55,5010,D01,HST13,,services
+AP-00425,2,LTL shipment Ottawa-Montreal,1,1213.29,1213.29,5010,D01,HST13,,services
+AP-00425,3,LTL shipment Montreal-Quebec City,1,695.84,695.84,5010,D01,HST13,,services
+AP-00425,4,Fuel surcharge (7.23%),1,262.50,262.50,5010,D01,HST13,,services
+AP-00426,1,Corner boards (bundle),30,23.64,709.20,5040,D01,GST5,,goods
+AP-00426,2,"Pallets (48x40), qty 529",529,10.21,5401.09,5040,D01,GST5,,goods
+AP-00426,3,Racking components,18,137.04,2466.72,5040,D01,GST5,,goods

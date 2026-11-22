@@ -9,6 +9,47 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-# backend and frontend services get added in phase 1
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-brimap}"]
+      interval: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-brimap}
+      POSTGRES_DB: ${POSTGRES_DB:-brimap}
+      POSTGRES_USER: ${POSTGRES_USER:-brimap}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-brimap}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      APP_SEED_MODE: ${APP_SEED_MODE:-if-empty}
+      BUSINESS_DATE: ${BUSINESS_DATE:-2026-11-02}
+      MAIL_ENABLED: ${MAIL_ENABLED:-false}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-993}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FOLDER: ${MAIL_FOLDER:-INBOX}
+      MAIL_AUTO_POLL: ${MAIL_AUTO_POLL:-false}
+      APP_DEMO_MODE: ${APP_DEMO_MODE:-true}
+      AUDIT_HMAC_KEY: ${AUDIT_HMAC_KEY:-}
+    ports:
+      - "8088:8088"
+    volumes:
+      - ${DATASET_DIR:-./dataset_given}:/data:ro
+      - storage:/storage
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
 volumes:
   pgdata:
+  storage:

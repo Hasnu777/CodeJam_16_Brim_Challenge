@@ -1,0 +1,1067 @@
+{
+ "alpengloweventsc-inv-010.pdf": {
+  "vendorName": "Alpenglow Events & Catering",
+  "gstNumber": "238900291RT0001",
+  "invoiceNumber": "AL26-0689",
+  "invoiceDate": "2026-10-23",
+  "dueDate": "2026-11-22",
+  "currency": "CAD",
+  "subtotal": "5550.17",
+  "total": "6381.31",
+  "taxes": {
+   "GST5": "277.51",
+   "QST9975": "553.63"
+  },
+  "lineCount": 2,
+  "remitAccount": "967079384",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V047"
+ },
+ "beaumontrivieres_FA000557.pdf": {
+  "vendorName": "Beaumont Riviere S.E.N.C.R.L.",
+  "gstNumber": "941999763RT0001",
+  "invoiceNumber": "FA-000557",
+  "invoiceDate": "2026-10-23",
+  "dueDate": "2026-11-22",
+  "currency": "CAD",
+  "subtotal": "7715.88",
+  "total": "8101.67",
+  "taxes": {
+   "GST5": "385.79"
+  },
+  "lineCount": 1,
+  "remitAccount": "486747687",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V027"
+ },
+ "benefitwisegroup_262.pdf": {
+  "vendorName": "Benefitwise Group Benefits Admin",
+  "gstNumber": "927363514RT0001",
+  "invoiceNumber": "262",
+  "invoiceDate": "2026-10-30",
+  "dueDate": "2026-11-14",
+  "currency": "CAD",
+  "subtotal": "2190.00",
+  "total": "2474.70",
+  "taxes": {
+   "HST13": "284.70"
+  },
+  "lineCount": 1,
+  "remitAccount": "142487811",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V049"
+ },
+ "brightlinesafety-inv-032.pdf": {
+  "vendorName": "Brightline Safety Supply",
+  "gstNumber": "612797763RT0001",
+  "invoiceNumber": "583",
+  "invoiceDate": "2026-08-12",
+  "dueDate": "2026-09-11",
+  "currency": "CAD",
+  "subtotal": "3368.41",
+  "total": "3806.30",
+  "taxes": {
+   "HST13": "437.89"
+  },
+  "lineCount": 2,
+  "remitAccount": "973649931",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V013"
+ },
+ "cascadiacartagel_1625.pdf": {
+  "vendorName": "Cascadia Cartage Ltd.",
+  "gstNumber": "669086667RT0001",
+  "invoiceNumber": "1625",
+  "invoiceDate": "2026-10-27",
+  "dueDate": "2026-11-26",
+  "currency": "CAD",
+  "subtotal": "5263.09",
+  "total": "6051.23",
+  "taxes": {
+   "GST5": "263.15",
+   "QST9975": "524.99"
+  },
+  "lineCount": 5,
+  "remitAccount": "953389679",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V004"
+ },
+ "cloudbarnsoftwar-inv-047.pdf": {
+  "vendorName": "Cloudbarn Software Inc.",
+  "gstNumber": "422479028RT0001",
+  "invoiceNumber": "INV-01568",
+  "invoiceDate": "2026-10-31",
+  "dueDate": "2026-11-30",
+  "currency": "CAD",
+  "subtotal": "2400.00",
+  "total": "2520.00",
+  "taxes": {
+   "GST5": "120.00"
+  },
+  "lineCount": 1,
+  "remitAccount": null,
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V015"
+ },
+ "cloudbarnsoftwar_INV01561.pdf": {
+  "vendorName": "Cloudbarn Software Inc.",
+  "gstNumber": "422479028RT0001",
+  "invoiceNumber": "INV-01561",
+  "invoiceDate": "2026-10-09",
+  "dueDate": "2026-11-08",
+  "currency": "CAD",
+  "subtotal": "2400.00",
+  "total": "2520.00",
+  "taxes": {
+   "GST5": "120.00"
+  },
+  "lineCount": 1,
+  "remitAccount": null,
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V015"
+ },
+ "evergreenenergyu_000850.pdf": {
+  "vendorName": "Evergreen Energy Utility",
+  "gstNumber": "879234965RT0001",
+  "invoiceNumber": "000850",
+  "invoiceDate": "2026-10-20",
+  "dueDate": "2026-11-10",
+  "currency": "CAD",
+  "subtotal": "3180.00",
+  "total": "3439.00",
+  "taxes": {
+   "GST5": "159.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "331792955",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V041"
+ },
+ "fixwellfacilitys-inv-052.pdf": {
+  "vendorName": "Fixwell Facility Services",
+  "gstNumber": "880851885RT0001",
+  "invoiceNumber": "FA-000415",
+  "invoiceDate": "2026-11-01",
+  "dueDate": "2026-12-01",
+  "currency": "CAD",
+  "subtotal": "2730.00",
+  "total": "2866.50",
+  "taxes": {
+   "GST5": "136.50"
+  },
+  "lineCount": 2,
+  "remitAccount": "937345964",
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V043"
+ },
+ "fixwellfacilitys_CNFA000413.pdf": {
+  "vendorName": "Fixwell Facility Services",
+  "gstNumber": "880851885RT0001",
+  "invoiceNumber": "CN-FA-000413",
+  "invoiceDate": "2026-10-29",
+  "dueDate": "2026-11-28",
+  "currency": "CAD",
+  "subtotal": "-1428.50",
+  "total": "-1614.21",
+  "taxes": {
+   "HST13": "-185.71"
+  },
+  "lineCount": 2,
+  "remitAccount": "937345964",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "credit_note",
+  "vendorId": "V043"
+ },
+ "granvillecommerc_GR262864.pdf": {
+  "vendorName": "Granville Commercial Realty",
+  "gstNumber": "630877871RT0001",
+  "invoiceNumber": "GR26-2864",
+  "invoiceDate": "2026-11-01",
+  "dueDate": "2026-11-01",
+  "currency": "CAD",
+  "subtotal": "7750.00",
+  "total": "8137.50",
+  "taxes": {
+   "GST5": "387.50"
+  },
+  "lineCount": 2,
+  "remitAccount": "185684730",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V037"
+ },
+ "greatlakescarrie-inv-016.pdf": {
+  "vendorName": "Great Lakes Carriers Inc.",
+  "gstNumber": "367912731RT0001",
+  "invoiceNumber": "GR26-2271",
+  "invoiceDate": "2026-10-26",
+  "dueDate": "2026-11-25",
+  "currency": "CAD",
+  "subtotal": "4198.05",
+  "total": "4743.80",
+  "taxes": {
+   "HST13": "545.75"
+  },
+  "lineCount": 6,
+  "remitAccount": "234408577",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V002"
+ },
+ "greatlakescarrie-inv-025.pdf": {
+  "vendorName": "Great Lakes Carriers Inc.",
+  "gstNumber": "367912731RT0001",
+  "invoiceNumber": "CN-GR26-2274",
+  "invoiceDate": "2026-10-27",
+  "dueDate": "2026-11-26",
+  "currency": "CAD",
+  "subtotal": "-640.00",
+  "total": "-672.00",
+  "taxes": {
+   "GST5": "-32.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "234408577",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "credit_note",
+  "vendorId": "V002"
+ },
+ "harlowsternllp_001468.pdf": {
+  "vendorName": "Harlow & Stern LLP",
+  "gstNumber": "134920677RT0001",
+  "invoiceNumber": "001468",
+  "invoiceDate": "2026-10-06",
+  "dueDate": "2026-11-05",
+  "currency": "CAD",
+  "subtotal": "15363.75",
+  "total": "16131.94",
+  "taxes": {
+   "GST5": "768.19"
+  },
+  "lineCount": 2,
+  "remitAccount": "736063279",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V026"
+ },
+ "harlowsternllp_001470.pdf": {
+  "vendorName": "Harlow & Stern LLP",
+  "gstNumber": "134920677RT0001",
+  "invoiceNumber": "001470",
+  "invoiceDate": "2026-10-21",
+  "dueDate": "2026-11-20",
+  "currency": "CAD",
+  "subtotal": "323.35",
+  "total": "339.52",
+  "taxes": {
+   "GST5": "16.17"
+  },
+  "lineCount": 1,
+  "remitAccount": "736063279",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V026"
+ },
+ "Invoice 000809.pdf": {
+  "vendorName": "Summit Packaging Supply",
+  "gstNumber": "386986545RT0001",
+  "invoiceNumber": "000809",
+  "invoiceDate": "2026-11-27",
+  "dueDate": "2026-12-27",
+  "currency": "CAD",
+  "subtotal": "5000.00",
+  "total": "5748.75",
+  "taxes": {
+   "GST5": "250.00",
+   "QST9975": "498.75"
+  },
+  "lineCount": 1,
+  "remitAccount": "941078394",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V011"
+ },
+ "Invoice 000961.pdf": {
+  "vendorName": "Polar Freight Lines Ltd.",
+  "gstNumber": "995133220RT0001",
+  "invoiceNumber": "000961",
+  "invoiceDate": "2026-10-01",
+  "dueDate": "2026-10-31",
+  "currency": "CAD",
+  "subtotal": "6206.47",
+  "total": "7135.89",
+  "taxes": {
+   "GST5": "310.32",
+   "QST9975": "619.10"
+  },
+  "lineCount": 6,
+  "remitAccount": "410652201",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V001"
+ },
+ "Invoice 000964.pdf": {
+  "vendorName": "Polar Freight Lines Ltd.",
+  "gstNumber": "995133220RT0001",
+  "invoiceNumber": "000964",
+  "invoiceDate": "2026-10-21",
+  "dueDate": "2026-11-20",
+  "currency": "CAD",
+  "subtotal": "2807.78",
+  "total": "3172.79",
+  "taxes": {
+   "HST13": "365.01"
+  },
+  "lineCount": 5,
+  "remitAccount": "410652201",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V001"
+ },
+ "Invoice 002935.pdf": {
+  "vendorName": "Queen Street Properties Inc.",
+  "gstNumber": "452214103RT0001",
+  "invoiceNumber": "002935",
+  "invoiceDate": "2026-11-01",
+  "dueDate": "2026-11-01",
+  "currency": "CAD",
+  "subtotal": "16600.00",
+  "total": "18758.00",
+  "taxes": {
+   "HST13": "2158.00"
+  },
+  "lineCount": 2,
+  "remitAccount": "710061421",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V036"
+ },
+ "Invoice 287.pdf": {
+  "vendorName": "Orion Strategy Partners",
+  "gstNumber": "483236076RT0001",
+  "invoiceNumber": "287",
+  "invoiceDate": "2026-10-28",
+  "dueDate": "2026-11-27",
+  "currency": "CAD",
+  "subtotal": "4250.00",
+  "total": "4802.50",
+  "taxes": {
+   "HST13": "552.50"
+  },
+  "lineCount": 1,
+  "remitAccount": "740226188",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V029"
+ },
+ "Invoice 4443.pdf": {
+  "vendorName": "Blue Heron Couriers",
+  "gstNumber": "324978405RT0001",
+  "invoiceNumber": "4443",
+  "invoiceDate": "2026-10-20",
+  "dueDate": "2026-11-19",
+  "currency": "CAD",
+  "subtotal": "1340.70",
+  "total": "1407.74",
+  "taxes": {
+   "GST5": "67.04"
+  },
+  "lineCount": 2,
+  "remitAccount": "38053633",
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": null
+ },
+ "Invoice 853.pdf": {
+  "vendorName": "Hardhat Outfitters Ltd.",
+  "gstNumber": "907785286RT0001",
+  "invoiceNumber": "853",
+  "invoiceDate": "2026-10-22",
+  "dueDate": "2026-11-21",
+  "currency": "CAD",
+  "subtotal": "1128.00",
+  "total": "1274.64",
+  "taxes": {
+   "HST13": "146.64"
+  },
+  "lineCount": 2,
+  "remitAccount": "790026655",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V014"
+ },
+ "Invoice AU26-2207.pdf": {
+  "vendorName": "Aurora Mobile Business",
+  "gstNumber": "511304707RT0001",
+  "invoiceNumber": "AU26-2207",
+  "invoiceDate": "2026-11-02",
+  "dueDate": "2026-11-23",
+  "currency": "CAD",
+  "subtotal": "2343.50",
+  "total": "2460.68",
+  "taxes": {
+   "GST5": "117.18"
+  },
+  "lineCount": 1,
+  "remitAccount": "377190807",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V022"
+ },
+ "Invoice FA-000318.pdf": {
+  "vendorName": "Quillpad Documents Ltd.",
+  "gstNumber": "959267705RT0001",
+  "invoiceNumber": "FA-000318",
+  "invoiceDate": "2026-10-29",
+  "dueDate": "2026-11-28",
+  "currency": "CAD",
+  "subtotal": "460.00",
+  "total": "483.00",
+  "taxes": {
+   "GST5": "23.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "506760345",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V020"
+ },
+ "Invoice FA-001619.pdf": {
+  "vendorName": "Prairie Express Haulage",
+  "gstNumber": "293017221RT0001",
+  "invoiceNumber": "FA-001619",
+  "invoiceDate": "2026-10-27",
+  "dueDate": "2026-11-26",
+  "currency": "CAD",
+  "subtotal": "6022.86",
+  "total": "6924.78",
+  "taxes": {
+   "GST5": "301.14",
+   "QST9975": "600.78"
+  },
+  "lineCount": 5,
+  "remitAccount": "448967293",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V003"
+ },
+ "Invoice FA-002853.pdf": {
+  "vendorName": "Fibrewave Communications",
+  "gstNumber": "225387876RT0001",
+  "invoiceNumber": "FA-002853",
+  "invoiceDate": "2026-10-29",
+  "dueDate": "2026-11-19",
+  "currency": "CAD",
+  "subtotal": "890.00",
+  "total": "1005.70",
+  "taxes": {
+   "HST13": "115.70"
+  },
+  "lineCount": 1,
+  "remitAccount": "548268294",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V023"
+ },
+ "Invoice HA26-2766.pdf": {
+  "vendorName": "Harlow and Stern LLP",
+  "gstNumber": "503486760RT0001",
+  "invoiceNumber": "HA26-2766",
+  "invoiceDate": "2026-10-27",
+  "dueDate": "2026-11-26",
+  "currency": "CAD",
+  "subtotal": "5710.00",
+  "total": "6452.30",
+  "taxes": {
+   "HST13": "742.30"
+  },
+  "lineCount": 2,
+  "remitAccount": "593014216",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V052"
+ },
+ "Invoice INV-00734.pdf": {
+  "vendorName": "ClearView Janitorial",
+  "gstNumber": "139262707RT0001",
+  "invoiceNumber": "INV-00734",
+  "invoiceDate": "2026-10-28",
+  "dueDate": "2026-11-27",
+  "currency": "CAD",
+  "subtotal": "2250.00",
+  "total": "2542.50",
+  "taxes": {
+   "HST13": "292.50"
+  },
+  "lineCount": 1,
+  "remitAccount": "890195688",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V045"
+ },
+ "Invoice TR26-1042.pdf": {
+  "vendorName": "Trailhead Fuel Services",
+  "gstNumber": "723947408RT0001",
+  "invoiceNumber": "TR26-1042",
+  "invoiceDate": "2026-10-20",
+  "dueDate": "2026-11-04",
+  "currency": "CAD",
+  "subtotal": "4382.35",
+  "total": "4952.06",
+  "taxes": {
+   "HST13": "569.71"
+  },
+  "lineCount": 1,
+  "remitAccount": "210444486",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V007"
+ },
+ "ironwoodpalletco-inv-048.pdf": {
+  "vendorName": "Ironwood Pallet Co.",
+  "gstNumber": "906611224RT0001",
+  "invoiceNumber": "INV-02210",
+  "invoiceDate": "2026-10-30",
+  "dueDate": "2026-11-29",
+  "currency": "CAD",
+  "subtotal": "915.64",
+  "total": "915.64",
+  "taxes": {},
+  "lineCount": 1,
+  "remitAccount": "974188145",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V010"
+ },
+ "keystonerackings-inv-002.pdf": {
+  "vendorName": "Keystone Racking Systems",
+  "gstNumber": "768446978RT0001",
+  "invoiceNumber": "KE26-1198",
+  "invoiceDate": "2026-10-19",
+  "dueDate": "2026-11-18",
+  "currency": "CAD",
+  "subtotal": "6185.35",
+  "total": "6989.45",
+  "taxes": {
+   "HST13": "804.10"
+  },
+  "lineCount": 2,
+  "remitAccount": "97756574",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V012"
+ },
+ "lakeshorehydrose-inv-012.pdf": {
+  "vendorName": "Lakeshore Hydro Services",
+  "gstNumber": "511235570RT0001",
+  "invoiceNumber": "INV-03018",
+  "invoiceDate": "2026-10-24",
+  "dueDate": "2026-11-14",
+  "currency": "CAD",
+  "subtotal": "4380.01",
+  "total": "4949.41",
+  "taxes": {
+   "HST13": "569.40"
+  },
+  "lineCount": 1,
+  "remitAccount": "57551807",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V040"
+ },
+ "latticeledgersys_557.pdf": {
+  "vendorName": "Lattice Ledger Systems",
+  "gstNumber": "548383828RT0001",
+  "invoiceNumber": "557",
+  "invoiceDate": "2026-10-31",
+  "dueDate": "2026-11-30",
+  "currency": "CAD",
+  "subtotal": "8200.00",
+  "total": "9266.00",
+  "taxes": {
+   "HST13": "1066.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "274198068",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V019"
+ },
+ "laurentianlogist_FA002399.pdf": {
+  "vendorName": "Laurentian Logistics Inc.",
+  "gstNumber": "790628686RT0001",
+  "invoiceNumber": "FA-002399",
+  "invoiceDate": "2026-10-25",
+  "dueDate": "2026-11-24",
+  "currency": "CAD",
+  "subtotal": "4362.67",
+  "total": "5015.98",
+  "taxes": {
+   "GST5": "218.13",
+   "QST9975": "435.18"
+  },
+  "lineCount": 6,
+  "remitAccount": "177982930",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V005"
+ },
+ "ledgerlinecharte_FA002176.pdf": {
+  "vendorName": "Ledgerline Chartered Professional Accountants",
+  "gstNumber": "337016076RT0001",
+  "invoiceNumber": "FA-002176",
+  "invoiceDate": "2026-10-23",
+  "dueDate": "2026-11-22",
+  "currency": "CAD",
+  "subtotal": "1556.10",
+  "total": "1633.91",
+  "taxes": {
+   "GST5": "77.81"
+  },
+  "lineCount": 1,
+  "remitAccount": "735895496",
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V028"
+ },
+ "lumenprintsignag_FA001761.pdf": {
+  "vendorName": "Lumen Print & Signage",
+  "gstNumber": "579505145RT0001",
+  "invoiceNumber": "FA-001761",
+  "invoiceDate": "2026-04-06",
+  "dueDate": "2026-05-06",
+  "currency": "CAD",
+  "subtotal": "1860.00",
+  "total": "2101.80",
+  "taxes": {
+   "HST13": "241.80"
+  },
+  "lineCount": 1,
+  "remitAccount": "642160921",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V033"
+ },
+ "mapletireautofle-inv-009.pdf": {
+  "vendorName": "Maple Tire & Auto Fleet",
+  "gstNumber": "741252350RT0001",
+  "invoiceNumber": "1531",
+  "invoiceDate": "2026-10-23",
+  "dueDate": "2026-11-07",
+  "currency": "CAD",
+  "subtotal": "1860.00",
+  "total": "1953.00",
+  "taxes": {
+   "GST5": "93.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "186877225",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V009"
+ },
+ "northboundcourie_000639.pdf": {
+  "vendorName": "Northbound Couriers",
+  "gstNumber": "219708387RT0001",
+  "invoiceNumber": "000639",
+  "invoiceDate": "2026-10-29",
+  "dueDate": "2026-11-28",
+  "currency": "CAD",
+  "subtotal": "2217.27",
+  "total": "2505.52",
+  "taxes": {
+   "HST13": "288.25"
+  },
+  "lineCount": 5,
+  "remitAccount": "941017438",
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V006"
+ },
+ "northstarmediabu_NO261773.pdf": {
+  "vendorName": "Northstar Media Buying",
+  "gstNumber": "757486412RT0001",
+  "invoiceNumber": "NO26-1773",
+  "invoiceDate": "2026-10-27",
+  "dueDate": "2026-11-26",
+  "currency": "CAD",
+  "subtotal": "3800.00",
+  "total": "4294.00",
+  "taxes": {
+   "HST13": "494.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "765318587",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V032"
+ },
+ "orionstrategypar-inv-029.pdf": {
+  "vendorName": "Orion Strategy Partners",
+  "gstNumber": "483236076RT0001",
+  "invoiceNumber": "279",
+  "invoiceDate": "2026-10-28",
+  "dueDate": "2026-11-27",
+  "currency": "CAD",
+  "subtotal": "4300.00",
+  "total": "4859.00",
+  "taxes": {
+   "HST13": "559.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "740226188",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V029"
+ },
+ "orionstrategypar_281.pdf": {
+  "vendorName": "Orion Strategy Partners",
+  "gstNumber": "483236076RT0001",
+  "invoiceNumber": "281",
+  "invoiceDate": "2026-10-28",
+  "dueDate": "2026-11-27",
+  "currency": "CAD",
+  "subtotal": "4320.00",
+  "total": "4881.60",
+  "taxes": {
+   "HST13": "561.60"
+  },
+  "lineCount": 1,
+  "remitAccount": "740226188",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V029"
+ },
+ "papertrailoffice_2217.pdf": {
+  "vendorName": "Paper Trail Office Supply",
+  "gstNumber": "807091741RT0001",
+  "invoiceNumber": "2217",
+  "invoiceDate": "2026-10-26",
+  "dueDate": "2026-11-25",
+  "currency": "CAD",
+  "subtotal": "542.16",
+  "total": "612.64",
+  "taxes": {
+   "HST13": "70.48"
+  },
+  "lineCount": 1,
+  "remitAccount": "935395864",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V024"
+ },
+ "pineconecollabor_PI262809.pdf": {
+  "vendorName": "Pinecone Collaboration Ltd.",
+  "gstNumber": "705518273RT0001",
+  "invoiceNumber": "PI26-2809",
+  "invoiceDate": "2026-11-02",
+  "dueDate": "2026-12-02",
+  "currency": "CAD",
+  "subtotal": "826.80",
+  "total": "868.14",
+  "taxes": {
+   "GST5": "41.34"
+  },
+  "lineCount": 1,
+  "remitAccount": null,
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V017"
+ },
+ "placemontroyalim-inv-053.pdf": {
+  "vendorName": "Place Mont-Royal Immobilier",
+  "gstNumber": "157763705RT0001",
+  "invoiceNumber": "FA-000566",
+  "invoiceDate": "2026-11-01",
+  "dueDate": "2026-11-01",
+  "currency": "CAD",
+  "subtotal": "6080.00",
+  "total": "6990.48",
+  "taxes": {
+   "GST5": "304.00",
+   "QST9975": "606.48"
+  },
+  "lineCount": 2,
+  "remitAccount": "81820788",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V039"
+ },
+ "polarfreightline_000963.pdf": {
+  "vendorName": "Polar Freight Lines Ltd.",
+  "gstNumber": "995133220RT0001",
+  "invoiceNumber": "000963",
+  "invoiceDate": "2026-10-31",
+  "dueDate": "2026-11-30",
+  "currency": "CAD",
+  "subtotal": "2311.14",
+  "total": "2611.59",
+  "taxes": {
+   "HST13": "300.45"
+  },
+  "lineCount": 3,
+  "remitAccount": "410652201",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V001"
+ },
+ "redlinefleetcard-inv-044.pdf": {
+  "vendorName": "Redline Fleet Cards Inc.",
+  "gstNumber": "902831173RT0001",
+  "invoiceNumber": "FA-001687",
+  "invoiceDate": "2026-10-31",
+  "dueDate": "2026-11-15",
+  "currency": "CAD",
+  "subtotal": "5440.49",
+  "total": "6147.75",
+  "taxes": {
+   "HST13": "707.26"
+  },
+  "lineCount": 1,
+  "remitAccount": "859382597",
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V008"
+ },
+ "riverbendcaterin_1739.pdf": {
+  "vendorName": "Riverbend Catering Co.",
+  "gstNumber": null,
+  "invoiceNumber": "1739",
+  "invoiceDate": "2026-10-26",
+  "dueDate": "2026-11-25",
+  "currency": "CAD",
+  "subtotal": "2860.00",
+  "total": "2860.00",
+  "taxes": {},
+  "lineCount": 1,
+  "remitAccount": "718563779",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V054"
+ },
+ "scan_8049.png": {
+  "vendorName": "Cascadia Cartage Ltd.",
+  "gstNumber": "669086667RT0001",
+  "invoiceNumber": "1624",
+  "invoiceDate": "2026-10-24",
+  "dueDate": "2026-11-23",
+  "currency": "CAD",
+  "subtotal": "5821.87",
+  "total": "6693.69",
+  "taxes": {
+   "GST5": "291.09",
+   "QST9975": "580.73"
+  },
+  "lineCount": 5,
+  "remitAccount": "953389679",
+  "shipToProvince": "QC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V004"
+ },
+ "scan_8749.png": {
+  "vendorName": "Prairie Natural Gas Utility",
+  "gstNumber": "862863208RT0001",
+  "invoiceNumber": "PR26-1012",
+  "invoiceDate": "2026-10-22",
+  "dueDate": "2026-11-12",
+  "currency": "CAD",
+  "subtotal": "4494.55",
+  "total": "4719.28",
+  "taxes": {
+   "GST5": "224.73"
+  },
+  "lineCount": 1,
+  "remitAccount": "704593075",
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V042"
+ },
+ "signalsparrowcre_000970.pdf": {
+  "vendorName": "Signal & Sparrow Creative",
+  "gstNumber": "559384775RT0001",
+  "invoiceNumber": "000970",
+  "invoiceDate": "2026-10-28",
+  "dueDate": "2026-11-27",
+  "currency": "CAD",
+  "subtotal": "8400.00",
+  "total": "9408.00",
+  "taxes": {
+   "GST5": "420.00",
+   "PST7_BC": "588.00"
+  },
+  "lineCount": 2,
+  "remitAccount": "886069428",
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V031"
+ },
+ "sparkgridcrminc_FA002342.pdf": {
+  "vendorName": "Sparkgrid CRM Inc.",
+  "gstNumber": null,
+  "invoiceNumber": "FA-002342",
+  "invoiceDate": "2026-10-26",
+  "dueDate": "2026-11-25",
+  "currency": "USD",
+  "subtotal": "1950.00",
+  "total": "1950.00",
+  "taxes": {},
+  "lineCount": 1,
+  "remitAccount": null,
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V018"
+ },
+ "tesseraanalytics-inv-050.pdf": {
+  "vendorName": "Tessera Analytics Inc.",
+  "gstNumber": null,
+  "invoiceNumber": "002715",
+  "invoiceDate": "2026-10-31",
+  "dueDate": "2026-11-30",
+  "currency": "USD",
+  "subtotal": "3100.00",
+  "total": "3100.00",
+  "taxes": {},
+  "lineCount": 1,
+  "remitAccount": null,
+  "shipToProvince": "BC",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V016"
+ },
+ "torqueindustrial_1771.pdf": {
+  "vendorName": "Torque Industrial Maintenance",
+  "gstNumber": "283027511RT0001",
+  "invoiceNumber": "1771",
+  "invoiceDate": "2026-10-27",
+  "dueDate": "2026-11-26",
+  "currency": "CAD",
+  "subtotal": "2150.00",
+  "total": "2257.50",
+  "taxes": {
+   "GST5": "107.50"
+  },
+  "lineCount": 1,
+  "remitAccount": "350265306",
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V044"
+ },
+ "voyageurcorporat-inv-017.pdf": {
+  "vendorName": "Voyageur Corporate Travel",
+  "gstNumber": "338192319RT0001",
+  "invoiceNumber": "000903-A",
+  "invoiceDate": "2026-07-06",
+  "dueDate": "2026-07-21",
+  "currency": "CAD",
+  "subtotal": "5308.92",
+  "total": "5574.37",
+  "taxes": {
+   "GST5": "265.45"
+  },
+  "lineCount": 1,
+  "remitAccount": null,
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V046"
+ },
+ "voyageurcorporat_000921.pdf": {
+  "vendorName": "Voyageur Corporate Travel",
+  "gstNumber": "338192319RT0001",
+  "invoiceNumber": "000921",
+  "invoiceDate": "2026-10-29",
+  "dueDate": "2026-11-13",
+  "currency": "CAD",
+  "subtotal": "1877.31",
+  "total": "2121.36",
+  "taxes": {
+   "HST13": "244.05"
+  },
+  "lineCount": 1,
+  "remitAccount": null,
+  "shipToProvince": "ON",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": "V046"
+ },
+ "zephyrdataservic_7590.pdf": {
+  "vendorName": "Zephyr Data Services Inc.",
+  "gstNumber": "174838055RT0001",
+  "invoiceNumber": "7590",
+  "invoiceDate": "2026-10-22",
+  "dueDate": "2026-11-21",
+  "currency": "CAD",
+  "subtotal": "6200.00",
+  "total": "6510.00",
+  "taxes": {
+   "GST5": "310.00"
+  },
+  "lineCount": 1,
+  "remitAccount": "25297671",
+  "shipToProvince": "AB",
+  "poNumber": null,
+  "documentType": "invoice",
+  "vendorId": null
+ }
+}

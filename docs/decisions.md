@@ -1,3 +1,650 @@
 # Design decisions
 
 One entry per non-obvious decision: what, why, alternatives considered.
+
+## Phase 1: scaffold, schema, seeding
+
+**D-001 Spring Boot 3.5.16 rather than what Initializr generates.** Initializr now only offers Boot 4.x;
+CLAUDE.md pins Boot 3. We generated the project with Initializr (to get the Gradle 9.9.2 wrapper and layout)
+and pinned `org.springframework.boot` 3.5.16, the latest 3.x on Maven Central. Alternative: Boot 4 (newer, but
+springdoc/Security APIs differ from what the team knows).
+
+**D-002 Compile with `--release 21`, not a Gradle toolchain.** The dev machine has JDK 25; a toolchain of 21
+would force a JDK download. `options.release = 21` guarantees Java 21 bytecode/API on any JDK >= 21, and the
+Docker image builds on Temurin 21. Lombok pinned to 1.18.48 (older Lombok breaks on JDK 25).
+
+**D-003 Backend port 8088, not 8080.** Port 8080 is taken by a local Apache httpd on the dev machine. Configurable
+via `SERVER_PORT`. The frontend proxies `/api` so the browser never sees the port.
+
+**D-004 Dataset stays in `dataset_given/`.** The PRD's repo sketch says `data/`; the repo already ships the dataset
+as `dataset_given/`. The backend reads `APP_DATA_DIR` (default `../dataset_given`, `/data` in Docker, mounted
+read-only), so nothing is copied.
+
+**D-005 Schema by Hibernate `ddl-auto=update` + one idempotent SQL file.** Faster to iterate than Flyway during a
+hackathon. `db/after-ddl.sql` runs after Hibernate and adds what JPA can't express: the append-only trigger on
+`audit_events` and the id sequences. Alternative: Flyway migrations (better for production; noted for scaling).
+
+**D-006 Append-only audit enforced by a database trigger.** `BEFORE UPDATE OR DELETE` on `audit_events` raises an
+exception, so even a buggy or malicious code path can't rewrite history. `TRUNCATE` (only used by the demo
+reset) does not fire row triggers. Combined with the hash chain (phase 2) tampering is both prevented and detectable.
+
+**D-007 Dataset ids are primary keys.** `U003`, `V026`, `AP-00001` are the PKs. New rows continue the sequences
+(`AP-00427`, `PAY-00416`, `V057`, `BC-010`) via Postgres sequences that the reset restarts.
+
+**D-008 Versioned bank accounts built from the vendor master + change history.** For each vendor with a bank
+change we create version 1 (SUPERSEDED, only the old last 4 digits are known) and version 2 (ACTIVE, full account
+from the vendor master). Version 2 is `verified` only if the change was callback-verified. BC-009 (Cascadia,
+2026-10-27, email request, not verified) is seeded as a PENDING change that the dataset already applied to the
+master (`appliedBeforeVerification = true`), which is exactly why a naive "invoice matches master" check passes.
+
+**D-009 Delegations are rows, derived from HR status.** U012 (on leave since 2026-10-20, delegate U003) becomes an
+open-ended `delegations` row. Routing reads `delegations`, not the user flag, so delegations can be time-bounded
+and created by users themselves (`POST /delegations`).
+
+**D-010 Historical status mapping.** Invoices: paid/scheduled/approved/rejected/pending_approval map to the PRD
+lifecycle enum. Payments: `settled` -> SETTLED, `outstanding` -> SENT (sent to the bank, not yet on the
+statement), `scheduled` -> SCHEDULED.
+
+**D-011 Approval policies hand-translated once.** `PolicySeed` holds the structured form of the 13 English rules
+(condition JSON tree + roles). The English sentence is kept in `source_text`. P07/P08 are `assignment` rules
+(applied while resolving people), P09-P11 `payment_release`, P12/P13 `match`.
+
+**D-012 Invoice-number normalization keeps the credit-note prefix.** Uppercase, strip non-alphanumerics, strip a
+generic prefix (INV, FA, ...) when followed by digits, strip leading zeros. `CN` is *not* stripped, otherwise
+credit note CN-FA-000413 would be flagged as a duplicate of invoice FA-000413.
+
+**D-013 Business date defaults to the dataset's as-of date (2026-11-02).** `BUSINESS_DATE` fixes "today" for date
+rules (future-dated invoice, bank change within 30 days, payment scheduling) so the demo behaves the same on any
+day. Set it empty to use the real date.
+
+**D-014 Mantine as the design system.** The PRD suggests shadcn/ui or Mantine; Mantine gives tables, forms,
+badges and app-shell layout out of the box with no Tailwind setup.
+
+**D-015 OpenAPI types generated via `npx`, not a dev dependency.** `openapi-typescript` requires TypeScript 5 while
+Vite scaffolds TypeScript 7; `npm run gen:api` runs it in an isolated `npx` sandbox against `/v3/api-docs`.
+
+## Phase 2: auth, roles, workflow, audit
+
+**D-016 Demo login issues a real server session.** `POST /api/auth/login {userId}` (no password, per the PRD
+non-goals) stores a Spring Security context in the HTTP session; the session id is rotated on every switch.
+Every permission check reads the role from the session, never from the request body. Terminated users (U015)
+cannot log in.
+
+**D-017 CSRF protection off.** The API is JSON-only, same-origin (Vite/nginx proxy) and the session cookie is
+`SameSite=Lax`, so a cross-site form post can't carry it. Production would turn Spring's CSRF tokens back on.
+
+**D-018 Three layers of enforcement.** (1) Filter chain: `/api/**` needs a session; any non-GET from an Auditor is
+rejected before a controller runs. (2) `@PreAuthorize` on every controller method with the PRD's role table.
+(3) Scope and segregation-of-duties checks inside services (`InvoiceAccess`, the workflow service) that throw
+`ForbiddenException`. All three return 403 `{status, error, reason}` and write an `ACCESS_DENIED` audit row.
+
+**D-019 Denials are audited in their own transaction** (`REQUIRES_NEW`) so the record survives the rollback of the
+denied request. Normal events use `MANDATORY` propagation: they must join the business transaction, so a state
+change and its audit row commit or roll back together.
+
+**D-020 Hash chain serialized with a Postgres advisory lock.** `pg_advisory_xact_lock` inside the writer's transaction
+makes "read last hash, insert next row" atomic, so concurrent writers can't fork the chain. Ids are assigned
+by the chain (1, 2, 3...), so gaps are also detectable. Timestamps are truncated to microseconds before hashing
+because that is what Postgres stores. `GET /api/audit/verify` recomputes every hash; tested by editing a row as
+DB superuser with the trigger disabled: verify reports `row content does not match its hash` for that row.
+
+**D-021 Reset restarts the audit chain.** `/api/admin/reset` truncates everything including the audit log (demo
+only) and then writes `DEMO_RESET` as event 1, so an empty log never looks like a clean one.
+
+**D-022 Approver scope = own department + steps assigned to them or their delegators.** Otherwise Elise (FM, D04)
+acting for Liam (D07) could not open the Facilities invoices she has to approve. Employee scope = invoices they
+requested.
+
+**D-023 Historical invoices are read-only for review/approval** but may still move along the payment path
+(APPROVED/SCHEDULED -> RELEASED -> PAID), since the dataset has 18 scheduled and 2 approved bills waiting to pay.
+
+**D-024 Money serialized as strings** (`"4802.50"`) by a Jackson serializer for `BigDecimal`, per the PRD
+convention, so JavaScript never sees a float.
+
+## Phase 3: intake and extraction
+
+**D-025 `pdftotext -raw -enc UTF-8`, not `-layout`.** `-layout` reproduces columns but scrambles the totals block
+(values land on the row below their label, e.g. Cascadia 1625). `-raw` gives reading order with every label next
+to its value, and UTF-8 keeps French accents (`Échéance`, `Facture n°`).
+
+**D-026 The LLM sees the text layer AND the original file.** For PDFs we send the PDF as a document block plus the
+pdftotext output ("copy numbers exactly from here"); for scans an image block. Layout from the file, exact
+characters from the text layer.
+
+**D-027 Structured outputs via the Anthropic Java SDK, amounts as printed.** The schema is derived from the
+`ExtractedInvoice` record (`outputConfig(ExtractedInvoice.class)`), so the response must validate. The model
+transcribes, it does not compute: amounts/dates come back as printed strings (`"1 234,56 $"`), and deterministic
+Java (`InvoiceNormalizer`, unit-tested) turns them into BigDecimal/LocalDate and maps TPS/TVQ/HST/PST labels to
+the dataset tax codes. Default model `claude-opus-5-5` (override with `LLM_MODEL`); server-side refusal fallback
+enabled. A refusal, schema failure or API error is never fatal: the pipeline falls back (D-029).
+
+**D-028 LLM responses cached by file SHA-256 + model + prompt version** (`storage/llm-cache/`). Re-running the inbox
+or the eval costs nothing, demos don't wait on the API, and the cache survives DB resets. "Re-extract" bypasses it.
+
+**D-029 Three-level fallback, never a crash.** (1) LLM; (2) offline label-based regex parser over the text layer
+(pdftotext, or Tesseract OCR for images, with OCR-misread tax labels like `OST` -> `QST` repaired); (3) an empty
+manual-entry draft with the reason. Every level records its method in `extractions` and the audit detail.
+
+**D-030 No LLM key was present in `.env` during the build** (`LLM_API_KEY` is empty). Everything was built and
+measured on the offline path; the LLM path switches on automatically when a key is added. Offline eval on all 56
+files: 725/728 fields (99.6%). Caveat for Q&A: the offline parser and the ground-truth script both key on the
+labels in these templates, so this number overstates offline accuracy on unseen layouts; the LLM is the path for those.
+
+**D-031 Ground truth for the eval is built independently** (`scripts/build_ground_truth.py`): its own Python
+regexes over the PDF text, plus hand transcription of the 2 scans. It surfaced real mess: Evergreen 000850
+prints subtotal 3,180.00 + GST 159.00 = total 3,439.00 ($100 over), and Summit 000809 is dated 2026-11-27 (future).
+
+**D-032 Vendor matching order: GST number, then sender domain, then fuzzy name** (Jaro-Winkler >= 0.93 on names
+with legal suffixes removed and `&` = `and`). GST first is what makes the Harlow lookalike resolve to V052 (its
+own GST number) rather than to the real Harlow & Stern (V026); the lookalike rule then compares the two. When a
+domain is shared by several vendor records (V001/V051 Polar Freight), the closest name wins.
+
+**D-033 Department and requester for emailed bills are inferred**: from the referenced PO when there is one,
+otherwise the vendor's most frequent (department, requester) in history. Vendors with no history (new/unknown)
+are left blank and flagged for the clerk. An employee's own upload is always theirs, in their department.
+
+**D-034 Ship-to province from the bill-to address**: Harborline's four offices (Toronto ON, Vancouver BC,
+Calgary AB, Montreal QC), else a province code before a postal code.
+
+**D-035 Email intake: keyword rules first, LLM only as tiebreaker**, and the email records which one decided
+(`classifiedBy`). An email with an attachment is an invoice unless it is a statement. Payment inquiries are linked
+to the invoice they mention and its payment status (EM-057 -> AP-00049, paid 2026-03-09).
+
+**D-036 Inbox processing is asynchronous** (4 workers) because each attachment can be an LLM call; workers run with
+the clicking user's security context so the audit actor is correct. Upload is synchronous (one file).
+
+## Phase 4: coding suggestions and validation rules
+
+**D-037 One class per rule, pure functions of an `InvoiceContext`.** `InvoiceContextFactory` is the only part that
+touches the database; it loads the invoice, its lines/taxes, vendors, bank account versions, bank changes,
+contracts, PO and amount already billed on it, every other invoice, document hashes, card transactions, tax codes,
+today and the approval thresholds. Each of the 32 rule classes is unit-tested with a hand-built context from the
+dataset example the PRD cites (66 tests in total).
+
+**D-038 Flags are never deleted.** Re-validation keeps a finding whose code+message is unchanged (with its
+acknowledgement or override), adds new findings, and marks OPEN flags whose condition no longer holds as
+RESOLVED/AUTO_CLEARED. So a clerk's fix (e.g. entering the department) visibly clears X03 in the history.
+
+**D-039 Who may resolve what.** WARN/INFO: the clerk acknowledges or resolves. BLOCK: only FM or Controller, and only
+with a note (403 / 400 otherwise). The flag row stores who, when, resolution and note; an audit event is written.
+
+**D-040 Exact duplicates (D01/D03) park the bill in DUPLICATE** instead of IN_REVIEW. Other BLOCK flags (vendor,
+bank) leave the bill reviewable but block submission/approval/payment until resolved, so the clerk can still
+correct fields and the FM can act on the vendor.
+
+**D-041 S01 only groups bills still awaiting approval.** The first run grouped each monthly utility bill with last
+month's already-paid one (Prairie Natural Gas, Prairie Express). A split is several bills going through approval
+together; history that was approved separately is not. The group must also cross a threshold read from the
+policy table (so an Admin edit of the $10,000 tier moves the split detector too).
+
+**D-042 D02 near-duplicate window is 10 days and the edit distance must be < half the number's length.** With the
+PRD's 30 days every monthly subscription bill (same amount, next sequential number, ~30 days later: Cloudbarn,
+Quillpad, Fibrewave, ClearView, Benefitwise) matched last month's. And "differs by <= 2 characters" flagged Orion
+279 vs 281. After tuning, D02 still catches Voyageur "000903-A" vs paid "000903" (2 days apart, same amount).
+
+**D-043 Duplicate score is shown on every D-flag**: same vendor 0.30, same normalized # 0.40 (or within 2 chars 0.20),
+amount within 1% 0.20, dated within 30 days 0.10, identical file = 1.0. Credit notes never match invoices (sign).
+
+**D-044 D04 ignores AP virtual-card payments of other known invoices** (memo "AP payment AP-xxxxx"), otherwise every
+monthly SaaS bill paid by virtual card would look already paid. Merchant match needs prefix containment or
+Jaro-Winkler >= 0.90 ("PAPERCLIP STATIONERS" must not match "Paper Trail Office Supply").
+
+**D-045 V04 lookalike needs a different bank account or email domain, and flags only the less-established record.**
+Same bank + same domain with a different GST # (V001/V051 Polar, V002/V053 Great Lakes) is a duplicate vendor
+record, reported by B04. And the genuine Harlow & Stern (V026, paid history) must not be blocked because a
+lookalike exists; only V052 (no history) is.
+
+**D-046 T01 is computed from the tax_codes table by ship-to province, per tax**, with PST on goods lines only (line type
+from the vendor's history). Unregistered suppliers charging nothing (Riverbend) are not told to charge GST;
+charging without a number is T03. Foreign vendors and Insurance are T02.
+
+**D-047 K04 computes the fuel surcharge percentage** (surcharge / other freight lines) instead of trusting the printed
+label. P12 compares pre-tax amounts against the PO's remaining balance.
+
+**D-048 Cross-invoice rules re-run after a batch.** Inbox workers run in parallel, so a bill may be validated before
+its duplicate or split partner exists. When the batch finishes, every open bill is validated again; after an
+upload, the same vendor's open bills are. (Without it, the Orion split was missed.)
+
+**D-049 Coding suggestions learn from history**: the vendor's past line coding by frequency ("7 of 8 past invoice
+lines from X went to 5010"), else token overlap with all past lines ("10 of 10 similar past lines went to 5010,
+e.g. ... on AP-00028"), else the vendor's default account. Clerk overrides are kept and logged with the suggestion
+they replaced; re-coding never touches an overridden line.
+
+**D-050 Real mess found beyond the PRD's table** (all flagged): Polar 000964 fuel surcharge 22% vs 12% cap (K04);
+Northbound charges ON HST on an AB delivery and Ironwood no HST in ON (T01); Signal & Sparrow charges BC PST on
+services (T01); Northstar 24 x $150 printed as $3,800 (X01); Lattice $8,200 vs $1,320 fixed fee, Pinecone +6%,
+Aurora +9% (K02); Redline over its monthly cap (K05); Lumen invoice 210 days old (X04); Brightline "583" is a
+reformatted duplicate of paid "FA-000583" (D01); Fixwell credit note CN-FA-000413 equals paid FA-000410 (X05).
+
+## Phase 5: approvals, payments, vendors
+
+**D-051 Routing is a pure function over the policy table** (`ApprovalRouter`): every enabled approval/match rule whose
+condition holds adds its roles; roles are unioned and ordered dept_manager -> finance_manager -> controller_admin ->
+cfo. Then each step is resolved to a person applying, in a loop until stable: terminated -> manager; on leave ->
+active delegate ("on behalf of", P08); requester -> manager (P07); already on the chain -> manager (distinct
+people); final step over the person's limit -> up the manager chain. Unit-tested on the PRD's worked example and
+proven on real data: Queen Street 002935 ($18,758, D07) routes Liam (on leave) -> Elise on his behalf, Elise's FM
+step -> Marcus; only Priya (CFO) can release.
+
+**D-052 Role holders are resolved from data, not hard-coded ids**: finance_manager = the FM; controller_admin = the
+ADM with a manager (Controller); cfo = the ADM without one; dept_manager = departments.manager_user_id.
+
+**D-053 Routing amount = max(invoice total CAD, an open S01 split's combined amount)**, absolute value for credit
+notes. Stored on the invoice (`routedAmountCad`) with the snapshotted steps.
+
+**D-054 Payment holds vs approval blocks.** V01/V02 (vendor not approved) and B01/B02 (bank not verified) are the PRD's
+"Holds": the bill can be submitted and routed (that is how P05 adds the FM step for new/unknown vendors) but no
+payment can be released until the vendor is approved / the change verified, which auto-clears the flags. Every
+other BLOCK flag (duplicates, lookalike, PO required, paid by card) stops submission and approval until an FM
+resolves or overrides it. Submission also requires every WARN to be acknowledged.
+
+**D-055 Approver checks happen at action time too, not only at routing time**: the caller must be the step's
+assignee or someone the assignee delegated to; never the requester; never someone who already acted on another
+step; the final step's approver must cover the routed amount. Approving as a delegate records actedOnBehalfOf and
+the audit row's on_behalf_of.
+
+**D-056 Release rules are one pure function used twice** (`ReleaseRules`): the server refuses with 403 + reason,
+and the payments dashboard shows the same reasons on disabled buttons, so they cannot disagree. P09/P10 come from
+the policy table; P11 excludes anyone who acted on an approval step, as approver or as the person a delegate acted
+for. Clerks prepare only. Vendor must be active, the bank account version verified, no pending bank change,
+no open BLOCK flag.
+
+**D-057 Payments pin a bank-account version** at prepare time. If the vendor's active account changes afterwards, the
+payment cannot be released until it is re-prepared. Early-payment discounts ("2/10 net 30") schedule the payment
+on day 10 with the discount when that day hasn't passed; approved credit notes from the same vendor are netted
+against the next payment (never below zero) and become PAID when it settles.
+
+**D-058 Bank changes are requests, verified by a different person with a callback.** A request creates a new PENDING
+account version (the active one is untouched) and holds payments. Verify (FM/ADM, not the requester, callback
+required) makes it ACTIVE + verified and supersedes the old one; reject marks it REJECTED, and if the change had
+already been applied to the master (BC-009) the vendor goes on hold, since no trusted account remains.
+
+**D-059 Vendor approval needs a second person** (FM/ADM who did not onboard it); approval also verifies the vendor's
+initial bank account and sets onboardedAt to the approval date, so P05's "new vendor (90 days)" applies.
+
+## Phase 6: frontend
+
+**D-060 One shared invoice screen for every role.** Document on the left, fields and coding on the right, flag cards
+on top, approval timeline / audit history / related records / raw extraction in tabs. Actions appear by role;
+finance roles see disabled buttons with the server's reason (release blockers come from the same `ReleaseRules`
+the server enforces), employees simply don't see actions they can't take. The UI hiding a button is cosmetic:
+every action is re-checked on the server.
+
+**D-061 Types generated from the backend's OpenAPI spec** (`npm run gen:api` -> `src/api/schema.d.ts`, committed) and
+aliased in `src/api/types.ts`. Money is a string on the wire; only `lib/format.ts` turns it into "$1,234.56".
+
+**D-062 Same three colours everywhere**: red = blocks payment, amber = needs review, grey = info (flags, counts,
+badges). Low-confidence fields are highlighted yellow with "check the document".
+
+**D-063 X-Frame-Options SAMEORIGIN** instead of Spring's default DENY, so the invoice PDF can be shown in an iframe on
+the app's own page; other origins still can't frame the app.
+
+## Phase 7: whole-batch verification
+
+**D-064 The PRD's "Mess found" table is an executable check** (`scripts/verify_mess_table.py --process`): it resets,
+processes all 59 emails, and asserts every row (24 checks) plus the worked example end to end and the audit chain.
+24/24 pass on the local build and on a fresh `docker compose up --build`. Nothing in the table needed a fix at
+this stage; the fixes it would have caught were made during Phase 4 (batch re-validation for the Orion split,
+D-048) and Phase 6 (PDF framing, D-063).
+
+**D-065 A bill with no department can't show a department-manager step in previews** (Riverbend, the Harlow
+lookalike, unknown vendors have no history to infer it from). Submission refuses until the clerk sets it, which
+then adds the step; the preview shows the problem instead of guessing.
+
+## Phase 8: bonuses (in PRD order)
+
+**D-066 Fraud alerts reuse the rules; one new rule.** The fraud view (`/api/fraud/alerts`) gathers open B01-B04,
+V04-V06 and D04 flags, every unverified bank change with the open bills that would pay to it, and scheduled
+payments to vendors whose bank details changed in the last 30 days, sorted by severity and amount. New rule V06
+flags a sender domain that resembles another vendor's domain (Jaro-Winkler >= 0.88 or containment, TLD and
+punctuation ignored). Like V04 it exempts the established vendor writing from its own domain, so genuine
+Harlow & Stern mail is not flagged because a lookalike record exists (that false positive showed up on the
+first batch run and is now a unit test).
+
+**D-067 Reconciliation is deterministic**: a statement debit matches a payment when its trailing reference digits
+equal the end of the payment reference (EFT) or, for cheques, by amount within 45 days of the scheduled date
+(the dataset's cheque numbers aren't in payment references); then the amounts must agree. Leftovers are explained
+(bank fee, money in, likely payment with the reference missing, in transit, or "investigate"). On the dataset:
+332/354 lines match; the rest are fees plus one PREAUTH DEBIT 913114 ($174.90) with no AP record, flagged to
+investigate. "Settle from statement" settles SENT payments the statement proves have left.
+
+**D-068 Approval recommendation is a pure function of facts already computed** (open/acknowledged/overridden flags,
+PO and contract links, the vendor's paid history): APPROVE / LOOK_CLOSER / HOLD with a one-line headline and the
+reasons. It never approves anything; it is shown to approvers above the flags.
+
+**D-069 Spend analytics**: by vendor (totals incl. tax, CAD), department or GL (line amounts converted to CAD) over a
+date range, approved/scheduled/paid bills only, plus a monthly trend. Approvers are limited to their own
+department on the server.
+
+**D-070 OCR robustness found by running the batch in Docker**: the container's Tesseract (eng+fra) reads Cascadia's
+"QST (9.975%)" as "ST (9.975%)", which made T01/X02 fire on a correctly taxed bill. A bare "ST" tax label is now
+named from its rate (9.975% -> QST). Unit-tested with the container's actual OCR text.
+
+## Verification pass (before team review)
+
+**D-071 Anonymous writes are refused by the filter chain, not only by `@PreAuthorize`.** The write rule tested
+`isAuthenticated()`, which is true for Spring's `AnonymousAuthenticationToken`, so anonymous POST/PUTs passed layer 1
+and were refused only by method security, after Spring had already parsed and validated the body (an anonymous
+caller saw 400 validation messages instead of 401). Nothing executed, but D-018's "`/api/**` needs a session" was
+not true for writes. Now the rule requires a real `CurrentUser` principal. Proven by `SecurityConfigTest` (seen red:
+"expected 401 but was 400") and by probing all 57 live operations: 54/54 non-public -> 401 anonymous, 28/28 writes ->
+403 as Auditor.
+
+**D-072 The backend container runs as an unprivileged `app` user** (semgrep `missing-user-entrypoint`). `/storage`
+is created and owned by that user in the image so a fresh named volume inherits it; a volume created by an older
+root image needs `docker compose down -v` once.
+
+**D-073 Sequence ids use a bound parameter** (`nextval(cast(?1 as regclass))`) instead of string concatenation
+(semgrep `formatted-sql-string`). The names were constants, so it was not exploitable; now it is safe by construction.
+
+**D-074 CI added** (`.github/workflows/ci.yml`): backend unit tests; frontend typecheck, lint, build, `npm audit`
+(high+); ruff + shellcheck on scripts; gitleaks over full history. Actions pinned by commit SHA, images by digest,
+`permissions: contents: read`, validated with actionlint. It runs on PRs from this branch onward (a PR only runs the
+workflow present on its own head branch, so #1-#8 show no checks).
+
+**D-075 No `po_lines` table.** The PRD's entity sketch lists `po_lines`, but `purchase_orders.csv` carries only a PO
+total, so PO matching (PO1, P12) works at the header level: remaining balance = PO total minus other non-rejected
+bills on that PO. Line-level 3-way match is a follow-up if real PO lines appear.
+
+**D-076 Known, accepted lint warnings**: 4 `oxlint` warnings in the frontend (2 fast-refresh "file exports a
+non-component", 2 "setState in effect" where server data seeds an editable form). They don't affect behaviour;
+left as warnings rather than restructuring components before the review.
+
+## Team review (design walkthrough)
+
+**D-077 Payments up to $100,000 may be released by the Finance Manager or a Controller/Admin.** The dataset's P09
+names only `finance_manager` for this band; the PRD's release table (and its `/payments/{id}/release` contract) says
+"finance_manager or controller_admin". We follow the PRD: a Controller/Admin trusted to release over $100k can release
+less, and it leaves a releaser when the FM approved the invoice (the worked example). `ReleaseRules` encodes it; the
+policy rows keep the dataset's original sentences.
+
+**D-078 (superseded by D-091) Invoices over $250,000 cannot be released by anyone, by design.** P04 puts the FM, the Controller and the
+CFO on the chain; P10 requires a Controller/Admin to release over $100k; P11 bars anyone who approved. Both
+Controller/Admins (U001, U002) have approved, the FM can't release over $100k, so every release attempt is refused
+with its reason. We keep the refusal rather than exempting the CFO from P11 (the one rule the PRD applies to every
+role). A real company resolves it in policy (a board signer or a second authorised releaser), which an Admin can
+add as data. Not reachable with this dataset: the largest invoice is $28,377.
+
+**D-079 B01/B02 (unverified bank details) hold payment, not submission or approval.** Approval answers "is this bill
+legitimate?"; bank verification answers "is this the right account?", and is done by a different person by
+callback. The money is protected at release, where `ReleaseRules` requires a verified, pinned bank-account version
+and no pending change. This matches PRD feature 9 ("holds payments until verified") and the policy table ("Payment
+held until FM verifies"). The stricter variant is one line: remove B01/B02 from `PAYMENT_HOLD_CODES`.
+
+**D-080 The Windows reset command bypasses the script policy for one run.** Machines with an AllSigned policy refuse
+the unsigned `reset-and-seed.ps1`, so the README documents `powershell -ExecutionPolicy Bypass -File ...`, which
+changes no system setting. Signing the script would need a code-signing certificate the team doesn't have.
+
+**D-081 Only invoices and credit notes reach the clerk's review queue.** Two filters. (1) At email classification,
+an email with an attachment that matches the marketing patterns and never mentions an invoice/facture/bill is E04,
+and no bill is created. (2) After extraction, if the reader's `documentType` is anything other than invoice or
+credit note (statement, quote, other), the draft goes EXTRACTED -> REJECTED with audit action `NOT_AN_INVOICE`
+instead of IN_REVIEW. Coding and validation are skipped. If every attachment of an email is filed this way, the email
+is reclassified E03 (statement) or E04. A blank or missing type, or an unreadable scan, still goes to review as a
+manual-entry draft, because a real bill may be hiding in a bad scan. A clerk-requested re-extract never auto-files.
+We use REJECTED rather than a new status, so there is no schema change and every report that already excludes
+REJECTED stays correct. There is no reopen button yet; the state machine already allows REJECTED -> IN_REVIEW.
+
+**D-082 Live AP mailbox over IMAP, alongside emails.json.** `MailIntakeService` reads UNSEEN messages from an IMAP
+folder (Jakarta Mail / Angus) and saves each one as an `EmailMessage` row, the same shape the seeder makes from
+emails.json. Attachments go to `storage/mail/<id>/`. From there the existing "Process inbox" flow (classify, extract,
+validate) runs unchanged. We picked IMAP over the Gmail API or Microsoft Graph because one standard client works with
+every provider and only needs host, user and app password, with no OAuth app registration. Fetching only fills the
+inbox; processing stays a button click, so LLM spend and the audit actor belong to a named user. A message is marked
+SEEN only after it is saved, and the id is a hash of the Message-ID header, so a retry or a re-fetch never doubles
+an email. Only PDF/PNG/JPEG attachments up to 20 MB are imported; inline images (logos, signatures) are skipped and
+unsupported files are noted in the body. File names are sanitized to their last path segment. Off by default
+(MAIL_ENABLED=false); the password lives in .env only.
+
+**D-083 Inbox emails can be opened before and after processing.** `GET /api/inbox/{id}` returns the message as
+received (headers, body, attachment list) and, once processed, the classification, reason, linked bills with their
+current status, and the email's audit trail. `GET /api/inbox/{id}/attachments/{name}` serves a file only if that exact
+name is listed on the email, and the resolved path must stay inside the email's attachment folder. Its content type
+comes from the file's first bytes, with `nosniff` set, so an uploaded HTML file can never render as a page. Open to
+CLK, ADM and AUD, the same roles as the inbox list. `attachmentDir` is a server path, so it is never sent to the browser.
+
+**D-084 Spend analytics by vendor category** (extends D-069): `groupBy=category` groups bills by `vendor.category`
+(e.g. "Freight & Carriers"), using whole-bill CAD totals incl. tax like the vendor view; bills with no vendor match or
+no category land in "Uncategorized". The aggregation moved out of the controller into `SpendAggregator`, a pure
+function with unit tests. The monthly trend now uses the same amounts as the rows (pre-tax lines for department/GL),
+so it always adds up to the headline total. Before this, it always summed bill totals, which did not match the
+department/GL totals. Unknown `groupBy` or `from` after `to` returns 400. For an approver, the department view only
+shows lines coded to their own department, even when one bill is split across departments. The page explains that
+the vendor/category and department/GL totals differ by the tax amount.
+
+**D-085 PO suggestions are ranked by vendor, checked by date and amount, and never linked automatically.** Under a
+P13 (PO required) or PO1 (bad PO) flag, the clerk sees the vendor's `open` / `partially_invoiced` POs
+(`GET /invoices/{id}/po-suggestions`, pure ranking in `purchasing/PoSuggester`). The vendor identifies the PO: in the
+dataset no vendor has more than one open PO, so a date-only guess would mostly surface closed or other vendors' POs.
+Date and amount are sanity checks: a PO issued after the invoice date, a remaining balance below the pre-tax amount
+(same "billed" as P12: other non-rejected, non-duplicate invoices on the PO) or a currency mismatch is a warning.
+Ranking: fewest warnings, then same department, then issued closest before the invoice. The clerk clicks Link
+(`POST /invoices/{id}/po`, audit `PO_LINKED`); re-validation clears P13 or raises PO1/P12. P13 is a control, so it is
+never filled in silently. Linking fills department/requester from the PO only when blank, so an employee's own upload
+keeps its requester. Employees do not see suggestions (the endpoint excludes EMP; they cannot link anyway).
+(Originally written as D-083 on matt-work; that entry was lost in an edit and is restored here.)
+
+**D-086 Flag presentation: one counted banner, details for reviewers only.** Open flags show as one banner
+("N errors found", severity badges, "Click to find out more") that opens a centered, scrollable pop-up with the flag
+cards and PO suggestions; employees keep the findings inline (`lib/invoiceErrorPresentation.ts`). The recommendation
+card no longer repeats open flags as "- P13: ...", since the banner already lists them. A flag's evidence JSON is shown
+as a labelled "details" list (money/percent formatted) to FM, approver, controller and auditor, and hidden from the
+clerk, who works from the message. This is presentation only: the evidence is still in the API response.
+
+**D-087 Lovable design ported into the existing app, not adopted as a new app.** The Lovable export (TanStack Start,
+Tailwind v4, shadcn kit, in-memory sample data and a fake role switcher) is a visual reference only. Its views are
+Mantine with seven `.ap-*` classes, so the look ports without Tailwind: theme in `frontend/src/theme.ts` (blue,
+Nunito Sans, small radius), colour tokens and `.ap-*` rules in `frontend/src/index.css`, font link in `index.html`, and
+`AppLayout.tsx` as the workspace shell. Real API client, session login, react-router, document viewer and role checks
+are unchanged. Where a Lovable view only differed by sample-mode text or disabled buttons (most pages), ours was kept.
+Home follows Lovable's layout but uses role-correct real data (Lovable showed FM stats to everyone and hard-coded
+AP-00480 and "Jan – Oct 2026"). Monthly spend is a chronological SVG line (`MonthlySpendChart`) on Home and Analytics.
+
+**D-088 Secrets only in `.env`; `.gitignore` blocks variants.** `.env.example` stays the committed template with an
+empty `LLM_API_KEY`. `.gitignore` ignores `.env` and `.env.*` (except `.env.example`), because a key saved as
+`.env.txt` (Windows hides the extension) was neither read by Docker Compose nor ignored by git.
+
+**D-089 Brim card payment optimizer (bonus 5).** `vendors.csv` marks 10 vendors `accepts_card_payment=yes`, but 3 of
+them are paid by EFT. `CardPaymentAdvisor` (pure, unit-tested) works out what paying a scheduled bill on the Brim AP
+card would gain: the card is charged on the scheduled date, the statement closes at month-end and is due 21 days
+later, so the cash stays in the bank for those days (valued at 5%/yr) and the charge earns 1% rewards. These terms
+are stated assumptions in `CardPaymentAdvisor.Terms.DEFAULT`, not dataset facts, and the UI prints them. It never
+recommends card for non-CAD bills (FX conversion would cost more than the float) or charges over $50,000. Early-pay
+discounts are kept, because the card is charged on the discount date. Each SCHEDULED payment row carries the advice;
+a clerk, FM or Admin can switch it to card (or back) with `POST /api/payments/{id}/method`, which refuses vendors that
+don't accept card, only works while SCHEDULED, and writes a `PAYMENT_METHOD_CHANGED` audit event. Card payments skip
+the bank-account checks in `ReleaseRules` (they already did) and go into the batch file with no bank details.
+`GET /api/analytics/card-opportunity` replays settled history through the same advisor ("left on the table" by EFT
+to card-accepting vendors, and what card payments already earned). Advice is never applied automatically: changing
+how money leaves is a human decision.
+
+## Features 6 and 7 (approvals and payments)
+
+**D-090 Team confirmations for approvals and payments.** (1) The Controller and the CFO may also release payments
+under $100,000, not only the Finance Manager (confirms D-077). (2) The CFO approves only invoices over $250,000
+(dataset P04), not every invoice. (3) BLOCK flags may be overridden by the Finance Manager *or* a Controller/Admin,
+as the PRD's `/flags/{id}/resolve` row says; AP clerks can't override blocks.
+
+**D-091 CFO separation-of-duties exception over $250,000 (supersedes D-078).** The team chose to let the CFO pay
+what she approved rather than leave $250k+ invoices unpayable. The exception is narrow (`ReleaseRules.sodException`):
+the releaser must be the CFO (the Controller/Admin with no manager), and every approval step she acted on must be the
+`cfo` step, acted on herself (not as or for a delegate). If she approved any other step, e.g. as an escalated
+department manager, P11 still bars her; the requester is always barred. Each such release writes a `SOD_EXCEPTION`
+audit row next to `PAYMENT_RELEASED`, so the Auditor can list every exception. Everyone else who approved
+(Controller, FM, department manager) is still refused. Unit-tested in `ReleaseRulesTest`.
+
+**D-092 A rejected invoice can be reopened and resubmitted, as a fresh approval round.** `POST /invoices/{id}/reopen`
+(AP clerk or Admin, reason required) moves REJECTED -> IN_REVIEW; before this the state machine allowed it but nothing
+did it, so a rejected bill was a dead end. On resubmit, the earlier round's steps are kept but marked `superseded`:
+they no longer count for "who is next", "final step" or "already acted on an earlier step", so the same manager can
+approve round 2. They still count for P11 (nobody pays what they approved, in any round). The invoice screen shows
+the earlier round under the current chain.
+
+**D-093 Self-approval comes before delegation in routing.** If the requester is the approver and is on leave, their
+delegate must not approve "on behalf of" them (that is the requester approving their own spending by proxy). The
+router now applies P07 first and escalates to the requester's manager; `decide()` also refuses an approval whose
+"on behalf of" person is the requester (for chains routed before this fix or delegations added later).
+
+**D-094 Admins can re-route a stuck approval chain.** The chain is snapshotted at submit, so an approver who is
+terminated, goes on leave without a delegate, or loses the role afterwards would leave a step nobody can act on.
+`POST /invoices/{id}/reroute` (Admin, reason required) re-resolves only the PENDING steps against today's people and
+delegations, at the amount the chain was built for. Decided steps stay, and everyone who acted (or was acted for)
+counts as on the chain, so nobody approves twice. It refuses when the result is unchanged. Audited as
+`APPROVAL_REROUTED` with each old -> new assignee.
+
+**D-095 Optimistic locking on payments and approval steps.** `@Version` on `Payment` and `ApprovalStep` (columns
+added with `default 0`, so existing databases upgrade in place). Two people releasing (or batching) the same payment,
+or double-clicking Approve, now give one success and one 409 "someone else changed this record", never two releases.
+The raw JPA/Hibernate lock exceptions are mapped to 409 as well as Spring's wrapper. Proven live by
+`scripts/verify_approvals_payments.py`, which fires two releases at the same instant.
+
+**D-096 The UI shows names, the API keeps ids.** People, departments, vendors, GL accounts, approval roles and policy
+conditions are shown by name everywhere ("Elise Tremblay on behalf of Liam O'Connor", "Facilities",
+"6610 · Rent & Operating Costs", "Department manager", "Why this step: Invoice total over $10,000 CAD"). Ids stay in
+the API, the database and the audit log because they are stable keys. `lib/names.ts` + `components/NamesProvider.tsx`
+load the reference lists once per session; `humanize()` also rewrites ids inside server text (flag messages, routing
+notes, audit details, error toasts), dropping a bracketed id when the name is already next to it. Role-gated lists
+(vendors, policies) are only fetched for roles allowed to read them; others fall back to the id. Invoice and payment
+numbers (AP-00473, PAY-00417) stay visible: they are document numbers people quote.
+
+**D-097 Payment holds follow the vendor after approval.** Re-validation only re-checks bills still in review, so a
+B02 (unverified bank change) raised while a bill was in approval never cleared after the Finance Manager verified the
+change: the payment stayed stuck with "Open BLOCK flags: B02". Now any vendor change (approval, bank-change request
+or verification) also runs `ValidationService.clearStaleHolds` on that vendor's APPROVED / SCHEDULED bills: hold
+flags (V01, V02, B01, B02) whose rule no longer fires are auto-cleared and audited as `PAYMENT_HOLD_CLEARED`. It never
+adds flags or re-runs the other rules on approved bills; release already checks the vendor, its bank account and
+pending bank changes live (ReleaseRules), so a new hold still blocks.
+
+**D-098 A delegation applies whether or not the person is marked on leave.** The PRD makes delegation time-bounded
+data, not a status, but the router only used it for `on_leave` users, so "Dev delegates to Elise for this week"
+(T7) did nothing while Dev was active. Any delegation active today now routes the step to the delegate "on behalf
+of" the person. Start and end dates are inclusive; expired or future ones are ignored. Self-approval (P07) is still
+checked first, for the person and for their delegate.
+
+**D-099 Re-prepare after a bank change; retries pay the current account.** A payment records the bank-account version
+it was prepared against, and release refuses it if the vendor's verified account has changed since ("re-prepare
+it"), but nothing could re-prepare a SCHEDULED payment. `POST /payments/{id}/reprepare` (AP clerk) points it at the
+current active, verified account; it still needs a release, and the releaser sees the new account. Audited as
+`PAYMENT_REPREPARED`. A failed payment's automatic retry now also uses the vendor's current active account (a failure
+is often a closed account), not the old version.
+
+**D-100 Brim virtual cards: one single-use card per card payment.** D-089 moved payments onto "the Brim AP card";
+the goal was Brim's virtual cards. Now, when a card payment is released, a virtual card is issued for that payment
+only (`VirtualCardService.issue`), locked four ways: to the payment's vendor, to the payment amount (the limit), to one
+charge, and to a 30-day expiry. Every charge is checked by a pure function (`VirtualCards.declineReason`, unit-tested):
+another merchant, one cent over the limit, a second charge, an expired or cancelled card are all declined. A leaked
+card number is therefore worth nothing to anyone else. Issuing at release, not at preparation, means a card only
+exists once the release rules (P09-P11) have passed. Only the last four digits are stored (the number is Luhn-valid
+with a fictional issuer prefix); the full number would go to the vendor once. The batch run stands in for the vendor
+charging the card on the payment date; the payment file lists it as `VCARD Visa ···· 1234` instead of bank details.
+Settling closes the card; a failed payment cancels it, and the retry gets a new card when it is released. Issue,
+charge, decline, close and cancel are all audited against the payment. `POST /payments/{id}/card-charge` (FM/Admin)
+lets a demo try charges against a released card; declines are returned (200, `approved: false`) rather than thrown,
+so the attempt stays in the audit log.
+
+
+## UI review pass (22 Nov)
+
+**D-101 Deleting a bill.** Duplicate uploads and wrong files need a way out. `DELETE /invoices/{id}` (with a written
+reason) is open to whoever brings bills in: an employee for their own uploads, the AP clerk and the Admin for any.
+Only bills that are not yet approved can go (Received, Extracted, In Review, Duplicate, Rejected), never history and
+never one with a payment. The bill, its lines, taxes, flags, approval rounds and extraction runs are removed in
+`InvoiceWorkflowService.delete`; the audit log keeps an `INVOICE_DELETED` row with the bill's last snapshot and the
+reason (the file itself is not kept). Open bills are then re-validated. Found while testing: nothing ever moved a
+Duplicate bill back to review once its duplicate flag cleared, so deleting a copy left the original stuck as
+Duplicate. Validation now returns a Duplicate bill to In Review (`DUPLICATE_CLEARED`) when no exact-duplicate flag
+remains.
+
+**D-102 One email at a time, and replies.** `POST /inbox/{id}/process` runs the same steps as "Process inbox" for one
+email (refused while a batch run is going or if it was already processed), then re-validates open bills. Replies:
+outbound mail is out of scope, so `POST /inbox/{id}/reply` records the reply or draft in the audit log against the
+email (`EMAIL_REPLY_SENT` / `EMAIL_REPLY_DRAFTED`), where the email's History shows it. Nothing leaves the system, and
+the pop-up says so.
+
+**D-103 A payment batch is created when its file is downloaded.** Creating the batch used to mark every released
+payment Sent and charge the virtual cards at once; closing the file pop-up without downloading lost the button (no
+released payments left) and the chance to wait for more releases. "Create Payment Batch" now shows a preview
+(`GET /payments/batch/preview`: no status change, no card charge, no audit row). "Download CSV and Send" creates the
+batch and downloads the file; Cancel changes nothing. Past batches can be downloaded again from the payment rows.
+
+**D-104 UI wording.** Headings, labels and buttons use Title Case. Rule codes (P13, D01, B01, E01...) and record ids
+for people, departments, vendors and emails are never shown; AP and payment ids are (people search by them), and so
+are GL account numbers and tax codes. Flags read as "issues". The user switcher shows the job title (with the app
+role when the title does not say it). The Brim card panel is three numbers, with its assumptions in a tooltip. Spend
+Analytics rows open exactly the bills behind them (the API now returns each row's invoice ids).
+
+**D-105 Reconciliation matches each rent cheque to the right month.** Statement cheque lines carry a cheque number our
+payment references don't have, so they are matched by amount. Harborline's rent is the same $6,990.48 every month, and
+the old rule took the first same-amount payment within 45 days in database order. That order changes when a payment
+is updated, so settling 19 payments re-shuffled the matches: a second "Settle 1" appeared and two rent payments were
+settled against one October cheque. Now a cheque can only clear on or after the day it was written (paid date, else
+scheduled date), the shortest wait wins (ties by id), and payments are sorted by id first. On the dataset all 9
+rent cheques match their own month, one settle run clears everything, and September's cheque (written Sep 5, never
+cashed) is reported as an outstanding cheque to chase with the vendor, not "in transit".
+
+**D-106 Small UI fixes after review.** Reset Demo Data only resets; processing the inbox is left to the AP Clerk
+(the reset is for demos and testing from a clean slate). Reopening Reply on an email restores the latest saved draft
+(To, Subject, Message, taken from the draft's audit row) unless a reply was sent after it. The signature is the
+sender's name, job title and "Harborline Logistics". PO suggestions show department names, not ids.
+
+**D-107 Coding suggestions: confirmed, accepted, ignored.** Coding fills each line with its suggestion automatically,
+so "accepted" was never recorded and Accept All could be clicked forever. Lines now carry `codingConfirmed`: set by
+Accept All or by the clerk picking a GL account or department, cleared when a re-run of coding changes the
+suggestion. Accept All is greyed out once every suggested line is confirmed. **Ignore Suggestions** clears every
+line's GL account and department (audited as `CODING_SUGGESTIONS_IGNORED`) and marks them overridden so re-coding
+after Save Fields does not refill them; submit still requires a GL account on every line. Accept All refills
+ignored lines but keeps any line the clerk coded by hand. The Suggested Entries banner disappears once the fields have
+been saved (`FIELDS_CORRECTED` in the bill's history). Also: the inbox filter lives in the URL (Home's Attention
+Needed card opens `/inbox?filter=attention`), Save Draft is off until the reply differs from what the pop-up
+opened with, the Invoices list sorts by clicking its column headers (as Payments does), and a checkbox bug that
+blanked the Payments and Invoices screens on the second pick is fixed (the handler read `e.currentTarget` inside a
+deferred state update, where React has already cleared it).
+
+**D-108 Validation rules are editable, within limits.** Policies has a second tab, Validation Rules, beside the
+approval and payment rules. Each check's logic stays in tested Java; whether it runs and its severity (Blocking /
+Warning / Info) are data on `flag_dictionary`, editable by the Admin only, each change with a required reason in the
+audit log (`RULE_CHANGED`), after which open bills are re-validated. A switched-off rule's open issues clear with the
+note "Rule switched off in Policies"; a severity change updates open issues in place. Seven core controls are locked
+on and Blocking (unknown or lookalike vendor, invoice bank account differs, unverified bank change, duplicate number,
+same document, already paid by card): nobody, including the Admin, can quietly turn off fraud or duplicate protection.
+Email intake codes are not listed (they sort emails, they do not check bills).
+
+**D-109 Reconciliation leftovers are explained, not just listed.** Matching pairs statement lines with payments; the
+leftovers are the work. The Finance Manager or Controller records a resolution and note per leftover
+(`recon_resolutions`, one row per item; every decision and reopen is an audit event, so an item's story stays in the
+log). Statement lines: Bank charge, Bill found (a supplier's pre-authorized debit: upload the bill), Disputed with the
+bank, Under investigation (stays on the list, marked). Payments not on the statement: Expected next statement, Vendor
+confirmed receipt, Stop and reissue, Under investigation. Options whose real work happens outside AP (posting a GL
+journal, filing a bank dispute, a stop-payment and new cheque) are labelled "Recorded only": the dataset has no bank
+connection, general ledger or cheque stock, so the app records the decision and says what happens next rather than
+pretend to do it. Closing or locking the month is not modelled. A second matching pass now catches a cheque that
+cleared for a slightly different amount (within $1.00): the dataset's September rent cheque was written for
+$6,990.48 and cleared as CHEQUE 5018 for $6,990.53. It shows as one "Amount Differs" line naming the cheque (bank
+encoding error or altered cheque; claim the difference), instead of an unknown debit plus an "uncashed" cheque.
+
+**D-110 Accessibility fixes from the interface review.** A review of the AP Clerk flow found 8 HIGH issues, fixed in
+the frontend only. Every table sits in an `.ap-table-scroll` wrapper that scrolls sideways on its own: the old rule
+targeted `.mantine-Table`, a class Mantine never renders, so at phone width the invoice lines' GL Account and Department
+were clipped inside the card (the Invoices list keeps its sticky header on wide screens). Inbox subjects are links, so
+an email opens by keyboard. Explaining tooltips (disabled-button reasons, the coding "Why?") open on focus and touch,
+and disabled reasons are also read out as hidden text; the inbox's "decided by" is now visible text. A theme
+`variantColorResolver` fixes badge and button contrast (Mantine's light yellow badge was 1.74:1; every badge on
+Invoices now measures 5.46:1 or better). Flag counts carry an icon and hidden words, not colour alone.
+`respectReducedMotion` is on. The header's user switcher shrinks at 320px, and the business date and delegate status
+move to the navbar when the header hides them. Hold is orange, keeping red for Delete.
+
+**D-111 A second dataset, `dataset_demo/`, generated by `scripts/generate_demo_dataset.py`.** Same format and file
+layout as `dataset_given/`, for demoing on data nobody has rehearsed. Users, departments, GL accounts, tax codes and
+policies are copied unchanged, because the app hardcodes Harborline, its four offices and the featured user ids. Every
+README row count is kept exactly (426 invoices, 415 payments, 56 vendors, 9 bank changes…), so the seeder's count
+check passes and the `reset()` sequence restarts (AP-00427, PAY-00416, V057, BC-010) still don't collide. Vendors,
+contracts, POs, FX, history and the inbox are new, with the same kinds of planted mess on different suppliers (the
+unverified email bank change is now Coastline Cartage V004; the lookalike is "Ashby and Crane LLP" V052). The
+generator is seeded, so reruns are identical. `incoming_invoices/` is left empty for hand-made PDFs;
+`dataset_demo_spec/` says what each of the 56 files must show, the planted issue and expected flag, plus a
+`ground_truth.json` in the `scripts/ground_truth.json` format. Run it with `APP_DATA_DIR=../dataset_demo` (or change
+the Docker volume).
+The 56 incoming files are rendered from that spec by `scripts/render_demo_invoices.py`: HTML printed to PDF by
+headless Chrome (Edge as a fallback; it returns before writing, so the script waits for the file), and the two scans
+screenshotted with a tilt, grey paper and grain. The bill-to block carries the office of the ship-to province, as in
+`dataset_given`, because the app reads the place of supply from the bill-to address.
